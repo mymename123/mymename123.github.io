@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
-<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 19곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
+<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 16곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
 <meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
-<meta property="og:description" content="블로그 체험단 사이트 19곳 바로가기 + 초보 블로거 신청 가이드">
+<meta property="og:description" content="블로그 체험단 사이트 16곳 바로가기 + 초보 블로거 신청 가이드">
 <meta property="og:type" content="website">
 <!--
   ===== 애드센스 =====
@@ -82,7 +82,7 @@
 <main class="wrap">
   <div class="hero">
     <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
-    <p>맛집, 제품 체험단 사이트 <span id="count">19</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
+    <p>맛집, 제품 체험단 사이트 <span id="count">16</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
   </div>
 
   <!-- 광고 1 (위쪽) -->
@@ -137,7 +137,6 @@
     <details><summary>체험단은 돈이 드나요?</summary><p>가입과 신청은 보통 무료예요. 다만 제공 범위를 넘는 추가 주문이나 이동 비용은 본인 부담인 경우가 많으니 캠페인 안내를 꼭 읽어 보세요.</p></details>
     <details><summary>후기는 어떻게 쓰는 게 좋나요?</summary><p>직접 경험한 내용을 사진과 함께 구체적으로 쓰는 게 가장 좋아요. 맛·분위기·서비스처럼 좋았던 점을 자세히 소개하고, 가격이나 주차처럼 방문 전에 알면 좋은 정보도 함께 적어 주면 독자에게 도움이 돼요. 업체가 준 미션(키워드, 사진 수 등)을 지키는 것도 잊지 마세요. 사실과 다르게 부풀리는 표현은 피하는 게 좋아요.</p></details>
     <details><summary>선정되고 나서 못 가게 되면 어떻게 하나요?</summary><p>알게 된 즉시 사이트 안내에 따라 취소하거나 문의하세요. 연락 없이 방문하지 않거나 후기를 올리지 않으면 이후 신청이 제한될 수 있어요.</p></details>
-    <details><summary>여기 없는 사이트도 추가할 수 있나요?</summary><p>새로 알게 된 체험단 사이트가 있으면 아래 문의로 알려 주세요. 확인한 뒤 목록에 추가할게요.</p></details>
   </section>
 
   <!-- 광고 3 (아래쪽) -->
@@ -153,7 +152,8 @@
 </footer>
 
 <script>
-  // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 분류, 한 줄 설명]
+  // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 분류, 한 줄 설명, (선택) 로고 파일]
+  // 로고를 못 가져오는 사이트는 icons 폴더에 그림을 넣고 5번째 칸에 "icons/파일이름.png"를 적어요.
   // 분류: 맛집 / 제품 / 종합
   const SITES = [
     ["디너의여왕", "https://dinnerqueen.net/", "맛집", "맛집 방문 체험단 위주. 배송형(택배의여왕)·뷰티(뷰티의여왕) 캠페인도 여기서 함께 신청해요."],
@@ -166,26 +166,24 @@
     ["링블", "https://www.ringble.co.kr/", "종합", "블로그·인스타그램 체험단."],
     ["포블로그", "https://4blog.net/", "종합", "블로그 체험단 사이트."],
     ["놀러와체험단", "https://www.cometoplay.kr/", "종합", "블로그 체험단 사이트."],
-    ["클라우드리뷰", "https://www.cloudreview.co.kr/", "종합", "블로그 체험단 사이트."],
     ["티블", "https://www.tble.kr/", "종합", "블로그·인스타그램 체험단."],
     ["모블", "https://www.modublog.co.kr/", "종합", "블로그·인스타그램·유튜브 체험단."],
     ["스토리앤미디어", "https://www.storyn.kr/", "종합", "블로그·인스타그램 체험단."],
     ["구구다스", "https://99das.com/", "제품", "블로그·인스타그램 체험단과 구매평 캠페인."],
     ["핫블", "https://hotble.co.kr/", "종합", "블로그·인스타그램·배송형 체험단."],
-    ["가보자체험단", "https://xn--o39a04kpnjo4k9hgflp.com/", "종합", "방문형 체험단 사이트."],
-    ["오마이블로그", "https://kormedia.co.kr/", "종합", "블로그 체험단 사이트."],
-    ["슈퍼멤버스", "https://www.supermembers.co.kr/", "종합", "블로그 체험단 캠페인."]
+    ["가보자체험단", "https://xn--o39a04kpnjo4k9hgflp.com/", "종합", "방문형 체험단 사이트."]
   ];
   const CATS = ["전체", "맛집", "제품", "종합"];
   const host = (u) => new URL(u).hostname;
   // 아이콘: 사이트의 favicon.ico → 구글 아이콘 서비스(64px) → 이름 첫 글자 순서로 시도
-  function icon(name, url) {
+  function icon(name, url, logo) {
     const box = document.createElement("span");
     box.className = "ico";
     const img = document.createElement("img");
     img.alt = "";
     img.loading = "lazy";
     const tries = [
+      ...(logo ? [logo] : []),
       new URL("/favicon.ico", url).href,
       "https://www.google.com/s2/favicons?sz=64&domain=" + host(url)
     ];
@@ -209,13 +207,13 @@
   function render(cat) {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
-    SITES.filter((s) => cat === "전체" || s[2] === cat).forEach(([name, url, c, desc]) => {
+    SITES.filter((s) => cat === "전체" || s[2] === cat).forEach(([name, url, c, desc, logo]) => {
       const a = document.createElement("a");
       a.className = "site";
       a.href = url;
       a.target = "_blank";
       a.rel = "noopener nofollow";
-      a.appendChild(icon(name, url));
+      a.appendChild(icon(name, url, logo));
       const d = document.createElement("div");
       d.innerHTML = "<h3></h3><p></p><span class='tag'></span>";
       d.querySelector("h3").textContent = name;
