@@ -7,9 +7,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
-<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 16곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
+<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 18곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
 <meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
-<meta property="og:description" content="블로그 체험단 사이트 16곳 바로가기 + 초보 블로거 신청 가이드">
+<meta property="og:description" content="블로그 체험단 사이트 18곳 바로가기 + 초보 블로거 신청 가이드">
 <meta property="og:type" content="website">
 <!--
   ===== 애드센스 =====
@@ -41,18 +41,14 @@
   .hero { padding: 36px 0 20px; }
   .hero h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
   .hero p { color: var(--sub); margin: 0; }
-  .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 14px; }
-  .filters button { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
-  .filters button.on { background: var(--green); border-color: var(--green); color: #fff; font-weight: 700; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-  .site { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-decoration: none; transition: border-color .15s, transform .15s; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 18px; }
+  .site { display: flex; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-decoration: none; transition: border-color .15s, transform .15s; }
   .site:hover { border-color: var(--green); transform: translateY(-2px); }
-  .ico { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .ico img { width: 32px; height: 32px; object-fit: contain; }
-  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--green); color: #fff; font-weight: 800; font-size: 18px; }
-  .site h3 { margin: 0; font-size: 15px; }
-  .site p { margin: 2px 0 6px; font-size: 12.5px; color: var(--sub); line-height: 1.5; }
-  .tag { display: inline-block; font-size: 11px; background: var(--chip); color: var(--green-d); border-radius: 6px; padding: 1px 7px; margin-right: 4px; }
+  .ico { flex: 0 0 64px; width: 64px; height: 64px; border-radius: 14px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ico img { width: 48px; height: 48px; object-fit: contain; }
+  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--green); color: #fff; font-weight: 800; font-size: 26px; }
+  .site h3 { margin: 0; font-size: 16px; }
+  .site p { word-break: keep-all; margin: 3px 0 0; font-size: 12.5px; color: var(--sub); line-height: 1.5; }
   .ad { margin: 24px 0; min-height: 0; text-align: center; }
   /* 광고가 안 채워진 칸(심사 중·광고 없음)은 숨김 */
   ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
@@ -85,14 +81,13 @@
 <main class="wrap">
   <div class="hero">
     <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
-    <p>맛집, 제품 체험단 사이트 <span id="count">16</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
+    <p>맛집·제품·뷰티 체험단 사이트 <span id="count">18</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
   </div>
 
   <!-- 광고 1 (위쪽) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
   <div id="sites">
-    <div class="filters" id="filters"></div>
     <div class="grid" id="grid"></div>
     <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없는 개인 정리 페이지예요.</p>
   </div>
@@ -155,28 +150,28 @@
 </footer>
 
 <script>
-  // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 분류, 한 줄 설명, (선택) 로고 파일]
+  // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 한 줄 설명, (선택) 로고 파일]
   // 로고를 못 가져오는 사이트는 icons 폴더에 그림을 넣고 5번째 칸에 "icons/파일이름.png"를 적어요.
-  // 분류: 맛집 / 제품 / 종합
   const SITES = [
-    ["디너의여왕", "https://dinnerqueen.net/", "맛집", "맛집 방문 체험단 위주. 배송형(택배의여왕)·뷰티(뷰티의여왕) 캠페인도 여기서 함께 신청해요."],
-    ["리뷰노트", "https://www.reviewnote.co.kr/", "종합", "지역 맛집부터 배송 제품까지 캠페인이 다양한 체험단 사이트."],
-    ["레뷰", "https://www.revu.net/", "종합", "규모가 큰 인플루언서 체험단 플랫폼. 블로그·인스타그램 캠페인."],
-    ["강남맛집", "https://xn--939au0g4vj8sq.net/", "맛집", "이름처럼 맛집 체험단이 많고, 제품 캠페인도 함께 올라와요."],
-    ["서울오빠", "https://www.seoulouba.co.kr/", "종합", "블로그·인스타그램·유튜브 체험단 캠페인."],
-    ["미블", "https://www.mrblog.net/", "종합", "블로그 체험단 사이트."],
-    ["리뷰플레이스", "https://www.reviewplace.co.kr/", "종합", "블로그 체험단 캠페인 사이트."],
-    ["링블", "https://www.ringble.co.kr/", "종합", "블로그·인스타그램 체험단."],
-    ["포블로그", "https://4blog.net/", "종합", "블로그 체험단 사이트."],
-    ["놀러와체험단", "https://www.cometoplay.kr/", "종합", "블로그 체험단 사이트."],
-    ["티블", "https://www.tble.kr/", "종합", "블로그·인스타그램 체험단."],
-    ["모블", "https://www.modublog.co.kr/", "종합", "블로그·인스타그램·유튜브 체험단."],
-    ["스토리앤미디어", "https://www.storyn.kr/", "종합", "블로그·인스타그램 체험단."],
-    ["구구다스", "https://99das.com/", "제품", "블로그·인스타그램 체험단과 구매평 캠페인."],
-    ["핫블", "https://hotble.co.kr/", "종합", "블로그·인스타그램·배송형 체험단."],
-    ["가보자체험단", "https://xn--o39a04kpnjo4k9hgflp.com/", "종합", "방문형 체험단 사이트."]
+    ["디너의여왕", "https://dinnerqueen.net/", "맛집 방문 체험단"],
+    ["택배의여왕", "https://tqueens.net/", "배송형 제품 체험단"],
+    ["뷰티의여왕", "https://bqueens.net/", "화장품·뷰티 체험단"],
+    ["리뷰노트", "https://www.reviewnote.co.kr/", "맛집·배송 종합 체험단"],
+    ["레뷰", "https://www.revu.net/", "대형 인플루언서 체험단"],
+    ["강남맛집", "https://xn--939au0g4vj8sq.net/", "맛집 위주 체험단"],
+    ["서울오빠", "https://www.seoulouba.co.kr/", "블로그·인스타·유튜브 체험단"],
+    ["미블", "https://www.mrblog.net/", "블로그 체험단"],
+    ["리뷰플레이스", "https://www.reviewplace.co.kr/", "블로그 체험단"],
+    ["링블", "https://www.ringble.co.kr/", "블로그·인스타 체험단"],
+    ["포블로그", "https://4blog.net/", "블로그 체험단"],
+    ["놀러와체험단", "https://www.cometoplay.kr/", "블로그 체험단"],
+    ["티블", "https://www.tble.kr/", "블로그·인스타 체험단"],
+    ["모블", "https://www.modublog.co.kr/", "블로그·인스타·유튜브 체험단"],
+    ["스토리앤미디어", "https://www.storyn.kr/", "블로그·인스타 체험단"],
+    ["구구다스", "https://99das.com/", "제품 체험단·구매평"],
+    ["핫블", "https://hotble.co.kr/", "방문·배송형 체험단"],
+    ["가보자체험단", "https://xn--o39a04kpnjo4k9hgflp.com/", "방문형 체험단"]
   ];
-  const CATS = ["전체", "맛집", "제품", "종합"];
   const host = (u) => new URL(u).hostname;
   // 아이콘: 사이트의 favicon.ico → 구글 아이콘 서비스(64px) → 이름 첫 글자 순서로 시도
   function icon(name, url, logo) {
@@ -185,32 +180,42 @@
     const img = document.createElement("img");
     img.alt = "";
     img.loading = "lazy";
+    // 아이콘 후보를 모두 불러 본 뒤 가장 선명한(큰) 것을 씀. 48px 이상이 오면 바로 사용
     const tries = [
       ...(logo ? [logo] : []),
-      new URL("/favicon.ico", url).href,
-      "https://www.google.com/s2/favicons?sz=64&domain=" + host(url)
+      new URL("/apple-touch-icon.png", url).href,
+      "https://www.google.com/s2/favicons?sz=128&domain=" + host(url),
+      new URL("/favicon.ico", url).href
     ];
-    let i = 0;
-    const next = () => {
-      if (i < tries.length) img.src = tries[i++];
-      else {
-        const ph = document.createElement("span");
-        ph.className = "ph";
-        ph.textContent = name[0];
-        img.replaceWith(ph);
-      }
+    let best = null, bestW = 0, i = 0;
+    const done = () => {
+      if (best) { img.src = best; return; }
+      const ph = document.createElement("span");
+      ph.className = "ph";
+      ph.textContent = name[0];
+      img.replaceWith(ph);
     };
-    img.onerror = next;
-    // 구글 기본 지구본(16px)이 오면 아이콘이 없는 것으로 보고 첫 글자로
-    img.onload = () => { if (img.src.includes("google.com/s2") && img.naturalWidth <= 16) next(); };
+    const next = () => {
+      if (i >= tries.length) return done();
+      const src = tries[i++];
+      const t = new Image();
+      t.onload = () => {
+        const w = t.naturalWidth;
+        // 구글 기본 지구본(16px)은 아이콘이 없는 것으로 봄
+        if (!(src.includes("google.com/s2") && w <= 16) && w > bestW) { best = src; bestW = w; }
+        if (bestW >= 48) done(); else next();
+      };
+      t.onerror = next;
+      t.src = src;
+    };
     next();
     box.appendChild(img);
     return box;
   }
-  function render(cat) {
+  function render() {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
-    SITES.filter((s) => cat === "전체" || s[2] === cat).forEach(([name, url, c, desc, logo]) => {
+    SITES.forEach(([name, url, desc, logo]) => {
       const a = document.createElement("a");
       a.className = "site";
       a.href = url;
@@ -218,25 +223,16 @@
       a.rel = "noopener nofollow";
       a.appendChild(icon(name, url, logo));
       const d = document.createElement("div");
-      d.innerHTML = "<h3></h3><p></p><span class='tag'></span>";
+      d.innerHTML = "<h3></h3><p></p>";
       d.querySelector("h3").textContent = name;
       d.querySelector("p").textContent = desc;
-      d.querySelector(".tag").textContent = c;
       a.appendChild(d);
       grid.appendChild(a);
     });
-    document.querySelectorAll("#filters button").forEach((b) => b.classList.toggle("on", b.textContent === cat));
   }
-  const f = document.getElementById("filters");
-  CATS.forEach((c) => {
-    const b = document.createElement("button");
-    b.textContent = c;
-    b.onclick = () => render(c);
-    f.appendChild(b);
-  });
   document.getElementById("count").textContent = SITES.length;
   document.getElementById("year").textContent = new Date().getFullYear();
-  render("전체");
+  render();
   // 광고 칸 채우기. 게시자 번호를 아직 안 넣었으면(0000…) 광고 칸을 아예 빼서 빈 공간이 안 생기게 함
   const ads = document.querySelectorAll("ins.adsbygoogle");
   if (ads.length && /0{16}/.test(ads[0].dataset.adClient || "")) ads.forEach((x) => x.closest(".ad").remove());
