@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
-<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 26곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
+<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 19곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
 <meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
-<meta property="og:description" content="블로그 체험단 사이트 26곳 바로가기 + 초보 블로거 신청 가이드">
+<meta property="og:description" content="블로그 체험단 사이트 19곳 바로가기 + 초보 블로거 신청 가이드">
 <meta property="og:type" content="website">
 <!--
   ===== 애드센스 =====
@@ -82,7 +82,7 @@
 <main class="wrap">
   <div class="hero">
     <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
-    <p>맛집, 제품, 뷰티 체험단 사이트 <span id="count">26</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
+    <p>맛집, 제품 체험단 사이트 <span id="count">19</span>곳을 모았어요. 아이콘을 누르면 각 사이트로 바로 이동해요.</p>
   </div>
 
   <!-- 광고 1 (위쪽) -->
@@ -154,9 +154,9 @@
 
 <script>
   // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 분류, 한 줄 설명]
-  // 분류: 맛집 / 제품 / 뷰티 / 종합 / 모아보기
+  // 분류: 맛집 / 제품 / 종합
   const SITES = [
-    ["디너의여왕", "https://dinnerqueen.net/", "맛집", "맛집 방문 체험단 위주. 택배의여왕·뷰티의여왕과 같은 곳에서 운영해요."],
+    ["디너의여왕", "https://dinnerqueen.net/", "맛집", "맛집 방문 체험단 위주. 배송형(택배의여왕)·뷰티(뷰티의여왕) 캠페인도 여기서 함께 신청해요."],
     ["리뷰노트", "https://www.reviewnote.co.kr/", "종합", "지역 맛집부터 배송 제품까지 캠페인이 다양한 체험단 사이트."],
     ["레뷰", "https://www.revu.net/", "종합", "규모가 큰 인플루언서 체험단 플랫폼. 블로그·인스타그램 캠페인."],
     ["강남맛집", "https://xn--939au0g4vj8sq.net/", "맛집", "이름처럼 맛집 체험단이 많고, 제품 캠페인도 함께 올라와요."],
@@ -169,21 +169,14 @@
     ["클라우드리뷰", "https://www.cloudreview.co.kr/", "종합", "블로그 체험단 사이트."],
     ["티블", "https://www.tble.kr/", "종합", "블로그·인스타그램 체험단."],
     ["모블", "https://www.modublog.co.kr/", "종합", "블로그·인스타그램·유튜브 체험단."],
-    ["체리플", "https://www.cherrypl.com/", "종합", "블로그·인스타그램 체험단."],
-    ["리뷰윙", "https://reviewwing.co.kr/", "종합", "블로그 체험단 사이트."],
     ["스토리앤미디어", "https://www.storyn.kr/", "종합", "블로그·인스타그램 체험단."],
     ["구구다스", "https://99das.com/", "제품", "블로그·인스타그램 체험단과 구매평 캠페인."],
     ["핫블", "https://hotble.co.kr/", "종합", "블로그·인스타그램·배송형 체험단."],
     ["가보자체험단", "https://xn--o39a04kpnjo4k9hgflp.com/", "종합", "방문형 체험단 사이트."],
-    ["블로그원정대", "https://xn--2i0bl9gt7ekxgr7lzzb.com/", "종합", "블로그 체험단 사이트."],
     ["오마이블로그", "https://kormedia.co.kr/", "종합", "블로그 체험단 사이트."],
-    ["유앤준", "https://youandjunad.co.kr/", "종합", "블로그·인스타그램·유튜브 체험단."],
-    ["슈퍼멤버스", "https://www.supermembers.co.kr/", "종합", "블로그 체험단 캠페인."],
-    ["택배의여왕", "https://tqueens.net/", "제품", "집으로 받아 쓰는 배송형 제품 체험단."],
-    ["뷰티의여왕", "https://bqueens.net/", "뷰티", "화장품·뷰티 제품 체험단."],
-    ["모아스픽", "https://www.moaspick.com/", "모아보기", "여러 체험단 사이트의 캠페인을 한곳에서 모아 보는 곳."]
+    ["슈퍼멤버스", "https://www.supermembers.co.kr/", "종합", "블로그 체험단 캠페인."]
   ];
-  const CATS = ["전체", "맛집", "제품", "뷰티", "종합", "모아보기"];
+  const CATS = ["전체", "맛집", "제품", "종합"];
   const host = (u) => new URL(u).hostname;
   // 아이콘: 사이트의 favicon.ico → 구글 아이콘 서비스(64px) → 이름 첫 글자 순서로 시도
   function icon(name, url) {
