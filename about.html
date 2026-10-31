@@ -16,6 +16,31 @@
   h1 { font-size: 22px; margin: 0 0 12px; } h2 { font-size: 16px; margin: 20px 0 4px; }
   a { color: var(--green); }
 </style>
+<meta property="og:title" content="소개·문의 | 체험단모아">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mymename123.github.io/about.html">
+<meta property="og:image" content="https://mymename123.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!--
+  ===== 방문자 통계(구글 애널리틱스) =====
+  G-XXXXXXXXXX 를 내 측정 ID로 바꾸면 통계가 켜져요. 그대로 두면 아무것도 안 불러와요.
+-->
+<script>
+  (function () {
+    var GA_ID = "G-XXXXXXXXXX";
+    if (GA_ID.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -29,7 +54,7 @@
 
     <h2>문의</h2>
     <p>링크가 열리지 않거나 잘못된 정보가 있으면 아래로 알려 주세요.</p>
-    <p>이메일: [문의용 이메일 주소]<br>블로그: <a href="https://blog.naver.com/peechu_" target="_blank" rel="noopener">blog.naver.com/peechu_</a></p>
+    <p>이메일: <a href="mailto:risingsk123@gmail.com">risingsk123@gmail.com</a><br>블로그: <a href="https://blog.naver.com/peechu_" target="_blank" rel="noopener">blog.naver.com/peechu_</a></p>
   </div>
 </div>
 </body>
