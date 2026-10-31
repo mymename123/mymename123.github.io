@@ -22,7 +22,7 @@
 -->
 <script>
   (function () {
-    var GA_ID = "G-XXXXXXXXXX";
+    var GA_ID = "G-S3G991WQMJ";
     if (GA_ID.indexOf("XXXX") !== -1) return;
     var s = document.createElement("script");
     s.async = true;
@@ -83,6 +83,12 @@
   details { border-top: 1px solid var(--line); padding: 10px 0; }
   details summary { cursor: pointer; font-weight: 700; }
   .note { font-size: 12.5px; color: var(--sub); }
+  h2.sec { font-size: 20px; margin: 30px 0 12px; }
+  .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .tip { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
+  .tip:hover { border-color: var(--green); transform: translateY(-2px); }
+  .tip .te { font-size: 24px; flex: 0 0 auto; }
+  .tip b { font-size: 15px; line-height: 1.5; }
   footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 0 40px; font-size: 13px; color: var(--sub); }
   footer a { margin-right: 12px; }
   @media (max-width: 520px) {
@@ -106,7 +112,7 @@
 <header>
   <div class="wrap">
     <a class="logo" href="index.html"><b>체험단</b>모아</a>
-    <nav><a href="#sites">사이트 모음</a><a href="#guide">신청 가이드</a><a href="#faq">자주 묻는 질문</a></nav>
+    <nav><a href="#sites">사이트 모음</a><a href="#tips">꿀팁</a><a href="#guide">가이드</a><a href="#faq">FAQ</a></nav>
   </div>
 </header>
 
@@ -124,6 +130,16 @@
     <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없는 개인 정리 페이지예요.</p>
   </div>
 
+  <section id="tips">
+    <h2 class="sec">블로그 체험단 꿀팁</h2>
+    <div class="tips">
+      <a class="tip" href="tip-hottopic.html"><span class="te">🔥</span><span><b>네이버 블로그 핫토픽, 실제 선정 글 15개를 분석해 봤어요</b></span></a>
+      <a class="tip" href="tip-apply.html"><span class="te">✍️</span><span><b>선정되는 체험단 신청 문구 쓰는 법</b></span></a>
+      <a class="tip" href="tip-review.html"><span class="te">✅</span><span><b>체험단 후기 발행 전 체크리스트</b></span></a>
+      <a class="tip" href="tip-photo.html"><span class="te">📸</span><span><b>맛집 체험단 사진, 이 순서로 찍으면 편해요</b></span></a>
+      <a class="tip" href="tip-schedule.html"><span class="te">🗓️</span><span><b>체험단 너무 많이 붙었을 때 일정 관리법</b></span></a>
+    </div>
+  </section>
   <!-- 광고 2 (중간) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000002" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
