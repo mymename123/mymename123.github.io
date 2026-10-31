@@ -89,6 +89,8 @@
   .tip:hover { border-color: var(--green); transform: translateY(-2px); }
   .tip .te { font-size: 24px; flex: 0 0 auto; }
   .tip b { font-size: 15px; line-height: 1.5; }
+  .tip.sched { margin-top: 24px; border-color: var(--green); }
+  .tip .ts { font-size: 13px; color: var(--sub); line-height: 1.5; }
   footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 0 40px; font-size: 13px; color: var(--sub); }
   footer a { margin-right: 12px; }
   @media (max-width: 520px) {
@@ -112,7 +114,7 @@
 <header>
   <div class="wrap">
     <a class="logo" href="index.html"><b>체험단</b>모아</a>
-    <nav><a href="#sites">사이트 모음</a><a href="#tips">꿀팁</a><a href="#guide">가이드</a><a href="#faq">FAQ</a></nav>
+    <nav><a href="#sites">사이트 모음</a><a href="schedule.html">일정 관리</a><a href="#tips">꿀팁</a><a href="#faq">FAQ</a></nav>
   </div>
 </header>
 
@@ -130,6 +132,7 @@
     <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없는 개인 정리 페이지예요.</p>
   </div>
 
+  <a class="tip sched" href="schedule.html"><span class="te">📅</span><span><b>체험단 일정 관리</b><br><span class="ts">신청·선정·방문·후기 마감을 달력으로 한눈에. 마감 임박은 빨간색으로 알려 줘요. 로그인 없이 무료!</span></span></a>
   <section id="tips">
     <h2 class="sec">블로그 체험단 꿀팁</h2>
     <div class="tips">

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>체험단 일정 관리 | 체험단모아</title>
+<meta name="description" content="체험단 신청·선정·방문·후기 마감을 한곳에서 관리하세요. 마감 임박 표시와 달력으로 일정이 겹치지 않게 챙길 수 있어요. 로그인 없이 무료로 써요.">
+<meta property="og:title" content="체험단 일정 관리 | 체험단모아">
+<meta property="og:description" content="체험단 신청·선정·방문·후기 마감을 한곳에서 관리하세요. 마감 임박 표시와 달력으로 일정이 겹치지 않게 챙길 수 있어요. 로그인 없이 무료로 써요.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mymename123.github.io/schedule.html">
+<meta property="og:image" content="https://mymename123.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!--
+  ===== 방문자 통계(구글 애널리틱스) =====
+  G-XXXXXXXXXX 를 내 측정 ID로 바꾸면 통계가 켜져요. 그대로 두면 아무것도 안 불러와요.
+-->
+<script>
+  (function () {
+    var GA_ID = "G-S3G991WQMJ";
+    if (GA_ID.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
+<style>
+  :root { --green: #03c75a; --line: #e3e5e8; --sub: #6b7280; --red: #e5484d; --bg: #f6f7f9; --card: #fff; --text: #1f2328; --soft: #eef1f4; }
+  @media (prefers-color-scheme: dark) { :root { --line: #33373d; --sub: #9aa0a6; --bg: #15171a; --card: #1f2226; --text: #e8eaed; --soft: #2a2e33; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; word-break: keep-all; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--sub); margin: 0 0 14px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .bar button, .card button { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 12px; font: inherit; cursor: pointer; }
+  .bar button.on { background: var(--green); border-color: var(--green); color: #fff; font-weight: bold; }
+  .bar .sp { flex: 1; }
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .panel h2 { font-size: 16px; margin: 0 0 10px; }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: var(--card); }
+  .card.hot { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; }
+  .card.done { opacity: .55; }
+  .card .top { display: flex; gap: 8px; align-items: center; }
+  .card .ttl { font-weight: bold; font-size: 15px; flex: 1; color: inherit; text-decoration: none; }
+  .card .ttl:hover { text-decoration: underline; }
+  .site { font-size: 12px; color: var(--sub); }
+  .dd { font-size: 12px; font-weight: bold; border-radius: 6px; padding: 2px 8px; background: var(--soft); white-space: nowrap; }
+  .dd.hot { background: var(--red); color: #fff; }
+  .dd.over { background: #555; color: #fff; }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  .row label { font-size: 11.5px; color: var(--sub); display: flex; flex-direction: column; }
+  input, select, textarea { color: var(--text); font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--card); }
+  textarea { width: 100%; margin-top: 6px; height: 34px; resize: vertical; }
+  .acts { display: flex; gap: 6px; margin-top: 6px; justify-content: flex-end; }
+  .acts button { padding: 3px 10px; font-size: 12px; }
+  .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .cal-head b { flex: 1; text-align: center; font-size: 16px; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal .wd { text-align: center; font-size: 12px; color: var(--sub); padding: 2px 0; }
+  .cal .d { min-height: 78px; border: 1px solid var(--line); border-radius: 8px; padding: 3px; font-size: 11px; background: var(--card); overflow: hidden; }
+  .cal .d.out { background: transparent; color: var(--sub); opacity: .5; }
+  .cal .d.today { border-color: var(--green); box-shadow: 0 0 0 1px var(--green) inset; }
+  .cal .n { font-weight: bold; font-size: 12px; }
+  .ev { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 4px; padding: 0 3px; margin-top: 2px; cursor: pointer; background: #eef6f0; }
+  .ev.due { background: #fdecec; color: #b42318; }
+  .ev.visit { background: #e8f0fe; color: #1d4ed8; }
+  .ev.ann { background: #f3f0ff; color: #6d28d9; }
+  .empty { color: var(--sub); text-align: center; padding: 30px 0; }
+  #addBox { display: none; }
+  #addBox.show { display: block; }
+  .hint { font-size: 12px; color: var(--sub); margin-top: 6px; }
+  :root { color-scheme: light dark; }
+  .cal-head button { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 10px; font: inherit; cursor: pointer; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); }
+  header .hw { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-weight: 800; font-size: 20px; text-decoration: none; color: var(--text); }
+  .logo b { color: var(--green); }
+  header nav a { margin-left: 14px; font-size: 14px; color: var(--sub); text-decoration: none; }
+  .wrap a { color: var(--green); }
+  .card .ttl { color: var(--text) !important; }
+  .ad { margin: 16px 0; }
+  ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+  .privacy { font-size: 12.5px; color: var(--sub); margin: 0 0 14px; }
+  footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 16px 40px; font-size: 13px; color: var(--sub); text-align: center; }
+  footer a { margin: 0 6px; color: var(--sub); }
+  @media (max-width: 600px) {
+    h1 { font-size: 20px; }
+    header nav a { margin-left: 10px; font-size: 13px; }
+    .row { grid-template-columns: 1fr 1fr; }
+    #addBox .row { grid-template-columns: 1fr !important; }
+    .cal .d { min-height: 54px; padding: 2px; }
+    .ev { font-size: 10px; padding: 0 2px; }
+    .bar button { padding: 5px 9px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header><div class="hw">
+  <a class="logo" href="index.html"><b>체험단</b>모아</a>
+  <nav><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="schedule.html">일정 관리</a></nav>
+</div></header>
+<div class="wrap">
+  <h1>📅 체험단 일정 관리</h1>
+  <p class="sub" id="summary"></p>
+  <p class="privacy">🔒 입력한 일정은 이 기기의 브라우저에만 저장되고 어디로도 전송되지 않아요. 로그인도 필요 없어요. 폰과 PC를 같이 쓰려면 백업 내보내기 → 다른 기기에서 불러오기를 해 주세요.</p>
+  <div class="bar" id="filters"></div>
+  <div class="bar">
+    <button id="addToggle" style="background:var(--green);border-color:var(--green);color:#fff;font-weight:bold">➕ 일정 추가</button>
+    <span class="sp"></span>
+    <button id="exportBtn">💾 백업 내보내기</button>
+    <button id="importBtn">📂 백업 불러오기</button>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+  </div>
+  <div class="panel" id="addBox" style="margin-bottom:12px">
+    <div class="row" style="grid-template-columns:2fr 1fr 1fr">
+      <label>캠페인 이름<input id="aTitle" placeholder="[서울 강남] ○○식당"></label>
+      <label>사이트<input id="aSite" list="siteList" placeholder="디너의여왕"><datalist id="siteList"><option value="디너의여왕"><option value="택배의여왕"><option value="뷰티의여왕"><option value="리뷰노트"><option value="레뷰"><option value="강남맛집"><option value="서울오빠"><option value="미블"><option value="리뷰플레이스"><option value="링블"><option value="포블로그"><option value="놀러와체험단"><option value="티블"><option value="모블"><option value="스토리앤미디어"><option value="구구다스"><option value="핫블"><option value="가보자체험단"></datalist></label>
+      <label>상태<select id="aStatus"></select></label>
+    </div>
+    <div class="row">
+      <label>캠페인 주소<input id="aUrl" placeholder="https://"></label>
+      <label>발표일<input type="date" id="aAnn"></label>
+      <label>방문일<input type="date" id="aVisit"></label>
+      <label>리뷰 마감일<input type="date" id="aDue"></label>
+    </div>
+    <div class="acts"><button id="aSave" style="background:var(--green);color:#fff;border-color:var(--green)">추가</button></div>
+  </div>
+  <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000004" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+  <div class="layout">
+    <div class="panel"><h2>목록 <span class="site">마감이 가까운 순</span></h2><div id="list"></div></div>
+    <div class="panel">
+      <div class="cal-head"><button id="prevM">◀</button><b id="calTitle"></b><button id="nextM">▶</button><button id="todayM">오늘</button></div>
+      <div class="cal" id="cal"></div>
+      <p class="hint">📢 발표 · 📍 방문 · ⏰ 리뷰 마감. 누르면 목록에서 그 캠페인으로 이동해요.</p>
+    </div>
+  </div>
+</div>
+<footer><a href="index.html">체험단 사이트 모음</a><a href="about.html">소개·문의</a><a href="privacy.html">개인정보처리방침</a><br>© <span id="year">2026</span> 체험단모아</footer>
+<script>
+// 체험단 일정 관리: 신청 → 선정 → 방문 예정 → 후기 작성 → 완료
+// 저장: 방문자 브라우저의 localStorage (서버로 보내지 않음). 기기를 바꿀 땐 백업 내보내기/불러오기
+const STATUSES = ["신청", "선정", "방문 예정", "후기 작성", "완료", "미선정"];
+const HOT_DAYS = 3; // 마감 3일 이내면 빨간색
+const $ = (id) => document.getElementById(id);
+let items = [];
+let filter = "진행 중";
+let calBase = new Date();
+calBase.setDate(1);
+
+const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const todayIso = () => iso(new Date());
+function daysLeft(s) {
+  if (!s) return null;
+  const a = new Date(todayIso() + "T00:00:00"), b = new Date(s + "T00:00:00");
+  return Math.round((b - a) / 86400000);
+}
+const closed = (it) => it.status === "완료" || it.status === "미선정";
+
+// 상태에 따라 지금 챙겨야 할 날짜 하나
+function nextDate(it) {
+  if (closed(it)) return null;
+  if (it.status === "신청") return it.announce ? { d: it.announce, k: "발표" } : null;
+  if ((it.status === "선정" || it.status === "방문 예정") && it.visit && daysLeft(it.visit) >= 0) return { d: it.visit, k: "방문" };
+  return it.reviewEnd ? { d: it.reviewEnd, k: "마감" } : null;
+}
+function isHot(it) {
+  const n = nextDate(it);
+  if (!n || n.k === "발표") return false;
+  const l = daysLeft(n.d);
+  return l !== null && l <= HOT_DAYS;
+}
+function ddText(it) {
+  const n = nextDate(it);
+  if (!n) return closed(it) ? it.status : "날짜 없음";
+  const l = daysLeft(n.d);
+  if (l < 0) return n.k + " " + -l + "일 지남";
+  if (l === 0) return "오늘 " + n.k;
+  return n.k + " D-" + l;
+}
+
+const KEY = "chmoa-schedule-v1";
+function load() {
+  try { items = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { items = []; }
+  if (!Array.isArray(items)) items = [];
+  render();
+}
+let warned = false;
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(items)); }
+  catch (e) { if (!warned) { warned = true; alert("이 브라우저에서는 저장이 안 돼요(시크릿 모드 등). 백업 내보내기로 따로 보관해 주세요."); } }
+  render();
+}
+// 다른 탭에서 바꾸면 이 탭도 맞춤
+window.addEventListener("storage", (e) => { if (e.key === KEY) load(); });
+
+function renderFilters() {
+  const f = $("filters");
+  f.innerHTML = "";
+  ["진행 중", "전체"].concat(STATUSES).forEach((s) => {
+    const b = document.createElement("button");
+    const n = s === "전체" ? items.length : s === "진행 중" ? items.filter((x) => !closed(x)).length : items.filter((x) => x.status === s).length;
+    b.textContent = s + " " + n;
+    b.className = s === filter ? "on" : "";
+    b.onclick = () => { filter = s; render(); };
+    f.appendChild(b);
+  });
+}
+
+function sortKey(it) {
+  const n = nextDate(it);
+  if (closed(it)) return "9" + (it.reviewEnd || "");
+  return n ? "1" + n.d : "5";
+}
+
+function renderList() {
+  const box = $("list");
+  box.innerHTML = "";
+  const shown = items
+    .filter((x) => filter === "전체" || (filter === "진행 중" ? !closed(x) : x.status === filter))
+    .sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
+  if (!shown.length) {
+    box.innerHTML = '<div class="empty">아직 일정이 없어요.<br>위 "➕ 일정 추가"를 눌러 신청한 캠페인을 넣어 보세요.</div>';
+    return;
+  }
+  shown.forEach((it) => {
+    const c = document.createElement("div");
+    c.className = "card" + (isHot(it) ? " hot" : "") + (closed(it) ? " done" : "");
+    c.id = "c_" + it.id;
+    const l = nextDate(it) ? daysLeft(nextDate(it).d) : null;
+    c.innerHTML = `
+      <div class="top">
+        <a class="ttl" target="_blank"></a>
+        <span class="dd ${isHot(it) ? (l < 0 ? "over" : "hot") : ""}"></span>
+      </div>
+      <div class="site"></div>
+      <div class="row">
+        <label>상태<select data-k="status">${STATUSES.map((s) => `<option${s === it.status ? " selected" : ""}>${s}</option>`).join("")}</select></label>
+        <label>발표일<input type="date" data-k="announce"></label>
+        <label>방문일<input type="date" data-k="visit"></label>
+        <label>리뷰 마감일<input type="date" data-k="reviewEnd"></label>
+      </div>
+      <textarea data-k="memo" placeholder="메모 (예약 시간, 미션 등)"></textarea>
+      <div class="acts"><button data-act="del">삭제</button></div>`;
+    const a = c.querySelector(".ttl");
+    a.textContent = it.title || "(이름 없음)";
+    if (it.url) a.href = it.url; else a.removeAttribute("href");
+    c.querySelector(".dd").textContent = ddText(it);
+    c.querySelector(".site").textContent = [it.site, it.applyEnd ? "신청 마감 " + it.applyEnd : "", it.period ? "리뷰 기간 " + it.period : ""].filter(Boolean).join(" · ");
+    c.querySelectorAll("[data-k]").forEach((el) => {
+      const k = el.dataset.k;
+      if (k !== "status") el.value = it[k] || "";
+      el.addEventListener("change", () => { it[k] = el.value; save(); });
+    });
+    c.querySelector('[data-act="del"]').onclick = () => {
+      if (!confirm("'" + (it.title || "이 일정") + "'을 지울까요?")) return;
+      items = items.filter((x) => x.id !== it.id);
+      save();
+    };
+    box.appendChild(c);
+  });
+}
+
+function renderCal() {
+  const y = calBase.getFullYear(), m = calBase.getMonth();
+  $("calTitle").textContent = y + "년 " + (m + 1) + "월";
+  const cal = $("cal");
+  cal.innerHTML = "";
+  "일월화수목금토".split("").forEach((w) => {
+    const d = document.createElement("div");
+    d.className = "wd";
+    d.textContent = w;
+    cal.appendChild(d);
+  });
+  const ev = {};
+  const push = (date, cls, label, it) => { if (date) (ev[date] = ev[date] || []).push({ cls, label, it }); };
+  items.filter((x) => x.status !== "미선정").forEach((it) => {
+    if (it.status === "신청") push(it.announce, "ann", "📢 " + it.title, it);
+    push(it.visit, "visit", "📍 " + it.title, it);
+    push(it.reviewEnd, it.status === "완료" ? "" : "due", "⏰ " + it.title, it);
+  });
+  const start = new Date(y, m, 1 - new Date(y, m, 1).getDay());
+  const t = todayIso();
+  for (let i = 0; i < 42; i++) {
+    const day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    if (i >= 35 && day.getMonth() !== m) break;
+    const k = iso(day);
+    const d = document.createElement("div");
+    d.className = "d" + (day.getMonth() !== m ? " out" : "") + (k === t ? " today" : "");
+    d.innerHTML = `<div class="n">${day.getDate()}</div>`;
+    (ev[k] || []).forEach((e) => {
+      const s = document.createElement("span");
+      s.className = "ev " + e.cls;
+      s.textContent = e.label;
+      s.title = e.label;
+      s.onclick = () => {
+        if (filter !== "전체" && !(filter === "진행 중" && !closed(e.it)) && filter !== e.it.status) { filter = "전체"; render(); }
+        const card = $("c_" + e.it.id);
+        if (card) { card.scrollIntoView({ behavior: "smooth", block: "center" }); card.animate([{ background: "#fff7cc" }, { background: "#fff" }], 1500); }
+      };
+      d.appendChild(s);
+    });
+    cal.appendChild(d);
+  }
+}
+
+function render() {
+  const open = items.filter((x) => !closed(x));
+  const hot = open.filter(isHot);
+  $("summary").textContent = `진행 중 ${open.length}건 · 마감·방문 ${HOT_DAYS}일 이내 ${hot.length}건` + (hot.length ? " (빨간 칸부터 챙기세요)" : "");
+  renderFilters();
+  renderList();
+  renderCal();
+}
+
+$("prevM").onclick = () => { calBase.setMonth(calBase.getMonth() - 1); renderCal(); };
+$("nextM").onclick = () => { calBase.setMonth(calBase.getMonth() + 1); renderCal(); };
+$("todayM").onclick = () => { calBase = new Date(); calBase.setDate(1); renderCal(); };
+$("aStatus").innerHTML = STATUSES.map((s) => `<option>${s}</option>`).join("");
+$("addToggle").onclick = () => { $("addBox").classList.toggle("show"); if ($("addBox").classList.contains("show")) $("aTitle").focus(); };
+document.getElementById("year").textContent = new Date().getFullYear();
+$("aSave").onclick = () => {
+  const title = $("aTitle").value.trim();
+  if (!title) { $("aTitle").focus(); return; }
+  items.unshift({
+    id: "s" + Date.now(), t: Date.now(), title, site: $("aSite").value.trim(), url: $("aUrl").value.trim(),
+    status: $("aStatus").value, announce: $("aAnn").value, visit: $("aVisit").value, reviewEnd: $("aDue").value, memo: ""
+  });
+  ["aTitle", "aSite", "aUrl", "aAnn", "aVisit", "aDue"].forEach((k) => ($(k).value = ""));
+  $("addBox").classList.remove("show");
+  save();
+};
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(items, null, 1)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "체험단일정_" + todayIso() + ".json";
+  a.click();
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!Array.isArray(data)) throw new Error("형식이 달라요");
+    const have = new Set(items.map((x) => x.id));
+    const add = data.filter((x) => x && x.id && !have.has(x.id));
+    items = items.concat(add);
+    save();
+    alert(add.length + "건을 불러왔어요. (이미 있는 일정은 건너뜀)");
+  } catch (err) {
+    alert("백업 파일을 못 읽었어요: " + err.message);
+  }
+  e.target.value = "";
+};
+load();
+</script>
+<script>
+  (function () {
+    var slots = document.querySelectorAll("ins.adsbygoogle");
+    if (!slots.length) return;
+    if (slots[0].getAttribute("data-ad-client").indexOf("0000000000000000") !== -1) {
+      document.querySelectorAll(".ad").forEach(function (d) { d.remove(); });
+      return;
+    }
+    slots.forEach(function () { (window.adsbygoogle = window.adsbygoogle || []).push({}); });
+  })();
+</script>
+</body>
+</html>
