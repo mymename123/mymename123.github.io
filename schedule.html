@@ -107,13 +107,28 @@
     .ev { font-size: 10px; padding: 0 2px; }
     .bar button { padding: 5px 9px; font-size: 13px; }
   }
+  /* ☰ 메뉴 (오른쪽 위) */
+  .menu { position: relative; }
+  .mbtn { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; padding: 0; cursor: pointer; }
+  .mbtn span { display: block; width: 18px; height: 2px; border-radius: 2px; background: var(--text); transition: transform .2s, opacity .2s; }
+  .mbtn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .mbtn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .mbtn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .mbtn:focus-visible, .mnav a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .mnav { position: absolute; right: 0; top: 50px; min-width: 190px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.14); padding: 6px; z-index: 50; display: flex; flex-direction: column; }
+  .mnav[hidden] { display: none; }
+  header .mnav a, .mnav a { margin: 0 !important; padding: 11px 14px; border-radius: 8px; font-size: 15px; color: var(--text) !important; text-decoration: none; }
+  .mnav a:hover, .mnav a.on { background: var(--line); }
+  .mnav a.on { font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) { .mbtn span { transition: none; } }
 </style>
 </head>
 <body>
 
 <header><div class="hw">
   <a class="logo" href="index.html"><b>체험단</b>모아</a>
-  <nav><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="schedule.html">일정 관리</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">블로그 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
 </div></header>
 <div class="wrap">
   <h1>📅 체험단 일정 관리</h1>
@@ -380,6 +395,20 @@ load();
       return;
     }
     slots.forEach(function () { (window.adsbygoogle = window.adsbygoogle || []).push({}); });
+  })();
+</script>
+<script>
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    var here = location.pathname.split("/").pop() || "index.html";
+    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here) a.classList.add("on"); });
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
   })();
 </script>
 </body>
