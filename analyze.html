@@ -86,6 +86,13 @@
   .plan > div { padding: 8px 0; border-bottom: 1px solid var(--line); }
   .plan > div:last-child { border-bottom: 0; }
   .plan .w { display: block; font-size: 13px; font-weight: 700; color: var(--green); }
+  .inrow { display: flex; gap: 8px; align-items: center; margin: 6px 0 8px; }
+  .inrow input { margin: 0; flex: 1; min-width: 0; }
+  .paste { flex: 0 0 auto; border: 1px solid var(--line); background: var(--soft); color: var(--text); border-radius: 999px; padding: 11px 14px; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .hint { font-size: 12.5px; color: var(--sub); margin: 0 0 10px; }
+  .recent { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; font-size: 13px; color: var(--sub); }
+  .recent button { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 5px 12px; font: inherit; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .recent .clr { border: 0; background: none; color: var(--sub); text-decoration: underline; padding: 5px 4px; }
   .retry { background: var(--soft); border-radius: 12px; padding: 10px 14px; margin-top: 12px; font-weight: 700; }
 </style>
 </head>
@@ -100,7 +107,9 @@
     <div class="tabs" role="tablist"><button id="t-exp" class="on" role="tab">🎯 체험단 탈락</button><button id="t-ad" role="tab">💰 애드포스트 탈락</button></div>
     <p class="sub" id="lead">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
     <label for="blog">네이버 블로그 주소</label>
-    <input id="blog" placeholder="https://blog.naver.com/아이디" autocomplete="off" inputmode="url">
+    <div class="inrow"><input id="blog" placeholder="블로그 주소 또는 아이디" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
+    <p class="hint">아이디만 써도 돼요 (예: peechu_). 네이버 블로그 앱에서 <b>공유 → 링크 복사</b>한 뒤 📋를 누르면 바로 분석해요.</p>
+    <div class="recent" id="recent" hidden></div>
     <button class="go" id="go">블로그 분석 시작</button>
     <p class="note" id="msg">공개된 글만 읽어요. 로그인이나 비밀번호는 필요 없어요. 실제 선정·심사 기준과 탈락 사유는 업체와 네이버만 알 수 있어서, 결과는 "가능성"과 "개선점"으로 보여 드려요.</p>
   </div>
@@ -121,6 +130,7 @@
 "nextTopics":["연말 모임하기 좋은 동네 맛집","겨울 제철 메뉴 후기","따뜻한 국물 요리 모음"],
 "fits":["맛집 방문형","카페·디저트"]},"byAI":true};
   const $ = (id) => document.getElementById(id);
+  const Q0 = new URLSearchParams(location.search); // 탭 바꿀 때 주소창이 바뀌기 전에 미리 읽어 둠
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const color = (n) => (n >= 75 ? "var(--green)" : n >= 50 ? "var(--amber)" : "var(--red)");
   const list = (a) => "<ul class='l'>" + (a || []).map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
@@ -187,9 +197,56 @@
   $("t-ad").addEventListener("click", () => setMode("adpost"));
   setMode(MODE);
 
+  // ---- 블로그 주소 불러오기 ----
+  // 복사한 글(앱 공유 문구 포함)에서 블로그 주소·아이디만 뽑음. naver.me 짧은 주소는 서버가 풀어 줌
+  function pickBlog(text) {
+    const t = String(text || "").trim();
+    let m = t.match(/blog\.naver\.com\/(?:PostView\.naver\?[^\s#]*?blogId=|PostList\.naver\?[^\s#]*?blogId=)?([A-Za-z0-9_-]{3,30})/);
+    if (m && !/^(PostView|PostList|BlogHome|section)/i.test(m[1])) return m[1].toLowerCase();
+    m = t.match(/https?:\/\/naver\.me\/[A-Za-z0-9]+/);
+    if (m) return m[0];
+    if (/^@?[A-Za-z0-9_-]{3,30}$/.test(t)) return t.replace(/^@/, "").toLowerCase();
+    return "";
+  }
+  const RKEY = "chmoa-recent-blogs";
+  function getRecent() { try { return JSON.parse(localStorage.getItem(RKEY) || "[]"); } catch (e) { return []; } }
+  function saveRecent(id, title) {
+    try {
+      const a = getRecent().filter((x) => x.id !== id);
+      a.unshift({ id, title: title || id });
+      localStorage.setItem(RKEY, JSON.stringify(a.slice(0, 5)));
+    } catch (e) {}
+    drawRecent();
+  }
+  function drawRecent() {
+    const a = getRecent(), box = $("recent");
+    if (!a.length) { box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    box.innerHTML = "최근: " + a.map((x, i) => `<button type="button" data-i="${i}" title="${esc(x.id)}">${esc(x.title)}</button>`).join("") + `<button type="button" class="clr" id="clr">지우기</button>`;
+    box.querySelectorAll("button[data-i]").forEach((b) => b.addEventListener("click", () => { $("blog").value = a[+b.dataset.i].id; run(); }));
+    $("clr").addEventListener("click", () => { try { localStorage.removeItem(RKEY); } catch (e) {} drawRecent(); });
+  }
+  $("paste").addEventListener("click", async () => {
+    let t = "";
+    try { t = await navigator.clipboard.readText(); } catch (e) {}
+    const id = pickBlog(t);
+    if (id) { $("blog").value = id; run(); return; }
+    $("blog").focus();
+    $("msg").innerHTML = t
+      ? "<span class='err'>복사한 내용에서 블로그 주소를 못 찾았어요. 블로그 주소나 아이디를 복사해 주세요.</span>"
+      : "칸을 길게 눌러 <b>붙여넣기</b> 해 주세요. (브라우저가 바로 읽기를 막았어요)";
+  });
+  // 칸에 붙여 넣으면 앱 공유 문구 같은 건 빼고 주소·아이디만 남김
+  $("blog").addEventListener("paste", (e) => {
+    const t = (e.clipboardData || window.clipboardData).getData("text");
+    const id = pickBlog(t);
+    if (id) { e.preventDefault(); $("blog").value = id; }
+  });
+  drawRecent();
+
   async function run() {
-    const v = $("blog").value.trim();
-    if (!/blog\.naver\.com\/|^[a-zA-Z0-9_-]{3,30}$/.test(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소를 넣어 주세요. 예) https://blog.naver.com/아이디</span>"; return; }
+    const v = pickBlog($("blog").value) || $("blog").value.trim();
+    if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) peechu_ 또는 https://blog.naver.com/아이디</span>"; return; }
     if (!WORKER_URL) { MODE === "adpost" ? showAd(SAMPLE_AD, true) : show(SAMPLE, true); return; }
     // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
     const b = $("go");
@@ -200,6 +257,7 @@
       const r = await res.json();
       if (!res.ok || r.error) throw new Error(r.error || "분석에 실패했어요.");
       r.mode === "adpost" ? showAd(r, false) : show(r, false);
+      if (r.blog && r.blog.id) { $("blog").value = r.blog.id; saveRecent(r.blog.id, r.blog.title); }
       $("msg").textContent = "분석이 끝났어요. 결과는 저장되지 않아서 페이지를 나가면 사라져요.";
     } catch (e) {
       $("msg").innerHTML = "<span class='err'>" + esc(e.message || "분석에 실패했어요. 잠시 뒤 다시 해 주세요.") + "</span>";
@@ -210,6 +268,8 @@
   }
   $("go").addEventListener("click", run);
   $("blog").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+  // 다른 페이지에서 ?blog=아이디 로 들어오면 바로 넣어 둠
+  (function () { const q = Q0.get("blog"); if (q && pickBlog(q)) $("blog").value = pickBlog(q); })();
   document.getElementById("year").textContent = new Date().getFullYear();
   (function () {
     var slots = document.querySelectorAll("ins.adsbygoogle");
