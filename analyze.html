@@ -6,10 +6,10 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>체험단 블로그 진단 | 체험단모아</title>
-<meta name="description" content="네이버 블로그 주소만 넣으면 최근 글 10개를 분석해 체험단 선정에 불리할 수 있는 부분과 개선 방법, 다음 달 추천 주제를 알려 드려요.">
-<meta property="og:title" content="체험단 블로그 진단 | 체험단모아">
-<meta property="og:description" content="네이버 블로그 주소만 넣으면 최근 글 10개를 분석해 체험단 선정에 불리할 수 있는 부분과 개선 방법, 다음 달 추천 주제를 알려 드려요.">
+<title>블로그 진단 (체험단·애드포스트) | 체험단모아</title>
+<meta name="description" content="네이버 블로그 주소만 넣으면 체험단 선정, 애드포스트 승인에 불리할 수 있는 부분과 다음에 붙으려면 할 일을 알려 드려요.">
+<meta property="og:title" content="블로그 진단 (체험단·애드포스트) | 체험단모아">
+<meta property="og:description" content="네이버 블로그 주소만 넣으면 체험단 선정, 애드포스트 승인에 불리할 수 있는 부분과 다음에 붙으려면 할 일을 알려 드려요.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mymename123.github.io/analyze.html">
 <meta property="og:image" content="https://mymename123.github.io/og-image.png">
@@ -76,6 +76,17 @@
   @keyframes s { to { transform: rotate(360deg); } }
   footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 16px 40px; font-size: 13px; color: var(--sub); text-align: center; }
   footer a { margin: 0 6px; color: var(--sub); }
+  .tabs { display: flex; gap: 6px; background: var(--soft); border-radius: 999px; padding: 4px; margin: 0 0 16px; }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--sub); font: inherit; font-weight: 700; padding: 9px 6px; border-radius: 999px; cursor: pointer; }
+  .tabs button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .chk { display: grid; grid-template-columns: 26px 1fr auto; gap: 4px 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .chk:last-child { border-bottom: 0; }
+  .chk .ic { font-size: 18px; } .chk .v { font-weight: 700; text-align: right; }
+  .chk .d { grid-column: 2 / 4; font-size: 12.5px; color: var(--sub); margin-top: -4px; }
+  .plan > div { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .plan > div:last-child { border-bottom: 0; }
+  .plan .w { display: block; font-size: 13px; font-weight: 700; color: var(--green); }
+  .retry { background: var(--soft); border-radius: 12px; padding: 10px 14px; margin-top: 12px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -85,12 +96,13 @@
 </div></header>
 <div class="wrap">
   <div class="card">
-    <h1>🔎 체험단 블로그 진단</h1>
-    <p class="sub">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
+    <h1>🔎 블로그 진단</h1>
+    <div class="tabs" role="tablist"><button id="t-exp" class="on" role="tab">🎯 체험단 탈락</button><button id="t-ad" role="tab">💰 애드포스트 탈락</button></div>
+    <p class="sub" id="lead">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
     <label for="blog">네이버 블로그 주소</label>
     <input id="blog" placeholder="https://blog.naver.com/아이디" autocomplete="off" inputmode="url">
     <button class="go" id="go">블로그 분석 시작</button>
-    <p class="note" id="msg">공개된 글만 읽어요. 로그인이나 비밀번호는 필요 없어요. 업체의 실제 선정 기준과 탈락 사유는 알 수 없어서, 결과는 "가능성"과 "개선점"으로 보여 드려요.</p>
+    <p class="note" id="msg">공개된 글만 읽어요. 로그인이나 비밀번호는 필요 없어요. 실제 선정·심사 기준과 탈락 사유는 업체와 네이버만 알 수 있어서, 결과는 "가능성"과 "개선점"으로 보여 드려요.</p>
   </div>
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000005" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
   <div id="out"></div>
@@ -133,19 +145,61 @@
     $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // ---- 💰 애드포스트 결과 ----
+  const SAMPLE_AD = {"mode":"adpost","blog":{"id":"example","title":"예시 블로그"},"passed":2,"known":6,
+"checks":[{"label":"운영 기간","value":"20일","need":"90일 이상","ok":false,"detail":"첫 공개 글 2026년 10월 19일 기준"},{"label":"공개 글 수","value":"23개","need":"50개 이상","ok":false,"detail":"27개 더 필요해요."},{"label":"하루 방문자","value":"평균 13명","need":"100명 이상","ok":false,"detail":"최근 5일 평균"},{"label":"최근 활동","value":"30일 23개","need":"주 2~3개 이상","ok":true,"detail":"마지막 글 0일 전"},{"label":"글 분량","value":"평균 640자","need":"1,000자 이상 권장","ok":false,"detail":"사진 평균 3장"},{"label":"몰아 올리기","value":"하루 최대 2개","need":"하루 3개 이하 권장","ok":true,"detail":"최근 글 기준 같은 날 올린 글 수"}],
+"report":{"summary":"블로그를 만든 지 한 달이 안 돼서 떨어졌을 가능성이 가장 커요. 글 수와 방문자도 아직 알려진 기준에 못 미쳐요.","reasons":[{"title":"운영 기간이 한 달 미만이에요","why":"운영 20일째예요. 애드포스트는 보통 운영 기간을 먼저 봐요."},{"title":"공개 글이 부족해요","why":"23개로, 알려진 기준 50개보다 27개 적어요."}],"plan":[{"when":"지금부터","todo":"하루 1개씩 직접 쓴 글로 50개를 채워요."},{"when":"매주","todo":"1,000자 이상 + 직접 찍은 사진 5장 이상으로 써요."},{"when":"2027년 1월 24일 이후","todo":"기준을 채운 뒤 다시 신청해요."}],"retryDate":"2027년 1월 24일 이후","postIdeas":["우리 동네 맛집·카페 정보","직접 써 본 물건 후기","생활 꿀팁 정리"],"cautions":["다른 글을 그대로 옮기지 마세요.","같은 날 여러 개를 몰아 올리지 마세요."]},"byAI":true};
+  function showAd(r, demo) {
+    const rep = r.report || {};
+    const ic = (ok) => (ok === true ? "✅" : ok === false ? "❌" : "❔");
+    const score = r.known ? Math.round((r.passed / r.known) * 100) : 0;
+    $("out").innerHTML =
+      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") +
+      `<div class="card"><div class="total"><div class="ring" style="border:6px solid ${color(score)};font-size:20px">${r.passed}/${r.known}</div>
+        <div><b>${esc(r.blog.title || r.blog.id)}</b><br><span class="sub">애드포스트 알려진 기준 점검${r.byAI ? " · AI 종합 평가" : ""}</span>
+        <p style="margin:6px 0 0">${esc(rep.summary)}</p></div></div></div>` +
+      `<div class="card"><h2>📋 기준 점검</h2>` + (r.checks || []).map((x) =>
+        `<div class="chk"><span class="ic">${ic(x.ok)}</span><span>${esc(x.label)} <span class="sub" style="font-size:12.5px">(${esc(x.need)})</span></span><span class="v">${esc(x.value)}</span><span class="d">${esc(x.detail)}</span></div>`).join("") +
+        `<p class="note">운영 90일·공개 글 50개·방문자 100명은 블로거들 사이에 알려진 기준이에요. 네이버가 공식으로 발표한 숫자는 아니에요.</p></div>` +
+      `<div class="card"><h2>🧩 떨어졌을 가능성이 있는 이유</h2>` + (rep.reasons || []).map((w) =>
+        `<div class="weak"><b>${esc(w.title)}</b><br><span class="w">${esc(w.why)}</span></div>`).join("") + `</div>` +
+      `<div class="card"><h2>🗓️ 다음에 붙으려면</h2><div class="plan">` + (rep.plan || []).map((p) =>
+        `<div><span class="w">${esc(p.when)}</span>${esc(p.todo)}</div>`).join("") + `</div>` +
+        (rep.retryDate ? `<div class="retry">📅 추천 재신청: ${esc(rep.retryDate)}</div>` : "") + `</div>` +
+      `<div class="grid2"><div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postIdeas)}</div>` +
+      `<div class="card"><h2>🚫 이건 피하세요</h2>${list(rep.cautions)}</div></div>` +
+      `<p class="note">※ 공개된 정보를 자동으로 분석한 참고용 결과예요. 네이버의 실제 심사 기준과 다를 수 있어요.</p>`;
+    $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  let MODE = new URLSearchParams(location.search).get("mode") === "adpost" ? "adpost" : "exp";
+  function setMode(m) {
+    MODE = m;
+    $("t-exp").classList.toggle("on", m === "exp");
+    $("t-ad").classList.toggle("on", m === "adpost");
+    $("lead").textContent = m === "adpost"
+      ? "블로그 주소만 넣으면 운영 기간·글 수·방문자·글 품질을 점검해서, 애드포스트에 떨어졌을 가능성이 있는 이유와 다음에 붙으려면 할 일을 알려 드려요."
+      : "블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.";
+    $("out").innerHTML = "";
+    history.replaceState(null, "", m === "adpost" ? "?mode=adpost" : location.pathname);
+  }
+  $("t-exp").addEventListener("click", () => setMode("exp"));
+  $("t-ad").addEventListener("click", () => setMode("adpost"));
+  setMode(MODE);
+
   async function run() {
     const v = $("blog").value.trim();
     if (!/blog\.naver\.com\/|^[a-zA-Z0-9_-]{3,30}$/.test(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소를 넣어 주세요. 예) https://blog.naver.com/아이디</span>"; return; }
-    if (!WORKER_URL) { show(SAMPLE, true); return; }
+    if (!WORKER_URL) { MODE === "adpost" ? showAd(SAMPLE_AD, true) : show(SAMPLE, true); return; }
     // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
     const b = $("go");
     b.disabled = true;
     b.innerHTML = "<span class='spin'></span>최근 글을 읽는 중… (10~20초)";
     try {
-      const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v));
+      const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v) + (MODE === "adpost" ? "&mode=adpost" : ""));
       const r = await res.json();
       if (!res.ok || r.error) throw new Error(r.error || "분석에 실패했어요.");
-      show(r, false);
+      r.mode === "adpost" ? showAd(r, false) : show(r, false);
       $("msg").textContent = "분석이 끝났어요. 결과는 저장되지 않아서 페이지를 나가면 사라져요.";
     } catch (e) {
       $("msg").innerHTML = "<span class='err'>" + esc(e.message || "분석에 실패했어요. 잠시 뒤 다시 해 주세요.") + "</span>";
