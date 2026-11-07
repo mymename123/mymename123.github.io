@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>체험단 블로그 진단 | 체험단모아</title>
+<meta name="description" content="네이버 블로그 주소만 넣으면 최근 글 10개를 분석해 체험단 선정에 불리할 수 있는 부분과 개선 방법, 다음 달 추천 주제를 알려 드려요.">
+<meta property="og:title" content="체험단 블로그 진단 | 체험단모아">
+<meta property="og:description" content="네이버 블로그 주소만 넣으면 최근 글 10개를 분석해 체험단 선정에 불리할 수 있는 부분과 개선 방법, 다음 달 추천 주제를 알려 드려요.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mymename123.github.io/analyze.html">
+<meta property="og:image" content="https://mymename123.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!--
+  ===== 방문자 통계(구글 애널리틱스) =====
+  G-XXXXXXXXXX 를 내 측정 ID로 바꾸면 통계가 켜져요. 그대로 두면 아무것도 안 불러와요.
+-->
+<script>
+  (function () {
+    var GA_ID = "G-S3G991WQMJ";
+    if (GA_ID.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
+<style>
+  :root { color-scheme: light dark; --bg: #f6f7f9; --card: #fff; --line: #e3e5e8; --text: #1f2328; --sub: #6b7280; --green: #03c75a; --soft: #eef1f4; --red: #e5484d; --amber: #f59e0b; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #15171a; --card: #1f2226; --line: #33373d; --text: #e8eaed; --sub: #9aa0a6; --soft: #2a2e33; } }
+  * { box-sizing: border-box; }
+  body { word-break: keep-all; margin: 0; background: var(--bg); color: var(--text); font: 15px/1.7 "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); }
+  header .hw { max-width: 760px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-weight: 800; font-size: 20px; text-decoration: none; color: var(--text); } .logo b { color: var(--green); }
+  header nav a { margin-left: 14px; font-size: 14px; color: var(--sub); text-decoration: none; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; margin-bottom: 14px; }
+  h1 { font-size: 23px; margin: 0 0 4px; } .sub { color: var(--sub); margin: 0 0 14px; font-size: 14px; }
+  label { font-size: 14px; color: var(--sub); }
+  input { width: 100%; margin: 6px 0 12px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 999px; font: inherit; background: var(--card); color: var(--text); }
+  .go { width: 100%; padding: 13px; border: 0; border-radius: 999px; background: var(--text); color: var(--card); font: inherit; font-weight: 700; cursor: pointer; }
+  .go:disabled { opacity: .5; cursor: wait; }
+  .note { font-size: 12.5px; color: var(--sub); margin: 10px 0 0; }
+  .err { color: var(--red); font-weight: 700; }
+  .demo { background: #fff7e6; color: #8a5a00; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; }
+  @media (prefers-color-scheme: dark) { .demo { background: #3a2e14; color: #f5c66b; } }
+  .total { display: flex; align-items: center; gap: 16px; }
+  .ring { width: 84px; height: 84px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; flex: 0 0 auto; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  .bar { display: grid; grid-template-columns: 96px 1fr 38px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .bar:last-child { border-bottom: 0; }
+  .bar .t { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+  .bar .t i { display: block; height: 100%; border-radius: 99px; }
+  .bar .d { grid-column: 2 / 4; font-size: 12.5px; color: var(--sub); margin-top: -6px; }
+  .bar b { text-align: right; }
+  .weak { border-left: 4px solid var(--red); padding: 4px 0 4px 12px; margin: 10px 0; }
+  .weak .w { font-size: 13px; color: var(--sub); }
+  ul.l { padding-left: 20px; margin: 0; } ul.l li { margin: 4px 0; }
+  .chips span { display: inline-block; background: var(--soft); border-radius: 999px; padding: 4px 12px; margin: 3px 4px 3px 0; font-size: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } h1 { font-size: 20px; } header nav a { margin-left: 10px; font-size: 13px; } .card { padding: 18px 16px; } }
+  .ad { margin: 16px 0; } ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: s .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 16px 40px; font-size: 13px; color: var(--sub); text-align: center; }
+  footer a { margin: 0 6px; color: var(--sub); }
+</style>
+</head>
+<body>
+<header><div class="hw">
+  <a class="logo" href="index.html"><b>체험단</b>모아</a>
+  <nav><a href="index.html#sites">사이트 모음</a><a href="analyze.html">블로그 진단</a><a href="schedule.html">일정 관리</a></nav>
+</div></header>
+<div class="wrap">
+  <div class="card">
+    <h1>🔎 체험단 블로그 진단</h1>
+    <p class="sub">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
+    <label for="blog">네이버 블로그 주소</label>
+    <input id="blog" placeholder="https://blog.naver.com/아이디" autocomplete="off" inputmode="url">
+    <button class="go" id="go">블로그 분석 시작</button>
+    <p class="note" id="msg">공개된 글만 읽어요. 로그인이나 비밀번호는 필요 없어요. 업체의 실제 선정 기준과 탈락 사유는 알 수 없어서, 결과는 "가능성"과 "개선점"으로 보여 드려요.</p>
+  </div>
+  <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000005" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+  <div id="out"></div>
+</div>
+<footer><a href="index.html">체험단 사이트 모음</a><a href="about.html">소개·문의</a><a href="privacy.html">개인정보처리방침</a><br>체험단모아는 개인이 정리한 페이지이며, 소개한 체험단 사이트·업체와 제휴 관계가 없어요.<br>© <span id="year">2026</span> 체험단모아</footer>
+<script>
+  // 분석 서버 주소 (Cloudflare Workers). 비어 있으면 예시 결과만 보여 줌
+  const WORKER_URL = "https://green-sunset-edd6.risingsk123.workers.dev/";
+  const SAMPLE = {"blog":{"id":"example","title":"예시 블로그","url":"https://blog.naver.com/"},"total":64,
+"items":[{"key":"activity","label":"활동성","score":70,"detail":"최근 30일 글 5개, 마지막 글 3일 전"},{"key":"content","label":"콘텐츠 품질","score":45,"detail":"최근 글 평균 520자 (공백 제외)"},{"key":"photo","label":"사진 품질","score":50,"detail":"최근 글 평균 사진 6.2장"},{"key":"topic","label":"주제 전문성","score":58,"detail":"가장 많은 카테고리 '일상' 48%"},{"key":"region","label":"지역 경쟁력","score":80,"detail":"제목에 지역명이 들어간 글 50%"},{"key":"fit","label":"체험단 적합성","score":72,"detail":"후기형 제목 60%, 주소·영업시간 같은 정보가 있는 글 70%"}],
+"stats":{"sampled":10,"recentCount":20},
+"report":{"summary":"꾸준히 글을 올리고 있고 지역명도 잘 쓰고 있어요. 다만 글 길이와 사진 수가 체험단 후기로 보기엔 조금 적어서, 업체가 '후기 견본'으로 보기 어려웠을 가능성이 있어요.",
+"weak":[{"title":"글 길이","why":"최근 글 평균 520자","fix":"위치·메뉴·맛·총평으로 나눠 1,000자 이상 써 보세요."},{"title":"사진 수","why":"평균 6.2장","fix":"외관·메뉴판·메뉴별·내부 사진까지 12장 이상 넣어 보세요."},{"title":"주제 일관성","why":"'일상' 카테고리 48%","fix":"원하는 분야(예: 맛집) 글을 먼저 5~10개 쌓아 보세요."}],
+"risks":["최근 글이 일상 위주라 업체가 블로그 성격을 바로 알기 어려울 수 있어요","정보(영업시간·주차)가 빠진 글이 있어요"],
+"postTypes":["방문 후기 (외관 → 메뉴판 → 메뉴별 사진 → 정보 정리)","우리 동네 맛집 모음 글","내돈내산 솔직 후기"],
+"nextTopics":["연말 모임하기 좋은 동네 맛집","겨울 제철 메뉴 후기","따뜻한 국물 요리 모음"],
+"fits":["맛집 방문형","카페·디저트"]},"byAI":true};
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const color = (n) => (n >= 75 ? "var(--green)" : n >= 50 ? "var(--amber)" : "var(--red)");
+  const list = (a) => "<ul class='l'>" + (a || []).map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
+
+  function show(r, demo) {
+    const rep = r.report || {};
+    $("out").innerHTML =
+      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") +
+      `<div class="card"><div class="total"><div class="ring" style="border:6px solid ${color(r.total)}">${r.total}</div>
+        <div><b>${esc(r.blog.title || r.blog.id)}</b><br><span class="sub">최근 글 ${(r.stats || {}).sampled || 0}개 본문 + 최근 ${(r.stats || {}).recentCount || 0}개 제목 기준${r.byAI ? " · AI 종합 평가" : ""}</span>
+        <p style="margin:6px 0 0">${esc(rep.summary)}</p></div></div></div>` +
+      `<div class="card"><h2>📊 항목별 점수</h2>` + r.items.map((x) =>
+        `<div class="bar"><span>${esc(x.label)}</span><span class="t"><i style="width:${x.score}%;background:${color(x.score)}"></i></span><b>${x.score}</b><span class="d">${esc(x.detail)}</span></div>`).join("") + `</div>` +
+      `<div class="card"><h2>🧩 지금 가장 부족한 부분 3가지</h2>` + (rep.weak || []).map((w) =>
+        `<div class="weak"><b>${esc(w.title)}</b> <span class="w">${esc(w.why)}</span><br>👉 ${esc(w.fix)}</div>`).join("") + `</div>` +
+      `<div class="card"><h2>⚠️ 선정에 불리할 수 있는 요소</h2>${list(rep.risks)}</div>` +
+      `<div class="grid2"><div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postTypes)}</div>` +
+      `<div class="card"><h2>🗓️ 다음 달 추천 주제</h2>${list(rep.nextTopics)}</div></div>` +
+      `<div class="card"><h2>🎯 지금 블로그와 잘 맞는 체험단 분야</h2><div class="chips">${(rep.fits || []).map((f) => "<span>" + esc(f) + "</span>").join("")}</div>
+        <p class="note">잘 맞는 분야의 캠페인은 <a href="index.html#sites">체험단 사이트 모음</a>에서 찾아보세요. 선정되면 <a href="schedule.html">일정 관리</a>로 마감을 챙기세요.</p></div>` +
+      `<p class="note">※ 공개된 글을 자동으로 분석한 참고용 결과예요. 업체의 실제 선정 기준과 다를 수 있어요.</p>`;
+    $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function run() {
+    const v = $("blog").value.trim();
+    if (!/blog\.naver\.com\/|^[a-zA-Z0-9_-]{3,30}$/.test(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소를 넣어 주세요. 예) https://blog.naver.com/아이디</span>"; return; }
+    if (!WORKER_URL) { show(SAMPLE, true); return; }
+    // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
+    const b = $("go");
+    b.disabled = true;
+    b.innerHTML = "<span class='spin'></span>최근 글을 읽는 중… (10~20초)";
+    try {
+      const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v));
+      const r = await res.json();
+      if (!res.ok || r.error) throw new Error(r.error || "분석에 실패했어요.");
+      show(r, false);
+      $("msg").textContent = "분석이 끝났어요. 결과는 저장되지 않아서 페이지를 나가면 사라져요.";
+    } catch (e) {
+      $("msg").innerHTML = "<span class='err'>" + esc(e.message || "분석에 실패했어요. 잠시 뒤 다시 해 주세요.") + "</span>";
+    } finally {
+      b.disabled = false;
+      b.textContent = "블로그 분석 시작";
+    }
+  }
+  $("go").addEventListener("click", run);
+  $("blog").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+  document.getElementById("year").textContent = new Date().getFullYear();
+  (function () {
+    var slots = document.querySelectorAll("ins.adsbygoogle");
+    if (!slots.length) return;
+    if (slots[0].getAttribute("data-ad-client").indexOf("0000000000000000") !== -1) {
+      document.querySelectorAll(".ad").forEach(function (d) { d.remove(); });
+      return;
+    }
+    slots.forEach(function () { (window.adsbygoogle = window.adsbygoogle || []).push({}); });
+  })();
+</script>
+</body>
+</html>
