@@ -61,7 +61,19 @@
   .logo b { color: var(--green); }
   nav a { margin-left: 14px; font-size: 14px; color: var(--sub); text-decoration: none; }
   nav a:hover { color: var(--green); }
-  .hero { padding: 36px 0 20px; }
+  .hero { padding: 36px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .hero > div:first-child { min-width: 0; flex: 1 1 320px; }
+  /* 진단 바로가기 버튼 두 개: PC는 제목 오른쪽, 폰은 제목 아래 2칸 */
+  .dx { display: grid; gap: 10px; width: 300px; max-width: 100%; }
+  .dx a { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 14px; color: #fff; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,.12); transition: transform .15s, box-shadow .15s; }
+  .dx a:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+  .dx a:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
+  .dx .e { font-size: 26px; line-height: 1; }
+  .dx b { display: block; font-size: 16px; line-height: 1.35; }
+  .dx small { display: block; font-size: 12.5px; opacity: .92; line-height: 1.4; }
+  .dx .exp { background: linear-gradient(135deg, #03c75a, #02a64b); }
+  .dx .ad2 { background: linear-gradient(135deg, #ff8a3d, #f0612a); }
+  @media (prefers-reduced-motion: reduce) { .dx a { transition: none; } .dx a:hover { transform: none; } }
   .hero h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
   .hero p { color: var(--sub); margin: 0; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 18px; }
@@ -96,6 +108,9 @@
   footer a { margin-right: 12px; }
   @media (max-width: 520px) {
     .hero h1 { font-size: 21px; }
+    .hero { gap: 16px; }
+    .dx { width: 100%; gap: 8px; }
+    .dx a { padding: 12px 14px; }
     nav a { margin-left: 10px; font-size: 13px; }
     .grid { grid-template-columns: 1fr 1fr; }
     .site { flex-direction: column; gap: 8px; padding: 14px 10px; text-align: center; }
@@ -130,14 +145,20 @@
   <div class="wrap">
     <a class="logo" href="index.html"><b>체험단</b>모아</a>
     <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
-    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">블로그 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
   </div>
 </header>
 
 <main class="wrap">
   <div class="hero">
-    <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
-    <p>맛집·제품·뷰티 체험단 사이트 <span id="count">18</span>곳을 한곳에 모았어요!</p>
+    <div>
+      <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
+      <p>맛집·제품·뷰티 체험단 사이트 <span id="count">18</span>곳을 한곳에 모았어요!</p>
+    </div>
+    <div class="dx">
+      <a class="exp" href="analyze.html"><span class="e">🎯</span><span><b>체험단 탈락원인 진단</b><small>블로그 주소만 넣으면 끝</small></span></a>
+      <a class="ad2" href="analyze.html?mode=adpost"><span class="e">💰</span><span><b>애드포스트 탈락원인 진단</b><small>운영 기간·글·방문자 점검</small></span></a>
+    </div>
   </div>
 
   <!-- 광고 1 (위쪽) -->
@@ -148,8 +169,7 @@
     <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없는 개인 정리 페이지예요.</p>
   </div>
 
-  <a class="tip sched" href="analyze.html"><span class="te">🔎</span><span><b>블로그 진단 (체험단·애드포스트)</b><br><span class="ts">블로그 주소만 넣으면 체험단·애드포스트에 떨어졌을 가능성이 있는 이유와, 다음에 붙으려면 할 일을 알려 줘요.</span></span></a>
-  <a class="tip sched" style="margin-top:10px" href="schedule.html"><span class="te">📅</span><span><b>체험단 일정 관리</b><br><span class="ts">신청·선정·방문·후기 마감을 달력으로 한눈에. 마감 임박은 빨간색으로 알려 줘요. 로그인 없이 무료!</span></span></a>
+  <a class="tip sched" href="schedule.html"><span class="te">📅</span><span><b>체험단 일정 관리</b><br><span class="ts">신청·선정·방문·후기 마감을 달력으로 한눈에. 마감 임박은 빨간색으로 알려 줘요. 로그인 없이 무료!</span></span></a>
   <section id="tips">
     <h2 class="sec">블로그 체험단 꿀팁</h2>
     <h3 class="tg">처음 시작한다면</h3>
@@ -330,7 +350,7 @@
     var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
     if (!b || !n) return;
     var here = location.pathname.split("/").pop() || "index.html";
-    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here) a.classList.add("on"); });
+    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here + location.search) a.classList.add("on"); });
     function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
     b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
     n.addEventListener("click", function () { set(false); });

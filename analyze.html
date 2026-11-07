@@ -6,7 +6,7 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>블로그 진단 (체험단·애드포스트) | 체험단모아</title>
+<title>체험단 탈락원인 진단 | 체험단모아</title>
 <meta name="description" content="네이버 블로그 주소만 넣으면 체험단 선정, 애드포스트 승인에 불리할 수 있는 부분과 다음에 붙으려면 할 일을 알려 드려요.">
 <meta property="og:title" content="블로그 진단 (체험단·애드포스트) | 체험단모아">
 <meta property="og:description" content="네이버 블로그 주소만 넣으면 체험단 선정, 애드포스트 승인에 불리할 수 있는 부분과 다음에 붙으려면 할 일을 알려 드려요.">
@@ -114,11 +114,11 @@
 <header><div class="hw">
   <a class="logo" href="index.html"><b>체험단</b>모아</a>
   <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
-    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">블로그 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
 </div></header>
 <div class="wrap">
   <div class="card">
-    <h1>🔎 블로그 진단</h1>
+    <h1 id="ttl">🎯 체험단 탈락원인 진단</h1>
     <div class="tabs" role="tablist"><button id="t-exp" class="on" role="tab">🎯 체험단 탈락</button><button id="t-ad" role="tab">💰 애드포스트 탈락</button></div>
     <p class="sub" id="lead">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
     <label for="blog">네이버 블로그 주소</label>
@@ -205,6 +205,8 @@
     $("lead").textContent = m === "adpost"
       ? "블로그 주소만 넣으면 운영 기간·글 수·방문자·글 품질을 점검해서, 애드포스트에 떨어졌을 가능성이 있는 이유와 다음에 붙으려면 할 일을 알려 드려요."
       : "블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.";
+    $("ttl").textContent = m === "adpost" ? "💰 애드포스트 탈락원인 진단" : "🎯 체험단 탈락원인 진단";
+    document.title = (m === "adpost" ? "애드포스트 탈락원인 진단" : "체험단 탈락원인 진단") + " | 체험단모아";
     $("out").innerHTML = "";
     history.replaceState(null, "", m === "adpost" ? "?mode=adpost" : location.pathname);
   }
@@ -302,7 +304,7 @@
     var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
     if (!b || !n) return;
     var here = location.pathname.split("/").pop() || "index.html";
-    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here) a.classList.add("on"); });
+    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here + location.search) a.classList.add("on"); });
     function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
     b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
     n.addEventListener("click", function () { set(false); });

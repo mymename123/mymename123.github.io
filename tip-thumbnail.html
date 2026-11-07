@@ -58,12 +58,11 @@
   .rv { border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 13.5px; line-height: 1.5; }
   .rv .who { color: var(--sub); margin-bottom: 6px; }
   .rv .ph { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; }
-  .rv .ph span { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-  .rv.bad .ph span { background: #d9dde3; filter: grayscale(.6); }
-  .rv.good .ph span { background: #ffe1c2; }
+  .rv .ph img { display: block; width: 100%; height: auto; max-width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: var(--line); }
+  .rv .tt { font-weight: 600; }
+  .ainote { font-size: 12.5px; color: var(--sub); margin: -6px 0 14px; }
   .rv .cap { font-weight: 700; margin-top: 6px; text-align: center; }
   .rv.bad .cap { color: #d93025; } .rv.good .cap { color: var(--green); }
-  @media (prefers-color-scheme: dark) { .rv.bad .ph span { background: #3a3f46; } .rv.good .ph span { background: #4a3626; } }
   .more { margin-top: 26px; } .more h3 { font-size: 16px; margin: 0 0 6px; }
   .more a { display: block; padding: 6px 0; text-decoration: none; }
   footer { margin-top: 26px; font-size: 13px; color: var(--sub); } footer a { margin-right: 12px; color: var(--sub); }
@@ -77,12 +76,13 @@
     <h1>체험단 후기 대표 사진, 이것만 바꿔도 눈에 띄어요</h1>
     <p class="lead">리뷰 목록에서 내 후기만 붕 뜨지 않게, 네이버 블로그 대표 사진 고르는 법과 설정 방법을 정리했어요.</p>
     <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
-<p>네이버 지도 가게 페이지의 블로그 리뷰 목록이나 체험단 사이트의 후기 목록을 보면, 글마다 사진이 카드처럼 붙어서 보여요. 다른 후기는 맛있어 보이는 음식과 가게 외관이 나란히 보이는데, 내 후기만 길거리 사진이나 글자 이미지가 보이면 목록에서 혼자 붕 떠 보여요. 대부분 <b>대표 사진을 따로 정하지 않아서</b> 생기는 일이에요.</p>
+<p>네이버 지도 가게 페이지의 블로그 리뷰 목록이나 체험단 사이트의 후기 목록을 보면, 글마다 사진이 카드처럼 붙어서 보여요. 다른 후기는 맛있어 보이는 음식과 가게 안 모습이 나란히 보이는데, 내 후기만 길거리 사진이나 글자 이미지가 보이면 목록에서 혼자 붕 떠 보여요. 대부분 <b>대표 사진을 따로 정하지 않아서</b> 생기는 일이에요.</p>
 
 <div class="cmp" aria-hidden="true">
-  <div class="rv bad"><div class="who">대표 사진 안 정함</div><div class="ph"><span>🚦</span><span>📝</span></div>성수 수제버거 맛집 후기<div class="cap">길 사진·안내 글자가 먼저 보여요</div></div>
-  <div class="rv good"><div class="who">대표 사진 정함</div><div class="ph"><span>🍔</span><span>🏪</span></div>성수 수제버거 맛집 후기<div class="cap">음식이 먼저 눈에 들어와요</div></div>
+  <div class="rv bad"><div class="who">대표 사진 안 정함</div><div class="ph"><img src="img/thumb-bad-street.jpg" alt="" width="480" height="480" loading="lazy"><img src="img/thumb-bad-notice.jpg" alt="" width="480" height="480" loading="lazy"></div><div class="tt">OO동 맛집 후기</div><div class="cap">길 사진·안내 글자가 먼저 보여요</div></div>
+  <div class="rv good"><div class="who">대표 사진 정함</div><div class="ph"><img src="img/thumb-good-food.jpg" alt="" width="480" height="480" loading="lazy"><img src="img/thumb-good-inside.jpg" alt="" width="480" height="480" loading="lazy"></div><div class="tt">OO동 맛집 후기</div><div class="cap">음식이 먼저 눈에 들어와요</div></div>
 </div>
+<p class="ainote">※ 위 예시 사진은 AI로 만든 가상의 후기 사진이에요.</p>
 
 <h2>대표 사진이 보이는 곳</h2>
 <ul>
