@@ -6,6 +6,8 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#03c75a">
 <title>체험단 탈락원인 진단 | 체험단모아</title>
 <meta name="description" content="네이버 블로그 주소만 넣으면 체험단 선정, 애드포스트 승인에 불리할 수 있는 부분과 다음에 붙으려면 할 일을 알려 드려요.">
 <meta property="og:title" content="블로그 진단 (체험단·애드포스트) | 체험단모아">
@@ -90,6 +92,11 @@
   .inrow input { margin: 0; flex: 1; min-width: 0; }
   .paste { flex: 0 0 auto; border: 1px solid var(--line); background: var(--soft); color: var(--text); border-radius: 999px; padding: 11px 14px; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .hint { font-size: 12.5px; color: var(--sub); margin: 0 0 10px; }
+  .quick { display: none; border: 1px dashed var(--line); border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; font-size: 13px; line-height: 1.6; background: var(--soft); }
+  .quick b { color: var(--text); }
+  .quick ol { margin: 4px 0 0; padding-left: 18px; }
+  .quick .ib { margin-top: 8px; border: 0; border-radius: 999px; padding: 9px 14px; font: inherit; font-weight: 700; background: var(--green); color: #fff; cursor: pointer; }
+  @media (pointer: coarse), (max-width: 640px) { .quick { display: block; } }
   .recent { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; font-size: 13px; color: var(--sub); }
   .recent button { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 5px 12px; font: inherit; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .recent .clr { border: 0; background: none; color: var(--sub); text-decoration: underline; padding: 5px 4px; }
@@ -124,6 +131,13 @@
     <label for="blog">네이버 블로그 주소</label>
     <div class="inrow"><input id="blog" placeholder="블로그 주소 또는 아이디" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
     <p class="hint">아이디만 써도 돼요 (예: peechu_). 네이버 블로그 앱에서 <b>공유 → 링크 복사</b>한 뒤 📋를 누르면 바로 분석해요.</p>
+    <div class="quick" id="quick">📱 <b>폰에서 더 빠르게</b>
+      <ol id="qsteps">
+        <li><b>안드로이드</b>: 브라우저 메뉴(⋮)에서 <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 눌러 주세요. 그다음부터는 네이버 블로그 앱에서 <b>공유 → 체험단모아</b>만 누르면 바로 분석돼요.</li>
+        <li><b>아이폰</b>: 네이버 블로그 앱에서 <b>공유 → 링크 복사</b>를 누르고 여기서 📋를 눌러 주세요.</li>
+      </ol>
+      <button class="ib" id="install" type="button" hidden>📲 홈 화면에 추가</button>
+    </div>
     <div class="recent" id="recent" hidden></div>
     <button class="go" id="go">블로그 분석 시작</button>
     <p class="note" id="msg">공개된 글만 읽어요. 로그인이나 비밀번호는 필요 없어요. 실제 선정·심사 기준과 탈락 사유는 업체와 네이버만 알 수 있어서, 결과는 "가능성"과 "개선점"으로 보여 드려요.</p>
@@ -220,11 +234,24 @@
     const t = String(text || "").trim();
     let m = t.match(/blog\.naver\.com\/(?:PostView\.naver\?[^\s#]*?blogId=|PostList\.naver\?[^\s#]*?blogId=)?([A-Za-z0-9_-]{3,30})/);
     if (m && !/^(PostView|PostList|BlogHome|section)/i.test(m[1])) return m[1].toLowerCase();
-    m = t.match(/https?:\/\/naver\.me\/[A-Za-z0-9]+/);
-    if (m) return m[0];
+    m = t.match(/(?:https?:\/\/)?naver\.me\/([A-Za-z0-9]+)/);
+    if (m) return "https://naver.me/" + m[1];
     if (/^@?[A-Za-z0-9_-]{3,30}$/.test(t)) return t.replace(/^@/, "").toLowerCase();
     return "";
   }
+  // 블로그 아이디는 영어·숫자·_·- 만 쓰니까, 주소가 아니면 한글·공백 같은 건 다 빼고 아이디만 남김
+  function onlyId(text) {
+    const t = String(text || "");
+    if (/[./:]/.test(t)) return t.trim(); // 주소를 치는 중이면 건드리지 않음
+    const parts = t.match(/[A-Za-z0-9_-]+/g) || [];
+    return (parts.find((x) => x.length >= 3) || parts.join("")).toLowerCase();
+  }
+  $("blog").addEventListener("input", (e) => {
+    if (e.isComposing) return; // 한글 입력 조합 중에는 기다렸다가
+    const v = onlyId($("blog").value);
+    if (v !== $("blog").value) $("blog").value = v;
+  });
+  $("blog").addEventListener("compositionend", () => { $("blog").value = onlyId($("blog").value); });
   const RKEY = "chmoa-recent-blogs";
   function getRecent() { try { return JSON.parse(localStorage.getItem(RKEY) || "[]"); } catch (e) { return []; } }
   function saveRecent(id, title) {
@@ -246,7 +273,7 @@
   $("paste").addEventListener("click", async () => {
     let t = "";
     try { t = await navigator.clipboard.readText(); } catch (e) {}
-    const id = pickBlog(t);
+    const id = pickBlog(t) || pickBlog(onlyId(t));
     if (id) { $("blog").value = id; run(); return; }
     $("blog").focus();
     $("msg").innerHTML = t
@@ -256,13 +283,14 @@
   // 칸에 붙여 넣으면 앱 공유 문구 같은 건 빼고 주소·아이디만 남김
   $("blog").addEventListener("paste", (e) => {
     const t = (e.clipboardData || window.clipboardData).getData("text");
-    const id = pickBlog(t);
-    if (id) { e.preventDefault(); $("blog").value = id; }
+    const id = pickBlog(t) || pickBlog(onlyId(t));
+    e.preventDefault();
+    $("blog").value = id || onlyId(t);
   });
   drawRecent();
 
   async function run() {
-    const v = pickBlog($("blog").value) || $("blog").value.trim();
+    const v = pickBlog($("blog").value) || pickBlog(onlyId($("blog").value)) || $("blog").value.trim();
     if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) peechu_ 또는 https://blog.naver.com/아이디</span>"; return; }
     if (!WORKER_URL) { MODE === "adpost" ? showAd(SAMPLE_AD, true) : show(SAMPLE, true); return; }
     // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
@@ -287,6 +315,22 @@
   $("blog").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
   // 다른 페이지에서 ?blog=아이디 로 들어오면 바로 넣어 둠
   (function () { const q = Q0.get("blog"); if (q && pickBlog(q)) $("blog").value = pickBlog(q); })();
+  // 네이버 블로그 앱 '공유 → 체험단모아'로 들어오면 공유 문구에서 아이디를 찾아 바로 분석
+  (function () {
+    const shared = ["url", "text", "title"].map((k) => Q0.get(k) || "").join(" ");
+    if (!shared.trim()) return;
+    const id = pickBlog(shared) || pickBlog(onlyId(shared));
+    if (id) { $("blog").value = id; run(); }
+    else $("msg").innerHTML = "<span class='err'>공유한 내용에서 블로그 주소를 못 찾았어요. 블로그 글이나 내 블로그 화면에서 공유해 주세요.</span>";
+  })();
+  // 설치(홈 화면 추가)
+  let installEv = null;
+  addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEv = e; $("install").hidden = false; });
+  $("install").addEventListener("click", async () => { if (!installEv) return; installEv.prompt(); try { await installEv.userChoice; } catch (e) {} installEv = null; $("install").hidden = true; });
+  if (matchMedia("(display-mode: standalone)").matches) {
+    $("qsteps").innerHTML = "<li>네이버 블로그 앱에서 <b>공유 → 체험단모아</b>를 누르면 바로 분석돼요.</li><li>공유 목록에 안 보이면 <b>더보기</b>를 눌러 찾아 주세요.</li>";
+  }
+  if ("serviceWorker" in navigator) addEventListener("load", () => { navigator.serviceWorker.register("/sw.js").catch(() => {}); });
   document.getElementById("year").textContent = new Date().getFullYear();
   (function () {
     var slots = document.querySelectorAll("ins.adsbygoogle");

@@ -6,6 +6,8 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#03c75a">
 <title>체험단 일정 관리 | 체험단모아</title>
 <meta name="description" content="체험단 신청·선정·방문·후기 마감을 한곳에서 관리하세요. 마감 임박 표시와 달력으로 일정이 겹치지 않게 챙길 수 있어요. 로그인 없이 무료로 써요.">
 <meta property="og:title" content="체험단 일정 관리 | 체험단모아">
@@ -410,6 +412,10 @@ load();
     document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
   })();
+</script>
+<script>
+  // 홈 화면 추가(앱처럼 설치)·공유로 받기용. 캐시는 안 함
+  if ("serviceWorker" in navigator) addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
 </script>
 </body>
 </html>

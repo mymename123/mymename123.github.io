@@ -6,6 +6,8 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#03c75a">
 <title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
 <meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 18곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
 <meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
@@ -357,6 +359,10 @@
     document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
   })();
+</script>
+<script>
+  // 홈 화면 추가(앱처럼 설치)·공유로 받기용. 캐시는 안 함
+  if ("serviceWorker" in navigator) addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
 </script>
 </body>
 </html>
