@@ -165,11 +165,11 @@
   function render(j) {
     if (!j || !j.ok) return fail("프로필을 볼 수 없어요", (j && j.error) || "");
     $("loading").hidden = true; $("pf").hidden = false; $("main").removeAttribute("aria-busy");
-    var name = j.title || j.nick || id;
+    var name = j.nick || j.title || id; // 이름은 별명 (없을 때만 블로그 이름)
     document.title = name + " 블로그 프로필 | 체험단모아";
-    $("pfAv").textContent = (j.nick || name).trim().slice(0, 1).toUpperCase();
+    $("pfAv").textContent = name.trim().slice(0, 1).toUpperCase();
     $("pfName").textContent = name;
-    $("pfSub").textContent = [j.nick, j.topic, "blog.naver.com/" + id].filter(Boolean).join(" · ");
+    $("pfSub").textContent = [j.nick ? j.title : "", j.topic, "blog.naver.com/" + id].filter(Boolean).join(" · ");
     $("pfBlog").href = j.url;
     var L = j.ach || { level: j.level };
     $("pfLv").textContent = "LEVEL " + (L.level || j.level || 1);

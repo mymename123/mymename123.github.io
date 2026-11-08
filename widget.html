@@ -57,13 +57,20 @@
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
   .seg label:has(input:checked) { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
   .seg label:has(input:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px 5px 5px; cursor: pointer; font-size: 14px; background: var(--card); min-height: 40px; }
-  .chip input { position: absolute; opacity: 0; pointer-events: none; }
-  .chip:has(input:checked) { border-color: var(--green); background: var(--chip); }
-  .chip:has(input:disabled:not(:checked)) { opacity: .5; cursor: default; }
-  .chip:has(input:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; }
-  .chip .achb { flex: none; }
+  /* 업적 고르기: 배지를 크게, 이름·설명은 아래에 작게 */
+  .picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .pk { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px; padding: 16px 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer; min-width: 0; }
+  .pk input { position: absolute; opacity: 0; pointer-events: none; }
+  .pk .achb { margin-bottom: 8px; }
+  .pk b { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+  .pk small { font-size: 12px; line-height: 1.4; color: var(--sub); }
+  .pk .no { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; display: none; align-items: center; justify-content: center; }
+  .pk:hover { border-color: var(--green); }
+  .pk:has(input:checked) { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); background: var(--chip); }
+  .pk:has(input:checked) .no { display: flex; }
+  .pk:has(input:disabled:not(:checked)) { opacity: .45; cursor: default; }
+  .pk:has(input:disabled:not(:checked)):hover { border-color: var(--line); }
+  .pk:has(input:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; }
   .chk { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px 16px; }
   .chk label, .tog { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; min-height: 32px; }
   .chk input, .tog input { width: 18px; height: 18px; accent-color: var(--green); flex: none; }
@@ -99,6 +106,10 @@
   }
   @media (max-width: 640px) {
     main { padding-block: 24px 0; }
+    .picks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pk { padding: 14px 4px 10px; }
+    .pk b { font-size: 13px; }
+    .pk small { font-size: 11px; }
     .seg { grid-template-columns: 1fr; }
     .seg label { flex-direction: row; justify-content: space-between; align-items: center; }
     .shout { grid-template-columns: 1fr; }
@@ -197,22 +208,9 @@
         <h2 class="sr" id="setH">위젯 설정</h2>
         <div class="set">
           <label class="tog"><span><b>공개 프로필과 위젯 켜기</b><small>끄면 위젯은 "비공개"로 보이고 프로필도 닫혀요.</small></span><input type="checkbox" id="sPublic"></label>
-          <fieldset><legend>위젯 크기</legend>
-            <div class="seg" id="sSize">
-              <label><input type="radio" name="size" value="compact"><b>컴팩트형</b><small>170 × 92</small></label>
-              <label><input type="radio" name="size" value="basic"><b>기본형</b><small>170 × 248</small></label>
-              <label><input type="radio" name="size" value="wide"><b>확장형</b><small>170 × 408</small></label>
-            </div>
-          </fieldset>
-          <fieldset><legend>위젯에 보일 이름</legend>
-            <div class="chips" id="sLabel">
-              <label class="chip" style="padding-left:12px"><input type="radio" name="label" value="title"><span id="lbTitle">블로그 이름</span></label>
-              <label class="chip" style="padding-left:12px"><input type="radio" name="label" value="nick"><span id="lbNick">별명</span></label>
-            </div>
-          </fieldset>
-          <label class="cm-field"><span>대표 업적</span><select class="cm-input" id="sFeat"></select></label>
-          <fieldset><legend>위젯에 보일 업적 <span class="cm-cap" id="pickCap" style="display:inline"></span></legend>
-            <div class="chips" id="sPick"></div>
+          <fieldset><legend>위젯에 보일 업적 <span class="cm-cap" id="pickCap" style="display:inline">(최대 3개)</span></legend>
+            <p class="cm-cap" style="margin-top:-6px">누른 순서대로 보여요. 아무것도 안 고르면 가장 높이 오른 업적 1개를 크게 보여 줘요.</p>
+            <div class="picks" id="sPick"></div>
           </fieldset>
           <fieldset><legend>공개 프로필에 보일 정보</legend>
             <div class="chk" id="sShow">
@@ -295,7 +293,7 @@
 (function () {
   "use strict";
   var A = window.CMAch, W = A.WORKER, $ = function (id) { return document.getElementById(id); };
-  var PICK_MAX = { compact: 0, basic: 3, wide: 6 };
+  var PICK_MAX = 3; // 위젯에 보일 업적 수 (안 고르면 가장 높은 1개)
   var ID = "", V = null, D = null, dirty = false;
   var ls = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -362,15 +360,13 @@
     $("start").hidden = true; $("verify").hidden = true; $("manage").hidden = false;
     step(2);
     var s = j.snap || {}, ach = j.ach || { list: [] };
-    $("whoH").textContent = s.title || ID;
-    $("whoSub").textContent = (s.nick ? s.nick + " · " : "") + "blog.naver.com/" + ID + (s.at ? " · " + A.ymd(s.at) + " 기준" : "");
+    $("whoH").textContent = nameOf(s);
+    $("whoSub").textContent = (s.nick && s.title ? s.title + " · " : "") + "blog.naver.com/" + ID + (s.at ? " · " + A.ymd(s.at) + " 기준" : "");
     $("whoLv").textContent = "LEVEL " + ach.level;
     $("lvTxt").textContent = "업적 " + ach.count + " / " + ach.total + "단계";
     $("lvNext").textContent = ach.nextLevelAt != null ? "다음 레벨까지 " + (ach.nextLevelAt - ach.sum) + "단계" : "최고 레벨";
     var base = [0, 3, 6, 10, 15, 20, 26, 33, 41, 50][ach.level - 1] || 0;
     $("lvBar").style.width = (ach.nextLevelAt != null ? Math.round(((ach.sum - base) / (ach.nextLevelAt - base)) * 100) : 100) + "%";
-    $("lbTitle").textContent = s.title ? "블로그 이름 · " + s.title : "블로그 이름";
-    $("lbNick").textContent = s.nick ? "별명 · " + s.nick : "별명";
     $("profLink").href = profileUrl();
     renderSettings();
     renderShare();
@@ -378,34 +374,32 @@
     if (note) msg($("dzMsg"), note);
     $("manage").scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  // 위젯·공유 이미지에 쓰는 이름은 별명 (없을 때만 블로그 이름)
+  function nameOf(s) { s = s || {}; return s.nick || s.title || ID; }
   function on() { return (V.ach.list || []).filter(function (a) { return a.lv > 0; }); }
   function renderSettings() {
     $("sPublic").checked = !!D.public;
-    document.querySelectorAll("#sSize input").forEach(function (r) { r.checked = r.value === D.size; });
-    document.querySelectorAll("#sLabel input").forEach(function (r) { r.checked = r.value === (D.label || "title"); });
     var got = on();
-    $("sFeat").innerHTML = '<option value="">자동 (가장 높은 업적)</option>' + got.map(function (a) { return '<option value="' + a.id + '">' + A.esc(a.title) + " · " + A.esc(a.name) + "</option>"; }).join("");
-    $("sFeat").value = got.some(function (a) { return a.id === D.feat; }) ? D.feat : "";
     $("sPick").innerHTML = got.length ? got.map(function (a) {
-      return '<label class="chip"><input type="checkbox" value="' + a.id + '">' + A.badge(a, 28) + "<span>" + A.esc(a.title) + "</span></label>";
+      var sub = a.special ? a.name : a.name + " · " + (a.lv >= a.max ? "최고 단계" : "Lv." + a.lv + "/" + a.max);
+      return '<label class="pk"><input type="checkbox" value="' + a.id + '"><span class="no" aria-hidden="true"></span>' + A.badge(a, 56) + "<b>" + A.esc(a.title) + "</b><small>" + A.esc(sub) + "</small></label>";
     }).join("") : '<p class="cm-cap">아직 달성한 업적이 없어요. 첫 글을 쓰면 첫 업적이 열려요.</p>';
     syncPick();
     document.querySelectorAll("#sShow input").forEach(function (c) { c.checked = !!(D.show || {})[c.value]; });
   }
   function syncPick() {
-    var max = PICK_MAX[D.size];
+    var max = PICK_MAX;
     D.pick = (D.pick || []).filter(function (id) { return on().some(function (a) { return a.id === id; }); }).slice(0, max);
-    $("pickCap").textContent = max ? "(최대 " + max + "개, 고른 순서대로. 안 고르면 높은 업적부터)" : "(컴팩트형은 대표 업적만 보여요)";
+    $("pickCap").textContent = "(최대 " + max + "개 · " + D.pick.length + "개 고름)";
     document.querySelectorAll("#sPick input").forEach(function (c) {
-      c.checked = D.pick.indexOf(c.value) >= 0;
-      c.disabled = !max || (!c.checked && D.pick.length >= max);
+      var i = D.pick.indexOf(c.value);
+      c.checked = i >= 0;
+      c.disabled = !c.checked && D.pick.length >= max;
+      c.parentNode.querySelector(".no").textContent = i >= 0 ? String(i + 1) : "";
     });
   }
   function changed() { dirty = true; $("saveSt").textContent = "저장하지 않은 변경이 있어요"; preview(); }
   $("sPublic").addEventListener("change", function () { D.public = this.checked; changed(); });
-  $("sSize").addEventListener("change", function (e) { D.size = e.target.value; syncPick(); changed(); });
-  $("sLabel").addEventListener("change", function (e) { D.label = e.target.value; changed(); });
-  $("sFeat").addEventListener("change", function () { D.feat = this.value; changed(); });
   $("sPick").addEventListener("change", function (e) {
     var id = e.target.value;
     D.pick = D.pick.filter(function (x) { return x !== id; });
@@ -432,17 +426,17 @@
   function authFail(j) { if (j && j.auth === false) { ls.del(KEY(ID)); msg($("dzMsg"), "관리 열쇠가 맞지 않아요. 처음부터 다시 본인 확인을 해 주세요.", true); return true; } return false; }
 
   // ---- 미리보기·삽입 코드 ----
-  function imgUrl(size) { return W + "w/" + ID + "/" + V.k + "/" + (size || D.size) + ".svg"; }
+  function imgUrl() { return W + "w/" + ID + "/" + V.k + "/basic.svg"; }
   function profileUrl() { return A.SITE + "blog/?u=" + encodeURIComponent(ID) + "&k=" + V.k; }
   var pvT = 0;
   function preview() {
     clearTimeout(pvT);
     pvT = setTimeout(function () {
-      var q = new URLSearchParams({ pick: (D.pick || []).join(","), feat: D.feat || "", label: D.label || "title", t: String(Date.now()) });
+      var q = new URLSearchParams({ pick: (D.pick || []).join(","), t: String(Date.now()) });
       $("pvImg").src = imgUrl() + "?" + q.toString();
       $("pvImg").width = 170;
       $("pvNote").textContent = dirty ? "저장 전 미리보기" : D.public ? "지금 블로그에 보이는 모습" : "비공개 상태예요";
-      var name = (D.label === "nick" ? (V.snap || {}).nick : (V.snap || {}).title) || ID;
+      var name = nameOf(V.snap);
       $("code").value = '<a href="' + profileUrl() + '" target="_blank"><img src="' + imgUrl() + '" width="170" alt="' + A.esc(name) + ' 블로그 업적 - 체험단모아" style="border:0"></a>';
       $("pngLink").hidden = true;
     }, 250);
@@ -491,7 +485,7 @@
     if (!SH) return;
     $("shOut").hidden = false; $("shTitle").textContent = "만드는 중…";
     var s = V.snap || {};
-    var url = await A.shareImage({ a: SH.a, step: SH.i, blog: (D.label === "nick" ? s.nick : s.title) || s.title || ID, level: V.ach.level, count: V.ach.count, ratio: ratio });
+    var url = await A.shareImage({ a: SH.a, step: SH.i, blog: nameOf(s), level: V.ach.level, count: V.ach.count, ratio: ratio });
     $("shImg").src = url; $("shImg").alt = SH.st.label + " 달성 공유 이미지";
     $("shSave").href = url; $("shSave").download = "체험단모아-" + SH.st.label.replace(/\s+/g, "") + ".png";
     $("shTitle").textContent = SH.st.label + (SH.a.special ? "" : " 달성");
