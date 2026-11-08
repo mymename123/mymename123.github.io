@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>내 블로그 | 블로랩</title>
+<!-- 회원 페이지에는 광고·방문자 통계를 넣지 않아요 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .mb-main { padding-block: 40px 72px; display: flex; flex-direction: column; gap: 16px; max-width: 720px; margin: 0 auto; }
+  .mb-head { display: flex; flex-direction: column; gap: 6px; }
+  .mb-card { display: flex; flex-direction: column; gap: 16px; }
+  .mb-card > h2 { margin: 0; }
+  .mb-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+  .mb-row .cm-field { flex: 1 1 260px; min-width: 0; }
+  .mb-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .mb-steps a { color: var(--green); }
+  .mb-code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .mb-code code { font: 700 24px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 2px; padding: 10px 16px; border-radius: 10px; background: var(--chip); color: var(--green); }
+  .mb-blog { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .mb-blog > div { display: flex; flex-direction: column; min-width: 0; }
+  .mb-blog b { font-size: 18px; overflow-wrap: anywhere; }
+  .mb-blog a { color: var(--sub); font-size: 13px; overflow-wrap: anywhere; }
+  .mb-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .mb-num { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mb-num span { font-size: 13px; color: var(--sub); }
+  .mb-num b { font-size: 22px; font-variant-numeric: tabular-nums; letter-spacing: -0.4px; }
+  .mb-num i { font-style: normal; font-size: 12.5px; color: var(--green); }
+  .mb-tbl { overflow-x: auto; }
+  .mb-tbl table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .mb-tbl th, .mb-tbl td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .mb-tbl th:first-child, .mb-tbl td:first-child { text-align: left; }
+  .mb-tbl th { font-weight: 600; color: var(--sub); font-size: 13px; }
+  details.mb-more summary { cursor: pointer; color: var(--sub); font-size: 14px; }
+  details.mb-more[open] summary { margin-bottom: 8px; }
+  .mb-diags { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .mb-diag { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .mb-diag b { font-size: 16px; }
+  .mb-ask { display: flex; flex-direction: column; gap: 8px; }
+  .mb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .mb-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .mb-list li:last-child { border-bottom: 0; }
+  .mb-list a { color: var(--green); font-weight: 600; }
+  .mb-foot { display: flex; justify-content: flex-end; }
+  .mb-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .mb-quiet:hover { color: var(--text); }
+  .mb-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
+  .mb-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  @media (max-width: 560px) { .mb-nums { grid-template-columns: 1fr; } .mb-diags { grid-template-columns: 1fr; } .mb-code code { font-size: 20px; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap mb-main" id="main" aria-live="polite">
+  <div class="mb-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">내 블로그</h1></div>
+  <div class="cm-card"><div class="mb-wait"><span class="cm-spin" aria-hidden="true"></span>잠시만요…</div></div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // 내 블로그: 소개글 코드로 소유 확인 → 날짜별 숫자 → 무료 첫 진단(체험단·애드포스트 한 번씩) → 지난 결과
+  (function () {
+    var A = window.BLAuth, main = document.getElementById("main");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var $ = function (id) { return document.getElementById(id); };
+    var HEAD = '<div class="mb-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">내 블로그</h1></div>';
+    var KIND = { exp: "🎯 체험단 탈락원인 진단", adpost: "💰 애드포스트 탈락원인 진단" };
+    var D = null, BUSY = false;
+    function num(n) { return n == null ? "-" : Number(n).toLocaleString("ko-KR"); }
+    function ymd(ms) { var d = new Date(ms); return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일"; }
+    function dayK(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? (+m[2]) + "월 " + (+m[3]) + "일" : s; }
+    function pickId(v) {
+      var s = String(v || "").trim(), m = s.match(/blog\.naver\.com\/(?:PostList\.naver\?[^#]*?blogId=|PostView\.naver\?[^#]*?blogId=)?([a-zA-Z0-9_-]{3,30})/);
+      if (m && !/^(PostList|PostView|BlogHome|section)/i.test(m[1])) return m[1].toLowerCase();
+      m = s.match(/blogId=([a-zA-Z0-9_-]{3,30})/); if (m) return m[1].toLowerCase();
+      return /^@?[a-zA-Z0-9_-]{3,30}$/.test(s) ? s.replace(/^@/, "").toLowerCase() : "";
+    }
+    function wkey(id) { try { return localStorage.getItem("cm.wkey." + id) || ""; } catch (e) { return ""; } }
+    function rk() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12); }
+    function msg(el, text, err) { el.innerHTML = text ? '<p class="cm-msg' + (err ? " err" : "") + '" role="' + (err ? "alert" : "status") + '">' + esc(text) + "</p>" : ""; }
+    function busy(btn, on, label) { if (!btn) return; btn.disabled = on; if (on) { btn.dataset.l = btn.dataset.l || btn.textContent; btn.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> ' + esc(label || ""); } else if (btn.dataset.l) btn.textContent = btn.dataset.l; }
+    function api(path, body) {
+      return A.fetch(path, body ? { method: "POST", body: JSON.stringify(body) } : {}).then(function (r) { return r.json(); })
+        .catch(function () { return { ok: false, error: "인터넷 연결을 확인하고 다시 해 주세요." }; });
+    }
+    function gate(title, text, btn) { main.innerHTML = HEAD + '<div class="cm-card mb-card"><h2 class="cm-h3">' + esc(title) + '</h2><p class="cm-cap">' + text + "</p>" + (btn || "") + "</div>"; }
+
+    function load() {
+      if (!A.on()) { gate("곧 열려요", "회원 기능은 준비 중이에요. 지금은 로그인 없이 모든 기능을 쓸 수 있어요.", '<div><a class="cm-btn" href="index.html">첫 화면으로</a></div>'); return; }
+      if (!A.token()) { gate("로그인이 필요해요", "내 블로그를 등록하면 날짜별 숫자를 기록하고, 무료 첫 진단 결과를 저장해 둘 수 있어요.", '<div><a class="cm-btn pri" href="login.html?r=' + encodeURIComponent("/me.html") + '">로그인하기</a></div>'); return; }
+      api("/me/blog").then(function (j) {
+        if (j && j.status === "need_login") { A.clear(); load(); return; }
+        if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
+        D = j; draw();
+      });
+    }
+
+    function draw() {
+      main.innerHTML = HEAD + (D.blog ? blogCard() + diagCard() : registerCard()) + listCard();
+      if (D.blog) bindBlog(); else bindRegister();
+    }
+
+    // ---- 등록 전 ----
+    function registerCard() {
+      var c = D.claim;
+      if (c) return '<section class="cm-card mb-card" aria-labelledby="regH"><h2 class="cm-h3" id="regH">블로그 소개글로 확인하기</h2>' +
+        '<p class="cm-cap"><b>' + esc(c.blog) + "</b> 블로그가 내 블로그인지 확인하는 단계예요. 남의 블로그는 등록할 수 없어요.</p>" +
+        '<div class="mb-code"><code id="code">' + esc(c.code) + '</code><button class="cm-btn" type="button" id="copy">코드 복사</button></div>' +
+        '<ol class="mb-steps"><li>네이버 블로그 <b>관리 → 기본 설정 → 블로그 정보</b>에서 <b>블로그 소개글</b> 끝에 위 코드를 붙여 넣고 저장해 주세요. <a href="https://admin.blog.naver.com/' + encodeURIComponent(c.blog) + '" target="_blank" rel="noopener">블로그 관리 열기</a></li>' +
+        "<li>저장했으면 아래 <b>확인</b>을 눌러 주세요. 바로 안 되면 1~2분 뒤 다시 눌러 주세요.</li><li>확인되면 소개글에서 코드를 지워도 돼요. 코드는 " + new Date(c.exp).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" }) + "까지 쓸 수 있어요.</li></ol>" +
+        '<div class="mb-row"><button class="cm-btn pri" type="button" id="verify">확인</button><button class="cm-btn ghost" type="button" id="other">다른 블로그로</button></div><div id="rmsg"></div></section>';
+      return '<section class="cm-card mb-card" aria-labelledby="regH"><h2 class="cm-h3" id="regH">내 블로그 등록</h2>' +
+        '<p class="cm-cap">블로그 소개글에 확인 코드를 잠깐 넣으면 내 블로그로 등록돼요. 등록하면 글 수·누적 방문자·이웃 수가 매일 기록되고, 체험단·애드포스트 진단을 한 번씩 무료로 받아 결과를 저장할 수 있어요.</p>' +
+        '<div class="mb-row"><label class="cm-field"><span>블로그 주소 또는 아이디</span><input class="cm-input" id="bid" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="예) peechu_ 또는 https://blog.naver.com/아이디"></label>' +
+        '<button class="cm-btn pri" type="button" id="claim">확인 코드 받기</button></div>' +
+        '<p class="cm-cap">FREE 회원은 블로그 1개를 등록할 수 있어요. 이 브라우저에서 업적 위젯을 만든 블로그는 코드 없이 바로 등록돼요.</p><div id="rmsg"></div></section>';
+    }
+    function bindRegister() {
+      var rm = $("rmsg");
+      if ($("claim")) {
+        var go = function () {
+          var id = pickId($("bid").value);
+          if (!id) { msg(rm, "네이버 블로그 주소나 아이디를 넣어 주세요.", true); $("bid").focus(); return; }
+          busy($("claim"), true, "블로그 찾는 중");
+          var k = wkey(id);
+          (k ? api("/me/blog", { act: "verify", blog: id, wkey: k }) : Promise.resolve(null)).then(function (v) {
+            if (v && v.ok) { load(); return; }
+            return api("/me/blog", { act: "claim", blog: id }).then(function (j) {
+              busy($("claim"), false);
+              if (!j.ok) { msg(rm, j.error, true); return; }
+              D.claim = { blog: j.blog, code: j.code, exp: j.exp }; draw();
+            });
+          });
+        };
+        $("claim").addEventListener("click", go);
+        $("bid").addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
+        return;
+      }
+      $("copy").addEventListener("click", function () {
+        var t = $("code").textContent;
+        Promise.resolve().then(function () { return navigator.clipboard.writeText(t); })
+          .then(function () { msg(rm, "코드를 복사했어요. 소개글 끝에 붙여 넣어 주세요."); })
+          .catch(function () { var r = document.createRange(); r.selectNodeContents($("code")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); msg(rm, "코드를 골라 뒀어요. 길게 눌러 복사해 주세요."); });
+      });
+      $("other").addEventListener("click", function () { D.claim = null; draw(); });
+      $("verify").addEventListener("click", function () {
+        var b = this; busy(b, true, "소개글 확인 중");
+        api("/me/blog", { act: "verify", blog: D.claim.blog }).then(function (j) {
+          busy(b, false);
+          if (j.ok) { load(); return; }
+          msg(rm, j.error, true);
+        });
+      });
+    }
+
+    // ---- 등록 뒤 ----
+    function blogCard() {
+      var b = D.blog, s = D.snaps || [], last = s[s.length - 1] || {}, first = s[0] || {};
+      var delta = function (k) { if (s.length < 2 || last[k] == null || first[k] == null) return ""; var d = last[k] - first[k]; return "<i>" + (d >= 0 ? "+" : "") + num(d) + " (" + dayK(first.day) + "부터)</i>"; };
+      var rows = s.slice().reverse().slice(0, 14).map(function (x) { return "<tr><td>" + esc(dayK(x.day)) + "</td><td>" + num(x.posts) + "</td><td>" + num(x.visitors) + "</td><td>" + num(x.neighbors) + "</td></tr>"; }).join("");
+      return '<section class="cm-card mb-card" aria-labelledby="blogH"><h2 class="cm-h3" id="blogH">등록한 블로그</h2>' +
+        '<div class="mb-blog"><div><b>' + esc(b.title || b.id) + '</b><a href="https://blog.naver.com/' + encodeURIComponent(b.id) + '" target="_blank" rel="noopener">blog.naver.com/' + esc(b.id) + "</a></div></div>" +
+        '<p class="cm-cap">' + ymd(b.since) + " 등록 · " + (b.how === "widget" ? "업적 위젯 열쇠로 확인" : "소개글 코드로 확인") + "</p>" +
+        (s.length ? '<div class="mb-nums"><div class="mb-num"><span>공개 글</span><b>' + num(last.posts) + "개</b>" + delta("posts") + '</div><div class="mb-num"><span>누적 방문자</span><b>' + num(last.visitors) + "명</b>" + delta("visitors") + '</div><div class="mb-num"><span>이웃</span><b>' + num(last.neighbors) + "명</b>" + delta("neighbors") + "</div></div>" +
+          '<details class="mb-more"><summary>날짜별 기록 보기 (' + s.length + "일)</summary>" + '<div class="mb-tbl"><table><thead><tr><th>날짜</th><th>글</th><th>누적 방문자</th><th>이웃</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
+          : '<p class="cm-cap">아직 기록된 숫자가 없어요. 아래 새로 고침을 눌러 보세요.</p>') +
+        '<div class="mb-row"><button class="cm-btn" type="button" id="refresh"' + (D.refreshLeft ? "" : " disabled") + ">숫자 새로 고침 (오늘 " + D.refreshLeft + "번 남음)</button></div>" +
+        '<p class="cm-cap">숫자는 매일 한 번 자동으로 기록돼요. 기록이 쌓이면 날짜별 성장 그래프로 보여 드릴게요.</p><div id="bmsg"></div>' +
+        '<div class="mb-foot"><button class="mb-quiet" type="button" id="release" aria-expanded="false">내 블로그 해제</button></div><div id="relBox"></div></section>';
+    }
+    function diagCard() {
+      var f = D.blog.free;
+      var done = function (k) { return (D.diags || []).filter(function (x) { return x.kind === k && x.status === "done"; })[0]; };
+      var item = function (k) {
+        var d = done(k);
+        return '<div class="mb-diag"><b>' + KIND[k] + "</b>" +
+          (f[k] ? '<p class="cm-cap">무료로 한 번 받을 수 있어요. 10~20초 걸려요.</p><div class="mb-ask" id="ask-' + k + '"><button class="cm-btn pri" type="button" data-k="' + k + '">무료로 진단받기</button></div>'
+            : d ? '<p class="cm-cap">' + ymd(d.at) + '에 받았어요.</p><a class="cm-btn" href="analyze.html?saved=' + encodeURIComponent(d.id) + '">결과 보기</a>'
+            : '<p class="cm-cap">이 블로그의 무료 진단은 이미 사용했어요.</p>') + "</div>";
+      };
+      return '<section class="cm-card mb-card" aria-labelledby="diagH"><h2 class="cm-h3" id="diagH">무료 첫 진단</h2>' +
+        '<p class="cm-cap">내 블로그는 체험단 진단과 애드포스트 진단을 블로그당 한 번씩 무료로 받을 수 있어요. 결과는 저장돼서 언제든 다시 볼 수 있어요.</p>' +
+        '<div class="mb-diags">' + item("exp") + item("adpost") + "</div>" +
+        '<p class="cm-cap">FREE에서는 점수와 떨어졌을 가능성 상위 2개까지 보여요. 할 일·추천 주제·재신청 날짜는 PRO에서 볼 수 있어요(준비 중). 진단에 실패하면 무료 횟수는 그대로 남아요.</p><div id="dmsg"></div></section>';
+    }
+    function listCard() {
+      var a = (D.diags || []).filter(function (x) { return x.status !== "pending"; });
+      if (!a.length) return "";
+      return '<section class="cm-card mb-card" aria-labelledby="listH"><h2 class="cm-h3" id="listH">지난 진단 결과</h2><ul class="mb-list">' + a.map(function (x) {
+        return "<li><span>" + KIND[x.kind] + ' <span class="cm-cap">' + esc(x.blog) + " · " + ymd(x.at) + (x.paid === "free_first" ? " · 무료" : "") + "</span></span>" +
+          (x.status === "done" ? '<a href="analyze.html?saved=' + encodeURIComponent(x.id) + '">결과 보기</a>' : '<span class="cm-cap">실패 (무료 횟수는 그대로)</span>') + "</li>";
+      }).join("") + "</ul></section>";
+    }
+    function bindBlog() {
+      $("refresh").addEventListener("click", function () {
+        var b = this; busy(b, true, "네이버에서 읽는 중");
+        api("/me/blog", { act: "refresh" }).then(function (j) {
+          if (j.ok) { D = j; draw(); msg($("bmsg"), "숫자를 새로 읽었어요."); return; }
+          busy(b, false); msg($("bmsg"), j.error, true);
+        });
+      });
+      $("release").addEventListener("click", function () {
+        var box = $("relBox"), t = this;
+        if (box.innerHTML) { box.innerHTML = ""; t.setAttribute("aria-expanded", "false"); return; }
+        t.setAttribute("aria-expanded", "true");
+        box.innerHTML = '<div class="mb-ask"><p class="cm-cap"><b>내 블로그 등록을 해제할까요?</b> 다시 등록하려면 소개글 확인을 한 번 더 해야 해요. 이 블로그의 무료 진단을 이미 썼다면 다시 등록해도 다시 받을 수 없어요.</p>' +
+          '<div class="mb-row"><button class="cm-btn" type="button" id="relYes">해제하기</button><button class="cm-btn ghost" type="button" id="relNo">취소</button></div></div>';
+        $("relNo").addEventListener("click", function () { box.innerHTML = ""; t.setAttribute("aria-expanded", "false"); t.focus(); });
+        $("relYes").addEventListener("click", function () { var y = this; busy(y, true, "해제하는 중"); api("/me/blog", { act: "release" }).then(function () { load(); }); });
+      });
+      main.querySelectorAll("[data-k]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var k = b.getAttribute("data-k"), ask = $("ask-" + k);
+          ask.innerHTML = '<p class="cm-cap"><b>무료 진단은 이 블로그에 한 번뿐이에요.</b> 지금 진단할까요?</p><div class="mb-row"><button class="cm-btn pri" type="button" id="go-' + k + '">진단 시작</button><button class="cm-btn ghost" type="button" id="no-' + k + '">취소</button></div>';
+          $("no-" + k).addEventListener("click", function () { draw(); });
+          $("go-" + k).addEventListener("click", function () { run(k, this); });
+        });
+      });
+    }
+    function run(k, btn) {
+      if (BUSY) return; BUSY = true;
+      main.querySelectorAll("[data-k], [id^=go-], [id^=no-]").forEach(function (x) { x.disabled = true; });
+      busy(btn, true, "최근 글을 읽는 중… (10~20초)");
+      api("/me/diagnose", { kind: k, rk: rk() }).then(function (j) {
+        BUSY = false;
+        if (j.ok && j.id) { location.href = "analyze.html?saved=" + encodeURIComponent(j.id); return; }
+        load();
+        setTimeout(function () { var m = $("dmsg"); if (m) msg(m, j.error || "진단에 실패했어요. 잠시 뒤 다시 해 주세요.", true); }, 400);
+      });
+    }
+    load();
+  })();
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>

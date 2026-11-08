@@ -72,6 +72,11 @@
   ul.l { padding-left: 20px; margin: 0; } ul.l li { margin: 4px 0; }
   .chips span { display: inline-block; background: var(--soft); border-radius: 999px; padding: 4px 12px; margin: 3px 4px 3px 0; font-size: 14px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .lockb { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .lockb i { display: block; height: 12px; border-radius: 6px; background: var(--line); }
+  .lockb i:nth-child(2) { width: 82%; } .lockb i:nth-child(3) { width: 64%; }
+  .saved { background: var(--chip); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
+  .saved a { color: var(--green); font-weight: 600; }
   @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } h1 { font-size: 20px; } header nav a { margin-left: 10px; font-size: 13px; } .card { padding: 18px 16px; } }
   .ad { margin: 16px 0; } ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
   .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: s .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
@@ -169,23 +174,28 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const color = (n) => (n >= 75 ? "var(--green)" : n >= 50 ? "var(--amber)" : "var(--red)");
   const list = (a) => "<ul class='l'>" + (a || []).map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
+  // FREE 회원의 저장된 진단: 가린 항목은 자리만 보여 주고 PRO 안내
+  const isLocked = (r, k) => (r.locked || []).includes(k);
+  const lockCard = (title) => `<div class="card"><h2>${title}</h2><div class="lockb" aria-hidden="true"><i></i><i></i><i></i></div><p class="note">🔒 PRO에서 볼 수 있어요. PRO는 준비 중이에요.</p></div>`;
+  let SAVED = ""; // 저장된 결과를 보고 있으면 맨 위 안내 문구
 
   function show(r, demo) {
     const rep = r.report || {};
     $("out").innerHTML =
-      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") +
+      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") + SAVED +
       `<div class="card"><div class="total"><div class="ring" style="border:6px solid ${color(r.total)}">${r.total}</div>
         <div><b>${esc(r.blog.title || r.blog.id)}</b><br><span class="sub">최근 글 ${(r.stats || {}).sampled || 0}개 본문 + 최근 ${(r.stats || {}).recentCount || 0}개 제목 기준${r.byAI ? " · AI 종합 평가" : ""}</span>
         <p style="margin:6px 0 0">${esc(rep.summary)}</p></div></div></div>` +
       `<div class="card"><h2>📊 항목별 점수</h2>` + r.items.map((x) =>
         `<div class="bar"><span>${esc(x.label)}</span><span class="t"><i style="width:${x.score}%;background:${color(x.score)}"></i></span><b>${x.score}</b><span class="d">${esc(x.detail)}</span></div>`).join("") + `</div>` +
-      `<div class="card"><h2>🧩 지금 가장 부족한 부분 3가지</h2>` + (rep.weak || []).map((w) =>
-        `<div class="weak"><b>${esc(w.title)}</b> <span class="w">${esc(w.why)}</span><br>👉 ${esc(w.fix)}</div>`).join("") + `</div>` +
-      `<div class="card"><h2>⚠️ 선정에 불리할 수 있는 요소</h2>${list(rep.risks)}</div>` +
-      `<div class="grid2"><div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postTypes)}</div>` +
-      `<div class="card"><h2>🗓️ 다음 달 추천 주제</h2>${list(rep.nextTopics)}</div></div>` +
-      `<div class="card"><h2>🎯 지금 블로그와 잘 맞는 체험단 분야</h2><div class="chips">${(rep.fits || []).map((f) => "<span>" + esc(f) + "</span>").join("")}</div>
-        <p class="note">잘 맞는 분야의 캠페인은 <a href="index.html#sites">체험단 사이트 모음</a>에서 찾아보세요. 선정되면 <a href="schedule.html">일정 관리</a>로 마감을 챙기세요.</p></div>` +
+      `<div class="card"><h2>🧩 지금 가장 부족한 부분 ${(rep.weak || []).length}가지</h2>` + (rep.weak || []).map((w) =>
+        `<div class="weak"><b>${esc(w.title)}</b> <span class="w">${esc(w.why)}</span>${w.fix ? "<br>👉 " + esc(w.fix) : ""}</div>`).join("") +
+        (isLocked(r, "fix") ? `<p class="note">🔒 세 번째 부족한 부분과 고치는 방법은 PRO에서 볼 수 있어요. PRO는 준비 중이에요.</p>` : "") + `</div>` +
+      (isLocked(r, "risks") ? lockCard("⚠️ 선정에 불리할 수 있는 요소") : `<div class="card"><h2>⚠️ 선정에 불리할 수 있는 요소</h2>${list(rep.risks)}</div>`) +
+      `<div class="grid2">` + (isLocked(r, "postTypes") ? lockCard("✍️ 이런 글을 써 보세요") : `<div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postTypes)}</div>`) +
+      (isLocked(r, "nextTopics") ? lockCard("🗓️ 다음 달 추천 주제") : `<div class="card"><h2>🗓️ 다음 달 추천 주제</h2>${list(rep.nextTopics)}</div>`) + `</div>` +
+      (isLocked(r, "fits") ? lockCard("🎯 지금 블로그와 잘 맞는 체험단 분야") : `<div class="card"><h2>🎯 지금 블로그와 잘 맞는 체험단 분야</h2><div class="chips">${(rep.fits || []).map((f) => "<span>" + esc(f) + "</span>").join("")}</div>
+        <p class="note">잘 맞는 분야의 캠페인은 <a href="index.html#sites">체험단 사이트 모음</a>에서 찾아보세요. 선정되면 <a href="schedule.html">일정 관리</a>로 마감을 챙기세요.</p></div>`) +
       `<p class="note">※ 공개된 글을 자동으로 분석한 참고용 결과예요. 업체의 실제 선정 기준과 다를 수 있어요.</p>`;
     $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -199,7 +209,7 @@
     const ic = (ok) => (ok === true ? "✅" : ok === false ? "❌" : "❔");
     const score = r.known ? Math.round((r.passed / r.known) * 100) : 0;
     $("out").innerHTML =
-      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") +
+      (demo ? "<div class='demo'>⚠️ 아직 분석 서버가 연결되지 않아 <b>예시 결과</b>를 보여 드려요.</div>" : "") + SAVED +
       `<div class="card"><div class="total"><div class="ring" style="border:6px solid ${color(score)};font-size:20px">${r.passed}/${r.known}</div>
         <div><b>${esc(r.blog.title || r.blog.id)}</b><br><span class="sub">애드포스트 알려진 기준 점검${r.byAI ? " · AI 종합 평가" : ""}</span>
         <p style="margin:6px 0 0">${esc(rep.summary)}</p></div></div></div>` +
@@ -208,11 +218,11 @@
         `<p class="note">운영 90일·공개 글 50개·방문자 100명은 블로거들 사이에 알려진 기준이에요. 네이버가 공식으로 발표한 숫자는 아니에요.</p></div>` +
       `<div class="card"><h2>🧩 떨어졌을 가능성이 있는 이유</h2>` + (rep.reasons || []).map((w) =>
         `<div class="weak"><b>${esc(w.title)}</b><br><span class="w">${esc(w.why)}</span></div>`).join("") + `</div>` +
-      `<div class="card"><h2>🗓️ 다음에 붙으려면</h2><div class="plan">` + (rep.plan || []).map((p) =>
+      (isLocked(r, "plan") ? lockCard("🗓️ 다음에 붙으려면 (할 일·추천 재신청 날짜)") : `<div class="card"><h2>🗓️ 다음에 붙으려면</h2><div class="plan">` + (rep.plan || []).map((p) =>
         `<div><span class="w">${esc(p.when)}</span>${esc(p.todo)}</div>`).join("") + `</div>` +
-        (rep.retryDate ? `<div class="retry">📅 추천 재신청: ${esc(rep.retryDate)}</div>` : "") + `</div>` +
-      `<div class="grid2"><div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postIdeas)}</div>` +
-      `<div class="card"><h2>🚫 이건 피하세요</h2>${list(rep.cautions)}</div></div>` +
+        (rep.retryDate ? `<div class="retry">📅 추천 재신청: ${esc(rep.retryDate)}</div>` : "") + `</div>`) +
+      `<div class="grid2">` + (isLocked(r, "postIdeas") ? lockCard("✍️ 이런 글을 써 보세요") : `<div class="card"><h2>✍️ 이런 글을 써 보세요</h2>${list(rep.postIdeas)}</div>`) +
+      (isLocked(r, "cautions") ? lockCard("🚫 이건 피하세요") : `<div class="card"><h2>🚫 이건 피하세요</h2>${list(rep.cautions)}</div>`) + `</div>` +
       `<p class="note">※ 공개된 정보를 자동으로 분석한 참고용 결과예요. 네이버의 실제 심사 기준과 다를 수 있어요.</p>`;
     $("out").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -233,6 +243,27 @@
   $("t-exp").addEventListener("click", () => setMode("exp"));
   $("t-ad").addEventListener("click", () => setMode("adpost"));
   setMode(MODE);
+
+  // ---- 저장된 내 진단 결과 보기 (analyze.html?saved=<번호>, 로그인한 회원만) ----
+  async function openSaved(id) {
+    const A = window.BLAuth;
+    $("msg").innerHTML = "<span class='spin'></span>저장한 진단 결과를 불러오는 중…";
+    if (!A || !A.token()) { $("msg").innerHTML = "<span class='err'>저장한 결과는 로그인해야 볼 수 있어요. <a href='login.html?r=" + encodeURIComponent("/analyze.html?saved=" + id) + "'>로그인하기</a></span>"; return; }
+    try {
+      const j = await (await A.fetch("/me/diagnose?id=" + encodeURIComponent(id))).json();
+      if (!j.ok) throw new Error(j.error || "결과를 불러오지 못했어요.");
+      setMode(j.kind === "adpost" ? "adpost" : "exp");
+      history.replaceState(null, "", "?saved=" + encodeURIComponent(id));
+      const d = new Date(j.at);
+      SAVED = `<div class="saved">📌 ${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일에 저장한 내 블로그 진단이에요${(j.result.locked || []).length ? " (FREE)" : ""}. <a href="me.html">내 블로그로</a></div>`;
+      j.kind === "adpost" ? showAd(j.result, false) : show(j.result, false);
+      SAVED = "";
+      $("msg").textContent = "";
+    } catch (e) {
+      $("msg").innerHTML = "<span class='err'>" + esc(e.message) + "</span>";
+    }
+  }
+  if (Q0.get("saved")) addEventListener("load", () => openSaved(Q0.get("saved")));
 
   // ---- 블로그 주소 불러오기 ----
   // 복사한 글(앱 공유 문구 포함)에서 블로그 주소·아이디만 뽑음. naver.me 짧은 주소는 서버가 풀어 줌

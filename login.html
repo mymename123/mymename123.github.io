@@ -130,7 +130,7 @@
         '<span class="cm-cap"><span class="cm-pill">' + (u.plan === "pro" ? "PRO" : "FREE") + "</span>" +
         (since ? " · " + since.getFullYear() + "년 " + (since.getMonth() + 1) + "월 " + since.getDate() + "일 가입" : "") + "</span></div></div>" +
         '<p class="cm-cap">이 기기에서 로그인돼 있어요. 다른 기기에서는 따로 로그인해 주세요.</p>' +
-        '<div class="lg-acts">' + (ret !== "/" ? '<a class="cm-btn pri" href="' + esc(ret.slice(1) || "index.html") + '">보던 페이지로</a>' : '<a class="cm-btn pri" href="index.html">첫 화면으로</a>') +
+        '<div class="lg-acts">' + (ret !== "/" ? '<a class="cm-btn pri" href="' + esc(ret.slice(1) || "index.html") + '">보던 페이지로</a><a class="cm-btn" href="me.html">내 블로그</a>' : '<a class="cm-btn pri" href="me.html">내 블로그</a><a class="cm-btn" href="index.html">첫 화면으로</a>') +
         '<button class="cm-btn" type="button" id="out">로그아웃</button></div>';
       // 탈퇴는 카드 밖 아래에 작은 글씨로 (동혁 결정: 눈에 덜 띄게, 빨간색 말고 검은색)
       after.innerHTML = '<button class="lg-quiet" type="button" id="bye" aria-expanded="false" aria-controls="byeBox">회원 탈퇴</button><div id="byeBox"></div>';
