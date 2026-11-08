@@ -45,3 +45,48 @@ header.sh { background: var(--navy); border-bottom: 1px solid var(--navy-line); 
 .crumb { font-size: 14px; margin: 0 0 14px; }
 .crumb a { color: var(--sub) !important; text-decoration: none; }
 .crumb a:hover { color: var(--green) !important; }
+
+/* ===== 공통 부품 (카드·아이콘 타일·버튼·글자 크기) : 첫 화면·위젯·공개 프로필이 같은 모양을 씀 ===== */
+.cm-wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.cm-narrow { max-width: 960px; }
+.cm-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; min-width: 0; }
+.cm-ic { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--chip); color: var(--green); display: inline-flex; align-items: center; justify-content: center; }
+.cm-ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cm-kicker { display: block; font-size: 13px; font-weight: 600; color: var(--green); letter-spacing: .2px; }
+.cm-h1 { margin: 0; font-size: 32px; line-height: 1.3; letter-spacing: -0.8px; text-wrap: balance; }
+.cm-h2 { margin: 0; font-size: 26px; line-height: 1.35; letter-spacing: -0.6px; text-wrap: balance; }
+.cm-h3 { margin: 0; font-size: 18px; line-height: 1.4; }
+.cm-lead { margin: 0; font-size: 16px; line-height: 1.7; color: var(--sub); max-width: 640px; }
+.cm-cap { margin: 0; font-size: 13px; line-height: 1.6; color: var(--sub); }
+.cm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text) !important; font: inherit; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.cm-btn:hover { border-color: var(--green); }
+.cm-btn.pri { background: var(--green); border-color: var(--green); color: #fff !important; }
+.cm-btn.pri:hover { background: var(--green-d); }
+.cm-btn.ghost { background: transparent; }
+.cm-btn.danger { color: #b42318 !important; }
+.cm-btn:disabled { opacity: .55; cursor: default; }
+.cm-btn:focus-visible, .cm-card a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.cm-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--chip); color: var(--green); }
+.cm-pill.navy { background: var(--navy); color: var(--mint); letter-spacing: .4px; }
+.cm-sec { padding-top: 64px; }
+.cm-sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 20px; }
+.cm-sec-head > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cm-field { display: flex; flex-direction: column; gap: 6px; }
+.cm-field > span { font-size: 14px; font-weight: 600; }
+.cm-input { font: inherit; font-size: 16px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); min-width: 0; }
+.cm-input:focus { outline: 2px solid var(--green); outline-offset: 0; border-color: var(--green); }
+.cm-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.cm-bar > i { display: block; height: 100%; background: var(--green); border-radius: 3px; }
+.cm-msg { font-size: 14px; line-height: 1.6; padding: 12px 14px; border-radius: 10px; background: var(--chip); color: var(--text); }
+.cm-msg.err { background: #fdecea; color: #8a1c12; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cm-msg.err { background: #3a1714; color: #ffb4ab; } }
+:root[data-theme="dark"] .cm-msg.err { background: #3a1714; color: #ffb4ab; }
+.cm-spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: cmspin .8s linear infinite; vertical-align: -3px; }
+@keyframes cmspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cm-spin { animation-duration: 2s; } }
+@media (max-width: 640px) {
+  .cm-h1 { font-size: 26px; }
+  .cm-h2 { font-size: 22px; }
+  .cm-card { padding: 20px 18px; }
+  .cm-sec { padding-top: 44px; }
+}

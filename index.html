@@ -8,10 +8,10 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0e1a2b">
-<title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
-<meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 18곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
-<meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
-<meta property="og:description" content="블로그 체험단 사이트 18곳 바로가기 + 초보 블로거 신청 가이드">
+<title>체험단모아 | 블로그 히스토리·체험단 진단·사이트 모음</title>
+<meta name="description" content="네이버 블로그 주소 하나로 업적·연혁·성장 기록을 보고, 체험단·애드포스트에 불리할 수 있는 부분을 점검해요. 디너의여왕, 리뷰노트, 레뷰 등 체험단 사이트 18곳 바로가기와 신청 가이드도 있어요.">
+<meta property="og:title" content="체험단모아 | 블로그 히스토리·체험단 진단·사이트 모음">
+<meta property="og:description" content="내 블로그 업적·성장 기록, 체험단·애드포스트 진단, 체험단 사이트 18곳 바로가기">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mymename123.github.io/">
 <meta property="og:image" content="https://mymename123.github.io/og-image.png">
@@ -58,30 +58,42 @@
   .band { background: var(--navy); color: #fff; }
   .hero { display: flex; flex-wrap: wrap; gap: 48px; align-items: center; padding-block: 56px 72px; }
   .hero-l { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
-  .hero h1 { margin: 0; font-size: 44px; line-height: 1.28; font-weight: 700; letter-spacing: -1.2px; text-wrap: balance; }
-  .hero .lead { margin: 0; font-size: 17.5px; line-height: 1.7; color: var(--navy-sub); max-width: 560px; }
+  .eyebrow { align-self: flex-start; font-size: 13px; font-weight: 600; letter-spacing: .3px; color: var(--mint); }
+  .hero h1 { margin: -8px 0 0; font-size: 42px; line-height: 1.3; font-weight: 700; letter-spacing: -1.2px; text-wrap: balance; }
+  .hero .lead { margin: 0; font-size: 17px; line-height: 1.7; color: var(--navy-sub); max-width: 560px; }
   .tabs { display: flex; flex-wrap: wrap; gap: 6px; background: var(--navy2); padding: 6px; border-radius: 12px; align-self: flex-start; max-width: 100%; }
   .tabs button { font-size: 14.5px; padding: 10px 16px; border: 0; border-radius: 8px; background: transparent; color: #c6d0dd; cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: #fff; color: var(--navy); font-weight: 600; }
-  .tabs button em { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--navy); background: var(--mint); border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: 1px; }
+  .tabs button[aria-selected="true"] { background: #fff; color: #0e1a2b; font-weight: 600; }
   .tabs button:focus-visible, .go:focus-visible, .q:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
   .ask { display: flex; flex-wrap: wrap; gap: 10px; max-width: 600px; margin: 0; }
   .q { flex: 1 1 280px; min-width: 0; font-size: 16px; padding: 15px 17px; border: 1px solid var(--navy-line); border-radius: 10px; background: var(--navy2); color: #fff; }
   .q::placeholder { color: #8d9bb0; }
-  .go { font-size: 16px; font-weight: 700; padding: 15px 24px; border: 0; border-radius: 10px; background: var(--mint); color: var(--navy); cursor: pointer; }
+  .go { font-size: 16px; font-weight: 700; padding: 15px 24px; border: 0; border-radius: 10px; background: var(--mint); color: #0e1a2b; cursor: pointer; }
   .go:hover { background: #4fe0a0; }
   .hint { margin: -6px 0 0; font-size: 14px; color: var(--navy-sub); }
   .hint b { color: #fff; font-weight: 600; }
-  .report { flex: 1 1 340px; min-width: 0; background: #fff; color: #0e1a2b; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
-  .report .rh { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .report .rh strong { font-size: 16px; }
-  .tag { font-size: 12px; color: #4a5a70; background: #eef2f6; padding: 3px 9px; border-radius: 6px; }
-  .meter { display: flex; flex-direction: column; gap: 7px; }
-  .meter .ml { display: flex; justify-content: space-between; font-size: 14px; }
-  .meter .ok { color: #0a7a52; font-weight: 600; } .meter .warn { color: #8f5400; font-weight: 600; }
-  .bar { height: 8px; background: #eef2f6; border-radius: 4px; overflow: hidden; }
-  .bar i { display: block; height: 100%; border-radius: 4px; }
-  .report p { margin: 0; padding-top: 10px; border-top: 1px solid #e3e8ee; font-size: 13px; color: #4a5a70; line-height: 1.6; }
+
+  /* 첫 화면 오른쪽: 히스토리 예시 */
+  .peek { flex: 1 1 340px; min-width: 0; max-width: 440px; background: var(--card); color: var(--text); border: 1px solid var(--navy-line); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+  .pk-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .pk-h > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pk-k { font-size: 12.5px; font-weight: 600; color: var(--green); }
+  .pk-h strong { font-size: 17px; line-height: 1.4; }
+  .tag { flex: none; font-size: 12px; color: var(--sub); background: var(--bg); padding: 3px 9px; border-radius: 6px; }
+  .pk-lv { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 12px; background: var(--bg); }
+  .pk-lvt { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; font-size: 13px; color: var(--sub); }
+  .pk-lvt b { font-size: 15px; color: var(--text); letter-spacing: .4px; }
+  .bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--green); }
+  .pk-b { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .pk-b > div { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }
+  .pk-b svg { margin-bottom: 6px; }
+  .pk-b b { font-size: 13.5px; line-height: 1.35; }
+  .pk-b b.off { color: var(--sub); font-weight: 600; }
+  .pk-b span { font-size: 12px; line-height: 1.4; color: var(--sub); }
+  .pk-t { list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; line-height: 1.5; }
+  .pk-t li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; }
+  .pk-t span { color: var(--sub); font-variant-numeric: tabular-nums; }
 
   /* 믿을 수 있는 이유 */
   .trust { background: var(--card); border-bottom: 1px solid var(--line); }
@@ -92,52 +104,78 @@
   .trust span { font-size: 14px; color: var(--sub); }
 
   section.blk { padding-top: 64px; }
-  .sh2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 18px; }
-  .sh2 h2 { margin: 0; font-size: 28px; letter-spacing: -0.6px; line-height: 1.35; }
+  .sh2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 20px; }
+  .sh2 > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .sh2 h2 { margin: 0; font-size: 26px; letter-spacing: -0.6px; line-height: 1.35; text-wrap: balance; }
   .sh2 p { margin: 0; font-size: 14px; color: var(--sub); }
+
+  /* 대표 기능: 내 블로그 히스토리 */
+  .flag { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 40px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 40px; }
+  .flag-l { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .feat { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+  .feat li { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+  .feat li > div { min-width: 0; }
+  .feat b { display: block; font-size: 15.5px; line-height: 1.45; }
+  .feat li > div > span { display: block; margin-top: 2px; font-size: 13.5px; line-height: 1.55; color: var(--sub); }
+  .new { font-style: normal; font-size: 10.5px; font-weight: 700; color: #0e1a2b; background: var(--mint); border-radius: 4px; padding: 1px 5px; margin-left: 4px; vertical-align: 2px; }
+  .flag-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .flag-r { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; }
+  .flag-r figcaption { font-size: 13px; color: var(--sub); text-align: center; }
+  .mock { width: 100%; max-width: 420px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); overflow: hidden; }
+  .mock-bar { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--card); }
+  .mock-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .mock-body { display: flex; gap: 18px; padding: 18px; align-items: flex-start; }
+  .mock-post { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+  .mock-post i { display: block; height: 8px; border-radius: 4px; background: var(--line); }
+  .mock-post i.ph { height: 120px; border-radius: 8px; margin-block: 4px; }
+  .mock-body img { flex: none; width: 170px; max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 20px rgba(14,26,43,.14); }
+
+  /* 블로그 점검 도구 */
+  .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .tool { display: flex; flex-direction: column; gap: 14px; padding: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--text); transition: border-color .15s; }
+  .tool:hover { border-color: var(--green); }
+  .tool:focus-visible, .srow:focus-visible, .tg a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .tt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .tt b { font-size: 18px; line-height: 1.4; }
+  .tt span { font-size: 14.5px; line-height: 1.65; color: var(--sub); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  .chips span { font-size: 12px; color: var(--sub); background: var(--bg); border: 1px solid var(--line); padding: 3px 9px; border-radius: 6px; }
+  .more { font-size: 14px; font-weight: 600; color: var(--green); }
+
+  /* 여기부터 참고 자료 (한 단계 낮춤) */
+  .ref { display: flex; align-items: center; gap: 14px; margin-top: 72px; font-size: 13px; font-weight: 600; letter-spacing: .3px; color: var(--sub); }
+  .ref::before, .ref::after { content: ""; flex: 1 1 0; height: 1px; background: var(--line); }
+  section.blk.sub { padding-top: 40px; }
+  .ref + section.blk.sub { padding-top: 28px; }
+  .blk.sub .sh2 { margin-bottom: 14px; }
+  .blk.sub .sh2 h2 { font-size: 21px; letter-spacing: -0.4px; }
 
   /* 사이트 18곳 */
   .slist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 20px; }
-  .srow { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .srow { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); }
   .srow:hover b { color: var(--green); }
-  .srow b { display: block; font-size: 16px; transition: color .15s; }
+  .srow b { display: block; font-size: 15.5px; transition: color .15s; }
   .srow small { display: block; font-size: 13px; color: var(--sub); line-height: 1.45; }
-  .srow .open { font-size: 14px; font-weight: 600; color: var(--green); white-space: nowrap; }
-  .ico { width: 44px; height: 44px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .ico img { width: 32px; height: 32px; object-fit: contain; }
-  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-weight: 700; font-size: 18px; }
+  .srow .open { font-size: 13.5px; font-weight: 600; color: var(--green); white-space: nowrap; }
+  .ico { width: 40px; height: 40px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ico img { width: 28px; height: 28px; object-fit: contain; }
+  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-weight: 700; font-size: 17px; }
   .slist .srow:nth-last-child(-n+2) { border-bottom: 0; }
   .note { font-size: 13px; color: var(--sub); margin: 12px 0 0; }
 
-  /* 도구 3가지 */
-  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
-  .tool { display: flex; flex-direction: column; gap: 10px; padding: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
-  .tool:hover { border-color: var(--green); transform: translateY(-2px); }
-  .tool .ti { width: 44px; height: 44px; border-radius: 11px; background: var(--chip); display: flex; align-items: center; justify-content: center; }
-  .tool .k { font-size: 13px; font-weight: 600; color: var(--green); }
-  .tool b { font-size: 19px; line-height: 1.4; }
-  .tool p { margin: 0; font-size: 14.5px; color: var(--sub); line-height: 1.65; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
-  .chips span { font-size: 12px; color: var(--sub); background: var(--bg); border: 1px solid var(--line); padding: 3px 9px; border-radius: 6px; }
-
-  /* 일정 관리 + 꿀팁 */
-  .duo { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
-  .sched { flex: 1 1 300px; min-width: 0; background: var(--navy); border: 1px solid var(--line); color: #fff; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
-  .sched .k { font-size: 13px; font-weight: 600; color: var(--mint); }
-  .sched b { font-size: 22px; line-height: 1.4; }
-  .sched p { margin: 0; font-size: 14.5px; color: var(--navy-sub); line-height: 1.65; }
-  .sched a { margin-top: 8px; align-self: flex-start; background: var(--mint); color: var(--navy); font-weight: 700; padding: 12px 20px; border-radius: 10px; text-decoration: none; }
-  .tipcol { flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 28px; }
-  .tg h3 { font-size: 14px; color: var(--sub); margin: 0 0 4px; font-weight: 600; }
-  .tg a { display: block; padding: 11px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); font-size: 15px; line-height: 1.5; }
+  /* 꿀팁 */
+  .tipcol { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px 28px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px 8px; }
+  .tg { min-width: 0; }
+  .tg h3 { font-size: 13.5px; color: var(--sub); margin: 0 0 2px; font-weight: 600; }
+  .tg a { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); font-size: 15px; line-height: 1.5; }
+  .tg a:last-child { border-bottom: 0; }
   .tg a:hover { color: var(--green); }
-  .tg + .tg { margin-top: 0; }
 
   .ad { margin: 40px 0 0; text-align: center; }
   ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 
   /* 가이드·FAQ */
-  section.guide { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 28px 14px; margin-top: 24px; }
+  section.guide { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 28px 28px 14px; }
   section.guide h3 { margin: 20px 0 4px; font-size: 17px; }
   section.guide p:first-of-type { margin-top: 0; }
   section.guide ul { padding-left: 20px; }
@@ -153,21 +191,36 @@
   footer.sf a { color: #c6d0dd; text-decoration: none; }
   footer.sf a:hover { color: #fff; }
 
-  @media (max-width: 980px) { .slist { grid-template-columns: 1fr; } .slist .srow:nth-last-child(2) { border-bottom: 1px solid var(--line); } }
+  @media (max-width: 980px) {
+    .slist { grid-template-columns: 1fr; }
+    .slist .srow:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+    .flag { grid-template-columns: 1fr; padding: 32px; gap: 32px; }
+    .tools { grid-template-columns: 1fr; }
+  }
   @media (max-width: 640px) {
     .hero { padding-block: 32px 40px; gap: 24px; }
-    .hero h1 { font-size: 29px; letter-spacing: -0.8px; }
-    .hero .lead { font-size: 16px; }
-    .report { display: none; }
-    .tabs { align-self: stretch; }
-    .tabs button { flex: 1 1 auto; padding: 10px 10px; font-size: 14px; }
+    .hero-l { gap: 16px; }
+    .hero h1 { margin-top: -6px; font-size: 29px; letter-spacing: -0.8px; }
+    .hero .lead { font-size: 15.5px; }
+    .peek { display: none; }
+    .tabs { align-self: stretch; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; }
+    .tabs button { padding: 10px 4px; font-size: 13.5px; }
     .go { flex: 1 1 100%; }
     section.blk { padding-top: 44px; }
-    .sh2 h2 { font-size: 23px; }
+    .sh2 h2 { font-size: 22px; }
+    .flag { padding: 22px 18px; gap: 24px; border-radius: 14px; }
+    .feat { grid-template-columns: 1fr; gap: 16px; }
+    .flag-cta .cm-btn { flex: 1 1 100%; }
+    .mock-body { padding: 14px; gap: 14px; }
+    .tool { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 6px 14px; padding: 18px; }
+    .tool .cm-ic { grid-row: span 2; }
+    .tool .chips { display: none; }
+    .ref { margin-top: 52px; }
     .slist { padding: 2px 14px; }
+    .tipcol { padding: 14px 16px 4px; }
     section.guide { padding: 22px 18px 10px; }
   }
-  @media (prefers-reduced-motion: reduce) { .tool, .srow b { transition: none; } .tool:hover { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .tool, .srow b { transition: none; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -178,111 +231,136 @@
 <div class="band">
 <header class="sh"><div class="sh-in">
   <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
-  <nav class="sh-nav" aria-label="주요 메뉴"><a href="index.html#sites">사이트 모음</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="history.html">블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
   <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
-  <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="history.html">내 블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
 </div></header>
 
 <div class="wrap hero">
   <div class="hero-l">
-    <h1>체험단에 자꾸 떨어진다면,<br>블로그부터 점검해 보세요</h1>
-    <p class="lead">네이버 블로그 공개 정보로 체험단 선정과 애드포스트 승인에 불리할 수 있는 부분을 찾아 드려요. 체험단 사이트 <span id="count">18</span>곳도 아래에 모아 두었어요.</p>
+    <span class="eyebrow">네이버 블로그 관리 도구</span>
+    <h1>블로그 성장 기록부터<br>체험단 선정 점검까지</h1>
+    <p class="lead">블로그 주소 하나로 업적·연혁·올해 결산을 보고, 체험단과 애드포스트에 불리할 수 있는 부분을 점검하세요. 로그인 없이 무료예요.</p>
     <div class="tabs" role="tablist" aria-label="도구 고르기">
-      <button type="button" role="tab" id="t-exp" aria-selected="true" aria-controls="ask" data-mode="exp">체험단 진단</button>
+      <button type="button" role="tab" id="t-history" aria-selected="true" aria-controls="ask" data-mode="history">블로그 히스토리</button>
+      <button type="button" role="tab" id="t-exp" aria-selected="false" aria-controls="ask" data-mode="exp" tabindex="-1">체험단 진단</button>
       <button type="button" role="tab" id="t-adpost" aria-selected="false" aria-controls="ask" data-mode="adpost" tabindex="-1">애드포스트 진단</button>
-      <button type="button" role="tab" id="t-history" aria-selected="false" aria-controls="ask" data-mode="history" tabindex="-1">블로그 히스토리<em>NEW</em></button>
     </div>
-    <form class="ask" id="ask" role="tabpanel" aria-labelledby="t-exp">
+    <form class="ask" id="ask" role="tabpanel" aria-labelledby="t-history">
       <label class="sr" for="q">블로그 주소 또는 아이디</label>
       <input class="q" id="q" type="text" inputmode="url" autocomplete="off" placeholder="블로그 주소, 아이디, 글 링크 모두 돼요">
-      <button class="go" id="go" type="submit">진단 시작</button>
+      <button class="go" id="go" type="submit">히스토리 보기</button>
     </form>
-    <p class="hint" id="hint"><b>선정에 불리할 수 있는 부분</b>을 가능성으로 알려 드려요. 로그인 없이 무료예요.</p>
+    <p class="hint" id="hint"><b>업적 배지 · 연혁 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요.</p>
   </div>
-  <div class="report" aria-label="진단 결과 예시">
-    <div class="rh"><strong>진단 리포트</strong><span class="tag">예시 화면</span></div>
-    <div class="meter"><div class="ml"><span>운영 기간</span><span class="ok">충분</span></div><div class="bar"><i style="width:86%;background:#2bb673"></i></div></div>
-    <div class="meter"><div class="ml"><span>최근 글 꾸준함</span><span class="warn">보완</span></div><div class="bar"><i style="width:42%;background:#e0a100"></i></div></div>
-    <div class="meter"><div class="ml"><span>이웃·방문자</span><span class="ok">충분</span></div><div class="bar"><i style="width:74%;background:#2bb673"></i></div></div>
-    <div class="meter"><div class="ml"><span>사진·글 분량</span><span class="warn">보완</span></div><div class="bar"><i style="width:51%;background:#e0a100"></i></div></div>
-    <p>실제 탈락 사유가 아니라, 공개된 정보로 본 가능성을 알려 드려요.</p>
+  <div class="peek" aria-label="내 블로그 히스토리 예시 화면">
+    <div class="pk-h"><div><span class="pk-k">내 블로그 히스토리</span><strong>예시 블로그</strong></div><span class="tag">예시 화면</span></div>
+    <div class="pk-lv"><div class="pk-lvt"><b>LEVEL 7</b><span>다음 레벨까지 업적 2단계</span></div><div class="bar"><i style="width:78%"></i></div></div>
+    <div class="pk-b">
+      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>5만명</b><span>누적 방문</span></div>
+      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>300개</b><span>포스팅</span></div>
+      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#6b7a8c"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M15 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 18.5V20M9.5 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.4M15 5.6a3 3 0 0 1 0 5.8" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>1,000명</b><span>이웃</span></div>
+      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#c3cbd5"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3 0-3-1-5.5 0-8z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b class="off">도전 중</b><span>100일 연속</span></div>
+    </div>
+    <ol class="pk-t">
+      <li><span>2024.03</span>블로그 첫 글</li>
+      <li><span>2025.06</span>100번째 글 · 누적 방문자 1만명</li>
+      <li><span>2026.10</span>300번째 글 · 이웃 1,000명</li>
+    </ol>
   </div>
 </div>
 </div>
 
 <div class="trust"><div class="wrap">
   <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>로그인 필요 없음</b><span>블로그 주소만 있으면 돼요</span></p></div>
-  <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>결과를 저장하지 않음</b><span>진단이 끝나면 남지 않아요</span></p></div>
+  <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>진단 결과는 저장 안 함</b><span>진단이 끝나면 남지 않아요</span></p></div>
   <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>공개 정보만 사용</b><span>누구나 볼 수 있는 정보로 계산해요</span></p></div>
 </div></div>
 
 <main class="wrap">
-  <section class="blk" id="sites">
-    <div class="sh2"><h2>체험단 사이트 18곳</h2><p>누르면 각 사이트가 새 창으로 열려요</p></div>
-    <div class="slist" id="grid"></div>
-    <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없어요.</p>
+  <section class="blk" id="history" aria-labelledby="flagH">
+    <div class="flag">
+      <div class="flag-l">
+        <span class="cm-kicker">대표 기능</span>
+        <h2 class="cm-h2" id="flagH">내 블로그 히스토리</h2>
+        <p class="cm-lead">첫 글부터 지금까지 블로그가 어떻게 자랐는지 한 페이지로 정리해요. 달성한 업적은 블로그 사이드바 위젯과 공유 이미지로 자랑할 수 있어요.</p>
+        <ul class="feat">
+          <li><span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM8.5 13.5 7 21l5-3 5 3-1.5-7.5"/></svg></span><div><b>업적 배지와 블로그 레벨</b><span>포스팅·방문자·이웃·연속 포스팅 등 10가지 업적</span></div></li>
+          <li><span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M3.5 12a8.5 8.5 0 1 0 2.5-6M3 4v4h4"/></svg></span><div><b>블로그 연혁과 올해 결산</b><span>첫 글, n번째 글, 가장 활발했던 달</span></div></li>
+          <li><span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg></span><div><b>다녀간 장소와 친구와 VS 대결</b><span>글 속 지도로 세는 발도장, 13가지 대결</span></div></li>
+          <li><span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM14 5v14"/></svg></span><div><b>업적 위젯과 공유 이미지 <em class="new">NEW</em></b><span>블로그 사이드바에 걸고, 인스타그램에 올리기</span></div></li>
+        </ul>
+        <div class="flag-cta"><a class="cm-btn pri" href="history.html">내 블로그 히스토리 보기</a><a class="cm-btn" href="widget.html">업적 위젯 만들기</a></div>
+      </div>
+      <figure class="flag-r">
+        <div class="mock"><div class="mock-bar" aria-hidden="true"><i></i><i></i><i></i></div><div class="mock-body"><div class="mock-post" aria-hidden="true"><i style="width:80%"></i><i></i><i></i><i style="width:60%"></i><i class="ph"></i><i></i><i style="width:70%"></i></div><img src="img/widget-sample.svg" width="170" height="408" alt="블로그 업적 위젯 예시: 레벨, 대표 업적, 숫자, 업적 배지"></div></div>
+        <figcaption>블로그 사이드바에 이렇게 보여요 (예시)</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="blk" id="tools" aria-labelledby="toolsH">
+    <div class="sh2"><div><span class="cm-kicker">블로그 점검</span><h2 id="toolsH">체험단·애드포스트 준비 도구</h2></div><p>블로그 주소 하나로 바로 확인해요</p></div>
+    <div class="tools">
+      <a class="tool" href="analyze.html">
+        <span class="cm-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 11.5v1"/></svg></span>
+        <span class="tt"><b>체험단 탈락원인 진단</b><span>선정에 불리할 수 있는 부분과 고칠 점을 알려 드려요.</span></span>
+        <span class="chips"><span>글 꾸준함</span><span>사진 수</span><span>글 길이</span></span>
+        <span class="more">진단하기 →</span>
+      </a>
+      <a class="tool" href="analyze.html?mode=adpost">
+        <span class="cm-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="17" height="11" rx="2"/><path d="M12 9.5v5M9.5 12h5"/></svg></span>
+        <span class="tt"><b>애드포스트 탈락원인 진단</b><span>승인 기준과 내 블로그를 나란히 비교해요.</span></span>
+        <span class="chips"><span>운영 90일</span><span>글 50개</span><span>방문자 100명</span></span>
+        <span class="more">진단하기 →</span>
+      </a>
+      <a class="tool" href="schedule.html">
+        <span class="cm-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+        <span class="tt"><b>체험단 일정 관리</b><span>신청·선정·방문·후기 마감을 달력으로 한눈에. 마감이 가까우면 알려 줘요.</span></span>
+        <span class="chips"><span>마감 알림</span><span>달력</span><span>내 기기에만 저장</span></span>
+        <span class="more">열기 →</span>
+      </a>
+    </div>
   </section>
 
   <!-- 광고 1 (위쪽) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
-  <section class="blk" id="tools">
-    <div class="sh2"><h2>무료 도구 3가지</h2><p>블로그 주소 하나로 바로 확인해요</p></div>
-    <div class="tools">
-      <a class="tool" href="analyze.html">
-        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 11.5v1"/></svg></span>
-        <span class="k">체험단</span><b>체험단 탈락원인 진단</b>
-        <p>선정에 불리할 수 있는 부분과 고칠 점을 알려 드려요.</p>
-        <span class="chips"><span>글 꾸준함</span><span>사진 수</span><span>글 길이</span></span>
-      </a>
-      <a class="tool" href="analyze.html?mode=adpost">
-        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="11" rx="2"/><path d="M12 9.5v5M9.5 12h5"/></svg></span>
-        <span class="k">애드포스트</span><b>애드포스트 탈락원인 진단</b>
-        <p>승인 기준과 내 블로그를 나란히 비교해요.</p>
-        <span class="chips"><span>운영 90일</span><span>글 50개</span><span>방문자 100명</span></span>
-      </a>
-      <a class="tool" href="history.html">
-        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2"/><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/></svg></span>
-        <span class="k">NEW</span><b>내 블로그 히스토리</b>
-        <p>업적 배지, 올해 결산, 다녀간 장소, 친구와 VS 대결까지.</p>
-        <span class="chips"><span>업적</span><span>올해 결산</span><span>VS 대결</span></span>
-      </a>
-    </div>
+  <div class="ref" aria-hidden="true"><span>체험단 참고 자료</span></div>
+
+  <section class="blk sub" id="sites" aria-labelledby="sitesH">
+    <div class="sh2"><div><h2 id="sitesH">체험단 사이트 <span id="count">18</span>곳</h2></div><p>누르면 각 사이트가 새 창으로 열려요</p></div>
+    <div class="slist" id="grid"></div>
+    <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없어요.</p>
   </section>
 
-  <section class="blk" id="tips">
-    <div class="sh2"><h2>블로그 체험단 꿀팁</h2><p>처음 신청부터 후기 발행까지 16편</p></div>
-    <div class="duo">
-      <div class="sched">
-        <span class="k">일정 관리</span>
-        <b>신청·선정·방문·후기 마감을 달력으로 한눈에</b>
-        <p>마감이 가까우면 빨간색으로 알려 줘요. 로그인 없이 무료예요.</p>
-        <a href="schedule.html">일정 관리 열기</a>
+  <section class="blk sub" id="tips" aria-labelledby="tipsH">
+    <div class="sh2"><div><h2 id="tipsH">블로그 체험단 꿀팁</h2></div><p>처음 신청부터 후기 발행까지 16편</p></div>
+    <div class="tipcol">
+      <div class="tg">
+        <h3>처음 시작한다면</h3>
+        <a href="tip-compare.html">체험단 사이트, 어디가 어떻게 다를까요?</a>
+        <a href="tip-newbie.html">블로그 초보도 체험단 선정되는 법</a>
+        <a href="tip-profile.html">체험단 선정에 유리한 블로그 프로필 만들기</a>
+        <a href="tip-apply.html">선정되는 체험단 신청 문구 쓰는 법</a>
       </div>
-      <div class="tipcol">
-        <div class="tg">
-          <h3>처음 시작한다면</h3>
-          <a href="tip-compare.html">체험단 사이트, 어디가 어떻게 다를까요?</a>
-          <a href="tip-newbie.html">블로그 초보도 체험단 선정되는 법</a>
-          <a href="tip-profile.html">체험단 선정에 유리한 블로그 프로필 만들기</a>
-          <a href="tip-apply.html">선정되는 체험단 신청 문구 쓰는 법</a>
-          <h3 style="margin-top:22px">알아 두면 좋은 것</h3>
-          <a href="tip-disclosure.html">체험단 후기 광고 표시, 이렇게 하면 돼요</a>
-          <a href="tip-tax.html">체험단으로 받은 제품, 세금 내야 하나요?</a>
-          <a href="tip-search.html">네이버 블로그 검색 노출, 기본부터 챙겨요</a>
-          <a href="tip-hottopic.html">네이버 블로그 핫토픽, 실제 선정 글 15개를 분석해 봤어요</a>
-          <a href="tip-mistakes.html">체험단 블로거가 자주 하는 실수 7가지</a>
-        </div>
-        <div class="tg">
-          <h3>선정된 뒤에</h3>
-          <a href="tip-visit.html">맛집 체험단 방문 당일, 이것만 챙기세요</a>
-          <a href="tip-photo.html">맛집 체험단 사진, 이 순서로 찍으면 편해요</a>
-          <a href="tip-thumbnail.html">체험단 후기 대표 사진, 이것만 바꿔도 눈에 띄어요</a>
-          <a href="tip-delivery.html">배송형 제품 체험단 후기, 이렇게 구성하세요</a>
-          <a href="tip-review.html">체험단 후기 발행 전 체크리스트</a>
-          <a href="tip-revision.html">체험단 수정 요청이 왔을 때 대처법</a>
-          <a href="tip-schedule.html">체험단 너무 많이 붙었을 때 일정 관리법</a>
-        </div>
+      <div class="tg">
+        <h3>선정된 뒤에</h3>
+        <a href="tip-visit.html">맛집 체험단 방문 당일, 이것만 챙기세요</a>
+        <a href="tip-photo.html">맛집 체험단 사진, 이 순서로 찍으면 편해요</a>
+        <a href="tip-thumbnail.html">체험단 후기 대표 사진, 이것만 바꿔도 눈에 띄어요</a>
+        <a href="tip-delivery.html">배송형 제품 체험단 후기, 이렇게 구성하세요</a>
+        <a href="tip-review.html">체험단 후기 발행 전 체크리스트</a>
+        <a href="tip-revision.html">체험단 수정 요청이 왔을 때 대처법</a>
+        <a href="tip-schedule.html">체험단 너무 많이 붙었을 때 일정 관리법</a>
+      </div>
+      <div class="tg">
+        <h3>알아 두면 좋은 것</h3>
+        <a href="tip-disclosure.html">체험단 후기 광고 표시, 이렇게 하면 돼요</a>
+        <a href="tip-tax.html">체험단으로 받은 제품, 세금 내야 하나요?</a>
+        <a href="tip-search.html">네이버 블로그 검색 노출, 기본부터 챙겨요</a>
+        <a href="tip-hottopic.html">네이버 블로그 핫토픽, 실제 선정 글 15개를 분석해 봤어요</a>
+        <a href="tip-mistakes.html">체험단 블로거가 자주 하는 실수 7가지</a>
       </div>
     </div>
   </section>
@@ -447,11 +525,11 @@
     const TOOL = {
       exp: { go: "진단 시작", page: "analyze.html", extra: {}, hint: "<b>선정에 불리할 수 있는 부분</b>을 가능성으로 알려 드려요. 로그인 없이 무료예요." },
       adpost: { go: "진단 시작", page: "analyze.html", extra: { mode: "adpost" }, hint: "<b>운영 90일 · 글 50개 · 방문자 100명</b> 기준과 내 블로그를 비교해요." },
-      history: { go: "히스토리 보기", page: "history.html", extra: {}, hint: "<b>업적 배지 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요." }
+      history: { go: "히스토리 보기", page: "history.html", extra: {}, hint: "<b>업적 배지 · 연혁 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요." }
     };
     const tabs = Array.from(document.querySelectorAll(".tabs [role=tab]"));
     const form = document.getElementById("ask"), q = document.getElementById("q");
-    let mode = "exp";
+    let mode = "history";
     function pick(t, focus) {
       mode = t.dataset.mode;
       tabs.forEach((x) => { const on = x === t; x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1; });

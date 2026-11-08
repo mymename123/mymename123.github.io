@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<base href="/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0e1a2b">
+<meta name="robots" content="noindex">
+<title>블로그 공개 프로필 | 체험단모아</title>
+<meta name="description" content="체험단모아에서 블로거가 공개에 동의한 블로그 업적과 성장 기록이에요.">
+<meta property="og:title" content="블로그 업적 프로필 | 체험단모아">
+<meta property="og:description" content="블로그 레벨·달성 업적·성장 기록">
+<meta property="og:type" content="profile">
+<meta property="og:image" content="https://mymename123.github.io/og-image.png">
+<style>
+  :root { --bg: #f5f7fa; --card: #fff; --line: #e3e8ee; --text: #0e1a2b; --sub: #4a5a70; --green: #0a7a52; --chip: #e8f4ee; }
+  * { box-sizing: border-box; }
+  body { word-break: keep-all; margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.7 "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  [hidden] { display: none !important; }
+  main { padding-block: 32px 0; display: flex; flex-direction: column; gap: 20px; }
+  .pf-head { background: var(--navy); color: #fff; border-radius: 16px; padding: 28px; display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: center; justify-content: space-between; }
+  .pf-id { display: flex; gap: 16px; align-items: center; min-width: 0; flex: 1 1 320px; }
+  .pf-av { flex: none; width: 64px; height: 64px; border-radius: 16px; background: var(--navy2); border: 1px solid var(--navy-line); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: var(--mint); }
+  .pf-id > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .pf-id h1 { margin: 0; font-size: 26px; line-height: 1.3; letter-spacing: -0.6px; overflow-wrap: anywhere; }
+  .pf-id p { margin: 0; color: var(--navy-sub); font-size: 14px; overflow-wrap: anywhere; }
+  .pf-lv { display: flex; flex-direction: column; gap: 8px; min-width: 220px; flex: 0 1 280px; }
+  .pf-lv .lv { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .pf-lv .lv b { font-size: 28px; letter-spacing: -.5px; color: var(--mint); }
+  .pf-lv .lv span { font-size: 13px; color: var(--navy-sub); }
+  .pf-lv .cm-bar { background: var(--navy-line); }
+  .pf-lv .cm-bar > i { background: var(--mint); }
+  .pf-act { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pf-act .cm-btn { background: transparent; border-color: var(--navy-line); color: #fff !important; }
+  .pf-act .cm-btn.pri { background: var(--mint); border-color: var(--mint); color: var(--navy) !important; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat span { font-size: 13px; color: var(--sub); }
+  .stat b { font-size: 24px; letter-spacing: -.4px; line-height: 1.3; }
+  .stat small { font-size: 12.5px; color: var(--sub); }
+  .ach { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .ac { display: flex; flex-direction: column; gap: 12px; }
+  .ac-top { display: flex; gap: 12px; align-items: center; }
+  .ac-top > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ac-top b { font-size: 16px; line-height: 1.4; }
+  .ac-top small { font-size: 12.5px; color: var(--sub); }
+  .ac.off .ac-top b { color: var(--sub); }
+  .ac .meta { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--sub); }
+  .ac details summary { cursor: pointer; font-size: 13px; color: var(--green); font-weight: 600; list-style: none; min-height: 32px; display: flex; align-items: center; }
+  .ac details summary::-webkit-details-marker { display: none; }
+  .ac ol { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; }
+  .ac li { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .ac li.off { color: var(--sub); }
+  .ac li em { font-style: normal; color: var(--sub); font-size: 12.5px; white-space: nowrap; }
+  .grow { display: flex; flex-direction: column; gap: 10px; }
+  .yr { display: grid; grid-template-columns: 52px minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 13.5px; }
+  .yr .b { height: 14px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .yr .b i { display: block; height: 100%; background: var(--green); border-radius: 0 3px 3px 0; }
+  .yr span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl { overflow-x: auto; }
+  .tbl table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 420px; }
+  .tbl th, .tbl td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; }
+  .tbl th { font-size: 12.5px; color: var(--sub); font-weight: 600; }
+  .cta { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
+  .cta > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 320px; }
+  .empty { text-align: center; padding: 48px 24px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  footer.pf { margin-top: 64px; border-top: 1px solid var(--line); padding-block: 24px 48px; font-size: 13px; color: var(--sub); }
+  footer.pf a { color: var(--sub); margin-right: 14px; }
+  @media (max-width: 640px) {
+    main { padding-block: 20px 0; }
+    .pf-head { padding: 22px 18px; }
+    .pf-id h1 { font-size: 22px; }
+    .pf-av { width: 52px; height: 52px; font-size: 22px; }
+    .pf-lv { min-width: 0; flex: 1 1 100%; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat b { font-size: 20px; }
+  }
+</style>
+<!--
+  ===== 방문자 통계(구글 애널리틱스) =====
+  G-XXXXXXXXXX 를 내 측정 ID로 바꾸면 통계가 켜져요. 그대로 두면 아무것도 안 불러와요.
+-->
+<script>
+  (function () {
+    var GA_ID = "G-S3G991WQMJ";
+    if (GA_ID.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6918326143546132" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+
+<main class="cm-wrap cm-narrow" id="main" aria-busy="true">
+  <div class="cm-card empty" id="loading"><span class="cm-spin"></span><p class="cm-cap">블로그 프로필을 불러오는 중이에요…</p></div>
+  <div class="cm-card empty" id="err" hidden>
+    <span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16.5v.01M12 3l9.5 17h-19z"/></svg></span>
+    <h1 class="cm-h3" id="errT">프로필을 볼 수 없어요</h1>
+    <p class="cm-cap" id="errD"></p>
+    <a class="cm-btn pri" href="history.html">내 블로그 히스토리 보기</a>
+  </div>
+
+  <div id="pf" hidden>
+    <section class="pf-head" aria-labelledby="pfName">
+      <div class="pf-id"><span class="pf-av" id="pfAv" aria-hidden="true"></span><div><span class="cm-pill navy" style="align-self:flex-start">체험단모아 블로그 프로필</span><h1 id="pfName"></h1><p id="pfSub"></p></div></div>
+      <div class="pf-lv"><div class="lv"><b id="pfLv"></b><span id="pfLvT"></span></div><div class="cm-bar"><i id="pfLvBar"></i></div><div class="pf-act"><a class="cm-btn pri" id="pfBlog" target="_blank" rel="noopener">블로그 가기</a><button class="cm-btn" type="button" id="pfShare">주소 복사</button></div></div>
+    </section>
+    <p class="cm-cap" id="pfShareSt" role="status" aria-live="polite"></p>
+
+    <section class="stats" id="pfStats" aria-label="블로그 요약"></section>
+
+    <section id="pfAchSec" aria-labelledby="achH">
+      <div class="cm-sec-head"><div><span class="cm-kicker">달성 업적</span><h2 class="cm-h2" id="achH">업적 배지</h2></div><p class="cm-cap" id="achCap"></p></div>
+      <div class="ach" id="pfAch"></div>
+    </section>
+
+    <section id="pfGrowSec" aria-labelledby="growH">
+      <div class="cm-sec-head"><div><span class="cm-kicker">블로그 성장 기록</span><h2 class="cm-h2" id="growH">해마다 쓴 글</h2></div></div>
+      <div class="cm-card grow" id="pfYears"></div>
+      <div class="cm-card tbl" id="pfMonths" style="margin-top:12px"></div>
+    </section>
+
+    <section class="cm-card cta">
+      <div><span class="cm-kicker">체험단모아</span><b style="font-size:18px">내 블로그 업적도 확인해 보세요</b><p class="cm-cap">블로그 주소만 넣으면 업적 배지·연혁·올해 결산을 바로 보여 드려요. 로그인 없이 무료예요.</p></div>
+      <div class="btns" style="flex:0 1 auto;display:flex;flex-wrap:wrap;gap:8px"><a class="cm-btn pri" href="history.html">내 블로그 히스토리</a><a class="cm-btn" href="widget.html">업적 위젯 만들기</a></div>
+    </section>
+    <p class="cm-cap" id="pfNote"></p>
+  </div>
+</main>
+
+<footer class="pf"><div class="cm-wrap cm-narrow"><a href="index.html">체험단모아</a><a href="privacy.html">개인정보처리방침</a><a href="about.html">소개·문의</a><br>이 프로필은 블로거가 공개에 동의한 항목만 보여 줘요. 숫자는 네이버 블로그 공개 정보로 계산했어요.</div></footer>
+
+<script src="ach.js"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.CMAch, $ = function (id) { return document.getElementById(id); };
+  var q = new URLSearchParams(location.search), id = String(q.get("u") || "").toLowerCase(), k = String(q.get("k") || "");
+  function fail(t, d) { $("loading").hidden = true; $("err").hidden = false; $("errT").textContent = t; $("errD").textContent = d || ""; $("main").removeAttribute("aria-busy"); }
+  if (!/^[a-z0-9_-]{3,30}$/.test(id) || !/^[A-Za-z0-9_-]{12}$/.test(k)) return fail("프로필 주소가 올바르지 않아요", "위젯을 눌러서 들어오거나, 블로거가 공유한 주소 그대로 열어 주세요.");
+  var p = new URLSearchParams({ mode: "profile", blog: id, k: k });
+  fetch(A.WORKER + "?" + p.toString()).then(function (r) { return r.json(); }).then(render, function () { fail("프로필을 불러오지 못했어요", "잠시 뒤 다시 열어 주세요."); });
+
+  function render(j) {
+    if (!j || !j.ok) return fail("프로필을 볼 수 없어요", (j && j.error) || "");
+    $("loading").hidden = true; $("pf").hidden = false; $("main").removeAttribute("aria-busy");
+    var name = j.title || j.nick || id;
+    document.title = name + " 블로그 프로필 | 체험단모아";
+    $("pfAv").textContent = (j.nick || name).trim().slice(0, 1).toUpperCase();
+    $("pfName").textContent = name;
+    $("pfSub").textContent = [j.nick, j.topic, "blog.naver.com/" + id].filter(Boolean).join(" · ");
+    $("pfBlog").href = j.url;
+    var L = j.ach || { level: j.level };
+    $("pfLv").textContent = "LEVEL " + (L.level || j.level || 1);
+    var base = [0, 3, 6, 10, 15, 20, 26, 33, 41, 50][(L.level || 1) - 1] || 0;
+    if (L.sum != null) {
+      $("pfLvT").textContent = L.nextLevelAt != null ? "다음 레벨까지 업적 " + (L.nextLevelAt - L.sum) + "단계" : "최고 레벨";
+      $("pfLvBar").style.width = (L.nextLevelAt != null ? Math.round(((L.sum - base) / (L.nextLevelAt - base)) * 100) : 100) + "%";
+    } else $("pfLvBar").parentNode.hidden = true;
+    $("pfShare").onclick = function () {
+      var u = location.href, done = function () { $("pfShareSt").textContent = "프로필 주소를 복사했어요."; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, function () { $("pfShareSt").textContent = u; });
+      else $("pfShareSt").textContent = u;
+    };
+    // 요약 숫자 (공개한 것만)
+    var days = j.start ? Math.floor((Date.now() - j.start) / 864e5) : null;
+    var st = [];
+    if (j.start) st.push(["블로그 시작일", A.ymd(j.start), days != null ? "운영 " + A.fmt(days + 1) + "일째" : ""]);
+    if (j.posts != null) st.push(["누적 포스팅", A.fmt(j.posts) + "개", ""]);
+    if (j.visitors != null) st.push(["누적 방문자", A.fmt(j.visitors) + "명", ""]);
+    if (j.neighbors != null) st.push(["이웃", A.fmt(j.neighbors) + "명", ""]);
+    $("pfStats").innerHTML = st.map(function (s) { return '<div class="cm-card stat"><span>' + s[0] + "</span><b>" + A.esc(s[1]) + "</b>" + (s[2] ? "<small>" + A.esc(s[2]) + "</small>" : "") + "</div>"; }).join("");
+    $("pfStats").hidden = !st.length;
+    // 업적
+    if (j.ach) {
+      var list = j.ach.list.slice().sort(function (a, b) { return (b.lv > 0) - (a.lv > 0) || (b.special ? 1 : 0) - (a.special ? 1 : 0) || b.lv / b.max - a.lv / a.max; });
+      $("achCap").textContent = "전체 " + j.ach.total + "단계 중 " + j.ach.count + "단계 달성";
+      $("pfAch").innerHTML = list.map(function (a) {
+        var off = !a.lv, last = a.lv ? a.steps[a.lv - 1] : null;
+        var steps = a.steps.map(function (s) { return '<li class="' + (s.on ? "" : "off") + '"><span>' + A.esc(s.label) + "</span><em>" + (s.on ? A.esc(A.when(s) || "달성") : "도전 중") + "</em></li>"; }).join("");
+        return '<article class="cm-card ac' + (off ? " off" : "") + '"><div class="ac-top">' + A.badge(a, 48) + "<div><b>" + A.esc(off ? a.name : a.title) + "</b><small>" + A.esc(off ? "다음: " + a.title.replace(/ 도전 중$/, "") : a.name + (a.special ? "" : " · " + A.tierName(a) + " Lv." + a.lv + "/" + a.max)) + "</small></div></div>" +
+          (a.special ? "" : '<div><div class="meta"><span>' + (a.next ? "다음: " + A.esc(a.next) : "최고 단계 달성") + "</span><span>" + (last && A.when(last) ? A.esc(A.when(last)) : "") + '</span></div><div class="cm-bar" style="margin-top:6px"><i style="width:' + (a.next ? a.pct : 100) + '%"></i></div></div>') +
+          (a.special ? "" : "<details><summary>단계별 달성 기록 보기</summary><ol>" + steps + "</ol></details>") + "</article>";
+      }).join("");
+    } else $("pfAchSec").hidden = true;
+    // 성장 기록
+    if (j.growth) {
+      var ys = (j.growth.years || []).filter(function (y) { return y[1] > 0 || true; });
+      var mx = Math.max.apply(null, ys.map(function (y) { return y[1]; }).concat([1]));
+      $("pfYears").innerHTML = ys.length ? ys.map(function (y) { return '<div class="yr"><span>' + y[0] + '</span><span class="b" aria-hidden="true"><i style="width:' + Math.round((y[1] / mx) * 100) + '%"></i></span><span>' + A.fmt(y[1]) + "개</span></div>"; }).join("") + '<p class="cm-cap">해마다 쓴 글 수예요. 글이 아주 많은 블로그는 일부를 읽고 어림한 값일 수 있어요.</p>' : '<p class="cm-cap">아직 기록이 없어요.</p>';
+      var ms = (j.growth.months || []).slice().reverse();
+      var cols = [["posts", "포스팅"], ["visitors", "누적 방문자"], ["neighbors", "이웃"]].filter(function (c) { return ms.some(function (m) { return m[c[0]] != null; }); });
+      $("pfMonths").innerHTML = ms.length && cols.length ? '<b style="display:block;margin-bottom:6px">체험단모아에 등록한 뒤 달마다 기록</b><table><thead><tr><th scope="col">달</th>' + cols.map(function (c) { return '<th scope="col">' + c[1] + "</th>"; }).join("") + "</tr></thead><tbody>" +
+        ms.map(function (m) { return "<tr><td>" + m.m.replace("-", ".") + "</td>" + cols.map(function (c) { return "<td>" + A.fmt(m[c[0]]) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>" : "";
+      $("pfMonths").hidden = !(ms.length && cols.length);
+    } else $("pfGrowSec").hidden = true;
+    $("pfNote").textContent = "숫자 기준: " + (j.at ? A.ymdKo(j.at) : "-") + ". 업적 날짜 중 '확인'은 체험단모아가 처음 확인한 날, '등록 전 달성'은 등록하기 전에 이미 달성한 업적이에요.";
+  }
+})();
+</script>
+<script>
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘) + 지금 페이지 표시
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    var here = (location.pathname.split("/").pop() || "index.html") + location.search;
+    document.querySelectorAll(".sh-nav a, .mnav a").forEach(function (a) { if (a.getAttribute("href") === here) { a.classList.add("on"); a.setAttribute("aria-current", "page"); } });
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>

@@ -160,6 +160,12 @@
   .bd.off { opacity: .55; } .bd.off .i { filter: grayscale(1); }
   .bd.gold { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
   .bcount { font-size: 13px; color: var(--sub); margin: -4px 0 12px; }
+  .wlink { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--chip); border: 1px solid var(--line); text-decoration: none; color: var(--text); font-size: 13.5px; line-height: 1.55; }
+  .wlink span { color: var(--sub); min-width: 0; }
+  .wlink b { color: var(--text); font-size: 15px; }
+  .wlink em { font-style: normal; font-weight: 700; color: var(--green); white-space: nowrap; }
+  .wlink:hover { border-color: var(--green); }
+  .wlink:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
   /* 연혁 */
   .tl { position: relative; margin: 0; padding: 0; list-style: none; }
   .tl .yr { font-weight: 800; font-size: 15px; margin: 14px 0 6px; color: var(--green); }
@@ -250,9 +256,9 @@
 <body>
 <header class="sh"><div class="sh-in">
   <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
-  <nav class="sh-nav" aria-label="주요 메뉴"><a href="index.html#sites">사이트 모음</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="history.html">블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
   <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
-  <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="history.html">내 블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
 </div></header>
 <div class="wrap">
   <div class="card">
@@ -524,7 +530,8 @@
     const ach = achievements(r), got = ach.filter((a) => a.on);
     return `<h2>🏆 업적 배지</h2><p class="bcount">${ach.length}개 중 <b>${got.length}개</b> 달성</p><div class="badges">` +
       ach.map((a) => `<div class="bd${a.on ? "" : " off"}${a.gold ? " gold" : ""}"><div class="i">${a.icon}</div><div class="n">${esc(a.name)}</div>${a.max ? `<div class="lv">Lv.${a.lv} / ${a.max}</div>` : ""}<div class="d"><b>${esc(a.title)}</b>${a.desc ? "<br>" + esc(a.desc) : ""}</div>${a.max && a.pct != null && a.lv < a.max ? `<div class="pg" aria-hidden="true"><i style="width:${a.pct}%"></i></div>` : ""}</div>`).join("") +
-      `</div>`;
+      `</div>` +
+      (r.blog && r.blog.id ? `<a class="wlink" href="widget.html?blog=${encodeURIComponent(r.blog.id)}"><span><b>이 업적을 내 블로그에 걸어 보세요</b><br>사이드바 위젯과 공유 이미지로 만들어 드려요</span><em>업적 위젯 만들기 →</em></a>` : "");
   }
 
   // ---- 업적 배지 ----

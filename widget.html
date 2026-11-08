@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e1a2b">
+<title>블로그 업적 위젯 만들기 | 체험단모아</title>
+<meta name="description" content="네이버 블로그에서 달성한 업적을 사이드바 위젯으로 걸어 두세요. 누적 방문자·포스팅·운영 기간 업적과 블로그 레벨을 보여 주고, 누르면 내 공개 프로필로 이동해요.">
+<meta property="og:title" content="블로그 업적 위젯 만들기 | 체험단모아">
+<meta property="og:description" content="내 블로그 업적을 사이드바 위젯과 공유 이미지로">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mymename123.github.io/widget.html">
+<meta property="og:image" content="https://mymename123.github.io/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root { --bg: #f5f7fa; --card: #fff; --line: #e3e8ee; --text: #0e1a2b; --sub: #4a5a70; --green: #0a7a52; --chip: #e8f4ee; }
+  * { box-sizing: border-box; }
+  body { word-break: keep-all; margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.7 "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  [hidden] { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  main { padding-block: 40px 0; display: flex; flex-direction: column; gap: 20px; }
+  .top { display: flex; flex-direction: column; gap: 10px; padding-bottom: 8px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; padding: 0; list-style: none; }
+  .steps li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--sub); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 6px; }
+  .steps li b { width: 24px; height: 24px; border-radius: 50%; background: var(--line); color: var(--text); font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; }
+  .steps li.on { color: var(--text); border-color: var(--green); }
+  .steps li.on b { background: var(--green); color: #fff; }
+  .steps li.done b { background: var(--chip); color: var(--green); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .cm-input { flex: 1 1 260px; }
+  .ch { display: flex; flex-direction: column; gap: 14px; }
+  .ch-head { display: flex; gap: 14px; align-items: flex-start; }
+  .ch-head > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .code b { font: 700 24px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: 2px; background: var(--bg); border: 1px dashed var(--green); border-radius: 10px; padding: 12px 16px; }
+  ol.how { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  ol.how li { padding-left: 2px; }
+
+  .mg { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+  .mg-l { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .mg-r { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .who { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .who .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 200px; }
+  .who .nm b { font-size: 18px; overflow-wrap: anywhere; }
+  .lvbox { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .lvbox .t { display: flex; justify-content: space-between; font-size: 13px; color: var(--sub); }
+  fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  legend { font-size: 15px; font-weight: 700; padding: 0; margin-bottom: 10px; }
+  .set { display: flex; flex-direction: column; gap: 22px; }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .seg label { position: relative; display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; background: var(--card); }
+  .seg label small { font-size: 12px; color: var(--sub); }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label:has(input:checked) { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+  .seg label:has(input:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px 5px 5px; cursor: pointer; font-size: 14px; background: var(--card); min-height: 40px; }
+  .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip:has(input:checked) { border-color: var(--green); background: var(--chip); }
+  .chip:has(input:disabled:not(:checked)) { opacity: .5; cursor: default; }
+  .chip:has(input:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; }
+  .chip .achb { flex: none; }
+  .chk { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px 16px; }
+  .chk label, .tog { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; min-height: 32px; }
+  .chk input, .tog input { width: 18px; height: 18px; accent-color: var(--green); flex: none; }
+  .tog { justify-content: space-between; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .tog span { display: flex; flex-direction: column; }
+  .tog small { font-size: 13px; color: var(--sub); }
+  select.cm-input { padding-right: 10px; }
+  .save { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .save .st { font-size: 14px; color: var(--sub); }
+  .pv { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+  .pv-frame { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; justify-content: center; min-height: 140px; align-items: flex-start; }
+  .pv-frame img { width: 170px; max-width: 100%; height: auto; display: block; }
+  textarea.codebox { width: 100%; min-height: 112px; resize: vertical; font: 12.5px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btns .cm-btn { flex: 1 1 auto; }
+
+  .shl { display: flex; flex-direction: column; }
+  .shi { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .shi:last-child { border-bottom: 0; }
+  .shi b { display: block; font-size: 15px; }
+  .shi small { font-size: 13px; color: var(--sub); }
+  .shi .new { font-size: 11px; font-weight: 700; color: #fff; background: var(--green); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+  .shout { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .shout img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .shout .side { display: flex; flex-direction: column; gap: 12px; }
+  .ratio { display: flex; flex-wrap: wrap; gap: 8px; }
+  .danger { display: flex; flex-direction: column; gap: 12px; }
+  footer.pf { margin-top: 64px; border-top: 1px solid var(--line); padding-block: 24px 48px; font-size: 13px; color: var(--sub); }
+  footer.pf a { color: var(--sub); margin-right: 14px; }
+  @media (max-width: 900px) {
+    .mg { grid-template-columns: 1fr; }
+    .mg-r { position: static; order: -1; }
+  }
+  @media (max-width: 640px) {
+    main { padding-block: 24px 0; }
+    .seg { grid-template-columns: 1fr; }
+    .seg label { flex-direction: row; justify-content: space-between; align-items: center; }
+    .shout { grid-template-columns: 1fr; }
+    .shi { grid-template-columns: 40px minmax(0, 1fr); }
+    .shi .cm-btn { grid-column: 1 / -1; }
+  }
+</style>
+<!--
+  ===== 방문자 통계(구글 애널리틱스) =====
+  G-XXXXXXXXXX 를 내 측정 ID로 바꾸면 통계가 켜져요. 그대로 두면 아무것도 안 불러와요.
+-->
+<script>
+  (function () {
+    var GA_ID = "G-S3G991WQMJ";
+    if (GA_ID.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6918326143546132" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+
+<main class="cm-wrap cm-narrow">
+  <div class="top">
+    <span class="cm-kicker">내 블로그 히스토리 · NEW</span>
+    <h1 class="cm-h1">블로그 업적 위젯</h1>
+    <p class="cm-lead">달성한 업적과 블로그 레벨을 내 블로그 사이드바에 걸어 두세요. 위젯을 누르면 체험단모아의 내 공개 프로필로 이동해요. 숫자는 하루에도 몇 번씩 새로 읽어서 위젯에 반영돼요.</p>
+    <ol class="steps" id="steps">
+      <li class="on"><b>1</b>본인 확인</li>
+      <li><b>2</b>위젯 꾸미기</li>
+      <li><b>3</b>내 블로그에 붙이기</li>
+    </ol>
+  </div>
+
+  <!-- 1. 블로그 주소 -->
+  <section class="cm-card ch" id="start" aria-labelledby="startH">
+    <div class="ch-head">
+      <span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></span>
+      <div><h2 class="cm-h3" id="startH">내 네이버 블로그 주소</h2><p class="cm-cap">처음이면 블로그 소개글로 본인 확인을 한 번 해요. 로그인이나 비밀번호는 필요 없어요.</p></div>
+    </div>
+    <form class="row" id="startForm">
+      <label class="sr" for="blog">블로그 주소 또는 아이디</label>
+      <input class="cm-input" id="blog" type="text" inputmode="url" autocomplete="off" placeholder="blog.naver.com/아이디 또는 아이디">
+      <button class="cm-btn pri" id="startBtn" type="submit">시작하기</button>
+    </form>
+    <div id="startMsg" role="status" aria-live="polite"></div>
+    <p class="cm-cap">위젯을 만들면 <b>블로그의 공개 숫자, 업적 달성 날짜, 위젯 설정</b>이 체험단모아 서버에 저장돼요. 공개 프로필에는 내가 고른 항목만 보이고, 진단 결과는 지금처럼 저장하지 않아요. 위젯은 언제든 지울 수 있어요. <a href="privacy.html">자세히</a></p>
+  </section>
+
+  <!-- 1-2. 본인 확인 -->
+  <section class="cm-card ch" id="verify" hidden aria-labelledby="verH">
+    <div class="ch-head">
+      <span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4"/></svg></span>
+      <div><h2 class="cm-h3" id="verH">블로그 소개글로 본인 확인</h2><p class="cm-cap">내 블로그인지 확인하는 단계예요. 확인이 끝나면 코드는 지워도 돼요.</p></div>
+    </div>
+    <div class="code"><b id="vCode">CM-······</b><button class="cm-btn" type="button" id="vCopy">코드 복사</button></div>
+    <ol class="how">
+      <li>네이버 블로그 <b>관리 → 기본 설정 → 블로그 정보</b>에서 <b>블로그 소개글</b> 끝에 위 코드를 붙여 넣고 저장해 주세요. <a id="vAdmin" href="https://admin.blog.naver.com/" target="_blank" rel="noopener">블로그 관리 열기</a></li>
+      <li>아래 <b>확인하기</b>를 눌러 주세요. 저장 직후엔 반영까지 1~2분 걸릴 수 있어요.</li>
+      <li>확인되면 소개글에서 코드를 지우세요. 코드는 30분 동안 쓸 수 있어요.</li>
+    </ol>
+    <div class="row"><button class="cm-btn pri" type="button" id="vBtn">확인하기</button><button class="cm-btn ghost" type="button" id="vBack">다른 블로그</button></div>
+    <div id="vMsg" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- 2. 꾸미기 + 3. 붙이기 -->
+  <div class="mg" id="manage" hidden>
+    <div class="mg-l">
+      <section class="cm-card ch" aria-labelledby="whoH">
+        <div class="who">
+          <div class="nm"><span class="cm-kicker">내 블로그</span><b id="whoH">-</b><span class="cm-cap" id="whoSub"></span></div>
+          <span class="cm-pill navy" id="whoLv">LEVEL 1</span>
+        </div>
+        <div class="lvbox"><div class="t"><span id="lvTxt"></span><span id="lvNext"></span></div><div class="cm-bar"><i id="lvBar" style="width:0%"></i></div></div>
+        <div class="row"><button class="cm-btn" type="button" id="refreshBtn">숫자 새로 읽기</button><a class="cm-btn" id="profLink" href="#" target="_blank" rel="noopener">내 공개 프로필 보기</a></div>
+      </section>
+
+      <section class="cm-card" aria-labelledby="setH">
+        <h2 class="sr" id="setH">위젯 설정</h2>
+        <div class="set">
+          <label class="tog"><span><b>공개 프로필과 위젯 켜기</b><small>끄면 위젯은 "비공개"로 보이고 프로필도 닫혀요.</small></span><input type="checkbox" id="sPublic"></label>
+          <fieldset><legend>위젯 크기</legend>
+            <div class="seg" id="sSize">
+              <label><input type="radio" name="size" value="compact"><b>컴팩트형</b><small>170 × 92</small></label>
+              <label><input type="radio" name="size" value="basic"><b>기본형</b><small>170 × 248</small></label>
+              <label><input type="radio" name="size" value="wide"><b>확장형</b><small>170 × 408</small></label>
+            </div>
+          </fieldset>
+          <fieldset><legend>위젯에 보일 이름</legend>
+            <div class="chips" id="sLabel">
+              <label class="chip" style="padding-left:12px"><input type="radio" name="label" value="title"><span id="lbTitle">블로그 이름</span></label>
+              <label class="chip" style="padding-left:12px"><input type="radio" name="label" value="nick"><span id="lbNick">별명</span></label>
+            </div>
+          </fieldset>
+          <label class="cm-field"><span>대표 업적</span><select class="cm-input" id="sFeat"></select></label>
+          <fieldset><legend>위젯에 보일 업적 <span class="cm-cap" id="pickCap" style="display:inline"></span></legend>
+            <div class="chips" id="sPick"></div>
+          </fieldset>
+          <fieldset><legend>공개 프로필에 보일 정보</legend>
+            <div class="chk" id="sShow">
+              <label><input type="checkbox" value="start">블로그 시작일</label>
+              <label><input type="checkbox" value="posts">누적 포스팅 수</label>
+              <label><input type="checkbox" value="visitors">누적 방문자 수</label>
+              <label><input type="checkbox" value="neighbors">이웃 수</label>
+              <label><input type="checkbox" value="ach">달성 업적</label>
+              <label><input type="checkbox" value="dates">업적 달성 날짜</label>
+              <label><input type="checkbox" value="growth">블로그 성장 기록</label>
+            </div>
+          </fieldset>
+          <div class="save"><button class="cm-btn pri" type="button" id="saveBtn">설정 저장</button><span class="st" id="saveSt" role="status" aria-live="polite"></span></div>
+        </div>
+      </section>
+
+      <section class="cm-card ch" aria-labelledby="howH">
+        <div class="ch-head">
+          <span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM14 5v14"/></svg></span>
+          <div><h2 class="cm-h3" id="howH">네이버 블로그에 붙이는 법</h2><p class="cm-cap">PC 블로그의 사이드바에 보여요. 네이버 모바일 화면은 사이드바 위젯을 보여 주지 않아요.</p></div>
+        </div>
+        <ol class="how">
+          <li>오른쪽 <b>삽입 코드 복사</b>를 눌러요.</li>
+          <li>네이버 블로그 <b>관리 → 꾸미기 설정 → 레이아웃·위젯 설정</b>으로 가요.</li>
+          <li>아래쪽 <b>위젯 직접등록</b>을 누르고, 위젯 이름(예: 블로그 업적)과 복사한 코드를 붙여 넣고 <b>다음 → 등록</b>을 눌러요.</li>
+          <li>레이아웃 화면에서 새 위젯을 원하는 자리로 끌어 놓고 <b>적용</b>을 눌러요.</li>
+        </ol>
+        <p class="cm-cap">본문에 넣고 싶다면 <b>그림으로 저장</b>한 뒤 사진으로 올리고, 사진에 공개 프로필 링크를 걸어 주세요. 네이버 본문은 HTML 코드를 넣을 수 없어요.</p>
+      </section>
+
+      <section class="cm-card ch" id="shareCard" aria-labelledby="shH">
+        <div class="ch-head">
+          <span class="cm-ic"><svg viewBox="0 0 24 24"><path d="M4 16v3h16v-3M12 4v11M7.5 8.5 12 4l4.5 4.5"/></svg></span>
+          <div><h2 class="cm-h3" id="shH">업적 공유 이미지</h2><p class="cm-cap">업적을 고르면 인스타그램·블로그에 올릴 이미지를 바로 만들어 드려요. 최근에 달성한 업적은 맨 위에 보여요.</p></div>
+        </div>
+        <div class="shl" id="shList"></div>
+        <div class="shout" id="shOut" hidden>
+          <img id="shImg" alt="">
+          <div class="side">
+            <b id="shTitle"></b>
+            <div class="ratio" role="group" aria-label="이미지 비율">
+              <button class="cm-btn" type="button" data-r="1:1">정사각 1:1</button>
+              <button class="cm-btn" type="button" data-r="4:5">피드 4:5</button>
+              <button class="cm-btn" type="button" data-r="9:16">스토리 9:16</button>
+            </div>
+            <a class="cm-btn pri" id="shSave" href="#" download="체험단모아-업적.png">이미지 저장</a>
+            <p class="cm-cap">휴대폰은 이미지를 길게 눌러 저장해도 돼요.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cm-card danger" aria-labelledby="dzH">
+        <h2 class="cm-h3" id="dzH">위젯 관리</h2>
+        <p class="cm-cap">관리 열쇠는 이 브라우저에만 저장돼요. 다른 기기에서는 소개글 확인을 한 번 더 하면 돼요.</p>
+        <div class="row">
+          <button class="cm-btn" type="button" id="reBtn">위젯 코드 다시 발급</button>
+          <button class="cm-btn danger" type="button" id="delBtn">위젯 지우기</button>
+        </div>
+        <div id="dzMsg" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <aside class="mg-r" aria-label="위젯 미리보기와 삽입 코드">
+      <section class="cm-card pv">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>미리보기</b><span class="cm-cap" id="pvNote">저장 전 미리보기</span></div>
+        <div class="pv-frame"><img id="pvImg" alt="위젯 미리보기" width="170"></div>
+        <label class="cm-field"><span>삽입 코드</span><textarea class="codebox" id="code" readonly spellcheck="false"></textarea></label>
+        <div class="btns"><button class="cm-btn pri" type="button" id="copyBtn">삽입 코드 복사</button><button class="cm-btn" type="button" id="pngBtn">그림으로 저장</button></div>
+        <a id="pngLink" hidden download="체험단모아-위젯.png" href="#">그림 내려받기</a>
+        <p class="cm-cap" id="copySt" role="status" aria-live="polite"></p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="pf"><div class="cm-wrap cm-narrow"><a href="index.html">첫 화면</a><a href="history.html">내 블로그 히스토리</a><a href="privacy.html">개인정보처리방침</a><a href="about.html">소개·문의</a><br>체험단모아는 네이버 블로그 공개 정보만 읽어요. 네이버와 관계없는 개인 운영 사이트예요.</div></footer>
+
+<script src="ach.js"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.CMAch, W = A.WORKER, $ = function (id) { return document.getElementById(id); };
+  var PICK_MAX = { compact: 0, basic: 3, wide: 6 };
+  var ID = "", V = null, D = null, dirty = false;
+  var ls = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  var KEY = function (id) { return "cm.wkey." + id; };
+  function pickId(v) {
+    var s = String(v || "").trim(), m = s.match(/blog\.naver\.com\/(?:PostList\.naver\?[^#]*?blogId=|PostView\.naver\?[^#]*?blogId=)?([a-zA-Z0-9_-]{3,30})/);
+    if (m && !/^(PostList|PostView|BlogHome|section)/i.test(m[1])) return m[1].toLowerCase();
+    m = s.match(/blogId=([a-zA-Z0-9_-]{3,30})/); if (m) return m[1].toLowerCase();
+    return /^[a-zA-Z0-9_-]{3,30}$/.test(s) ? s.toLowerCase() : "";
+  }
+  function msg(el, text, err) { el.innerHTML = text ? '<div class="cm-msg' + (err ? " err" : "") + '">' + text + "</div>" : ""; }
+  function busy(btn, on, label) { btn.disabled = on; if (label) btn.dataset.l = btn.dataset.l || btn.textContent; btn.innerHTML = on ? '<span class="cm-spin"></span> ' + (label || "") : btn.dataset.l || btn.textContent; }
+  async function api(mode, body) {
+    var p = new URLSearchParams({ mode: mode, blog: ID });
+    var opt = body ? { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "text/plain" } } : {};
+    try {
+      var r = await fetch(W + "?" + p.toString(), opt);
+      var j = await r.json();
+      if (!r.ok && j.ok == null) j.ok = false;
+      return j;
+    } catch (e) { return { ok: false, error: "서버에 연결하지 못했어요. 잠시 뒤 다시 해 주세요." }; }
+  }
+  function step(n) { Array.prototype.forEach.call($("steps").children, function (li, i) { li.className = i + 1 < n ? "done" : i + 1 === n ? "on" : ""; }); }
+
+  // ---- 1. 시작 ----
+  $("startForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var id = pickId($("blog").value);
+    if (!id) return msg($("startMsg"), "네이버 블로그 주소나 아이디를 넣어 주세요. 예) blog.naver.com/아이디", true);
+    ID = id; msg($("startMsg"), "");
+    busy($("startBtn"), true, "확인 중");
+    var key = ls.get(KEY(ID));
+    if (key) {
+      var j = await api("wowner", { key: key, act: "get" });
+      busy($("startBtn"), false);
+      if (j.ok) return show(j);
+      if (j.auth === false) ls.del(KEY(ID)); else return msg($("startMsg"), A.esc(j.error || "불러오지 못했어요."), true);
+    }
+    var c = await api("wclaim");
+    busy($("startBtn"), false);
+    if (!c.ok) return msg($("startMsg"), A.esc(c.error || "확인 코드를 받지 못했어요."), true);
+    $("vCode").textContent = c.code;
+    $("vAdmin").href = "https://admin.blog.naver.com/" + encodeURIComponent(ID);
+    $("start").hidden = true; $("verify").hidden = false; msg($("vMsg"), "");
+    $("vBtn").focus();
+  });
+  $("vCopy").addEventListener("click", function () { copy($("vCode").textContent, $("vMsg"), "코드를 복사했어요. 소개글 끝에 붙여 넣어 주세요."); });
+  $("vBack").addEventListener("click", function () { $("verify").hidden = true; $("start").hidden = false; $("blog").focus(); });
+  $("vBtn").addEventListener("click", async function () {
+    busy($("vBtn"), true, "소개글 확인 중");
+    var j = await api("wverify");
+    busy($("vBtn"), false);
+    if (!j.ok) return msg($("vMsg"), A.esc(j.error || "확인하지 못했어요."), true);
+    ls.set(KEY(ID), j.key);
+    show(j, "본인 확인이 끝났어요. 이제 블로그 소개글에서 코드를 지워도 돼요.");
+  });
+
+  // ---- 2. 꾸미기 ----
+  function show(j, note) {
+    V = j; D = JSON.parse(JSON.stringify(j.set)); dirty = false;
+    $("start").hidden = true; $("verify").hidden = true; $("manage").hidden = false;
+    step(2);
+    var s = j.snap || {}, ach = j.ach || { list: [] };
+    $("whoH").textContent = s.title || ID;
+    $("whoSub").textContent = (s.nick ? s.nick + " · " : "") + "blog.naver.com/" + ID + (s.at ? " · " + A.ymd(s.at) + " 기준" : "");
+    $("whoLv").textContent = "LEVEL " + ach.level;
+    $("lvTxt").textContent = "업적 " + ach.count + " / " + ach.total + "단계";
+    $("lvNext").textContent = ach.nextLevelAt != null ? "다음 레벨까지 " + (ach.nextLevelAt - ach.sum) + "단계" : "최고 레벨";
+    var base = [0, 3, 6, 10, 15, 20, 26, 33, 41, 50][ach.level - 1] || 0;
+    $("lvBar").style.width = (ach.nextLevelAt != null ? Math.round(((ach.sum - base) / (ach.nextLevelAt - base)) * 100) : 100) + "%";
+    $("lbTitle").textContent = s.title ? "블로그 이름 · " + s.title : "블로그 이름";
+    $("lbNick").textContent = s.nick ? "별명 · " + s.nick : "별명";
+    $("profLink").href = profileUrl();
+    renderSettings();
+    renderShare();
+    preview();
+    if (note) msg($("dzMsg"), note);
+    $("manage").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function on() { return (V.ach.list || []).filter(function (a) { return a.lv > 0; }); }
+  function renderSettings() {
+    $("sPublic").checked = !!D.public;
+    document.querySelectorAll("#sSize input").forEach(function (r) { r.checked = r.value === D.size; });
+    document.querySelectorAll("#sLabel input").forEach(function (r) { r.checked = r.value === (D.label || "title"); });
+    var got = on();
+    $("sFeat").innerHTML = '<option value="">자동 (가장 높은 업적)</option>' + got.map(function (a) { return '<option value="' + a.id + '">' + A.esc(a.title) + " · " + A.esc(a.name) + "</option>"; }).join("");
+    $("sFeat").value = got.some(function (a) { return a.id === D.feat; }) ? D.feat : "";
+    $("sPick").innerHTML = got.length ? got.map(function (a) {
+      return '<label class="chip"><input type="checkbox" value="' + a.id + '">' + A.badge(a, 28) + "<span>" + A.esc(a.title) + "</span></label>";
+    }).join("") : '<p class="cm-cap">아직 달성한 업적이 없어요. 첫 글을 쓰면 첫 업적이 열려요.</p>';
+    syncPick();
+    document.querySelectorAll("#sShow input").forEach(function (c) { c.checked = !!(D.show || {})[c.value]; });
+  }
+  function syncPick() {
+    var max = PICK_MAX[D.size];
+    D.pick = (D.pick || []).filter(function (id) { return on().some(function (a) { return a.id === id; }); }).slice(0, max);
+    $("pickCap").textContent = max ? "(최대 " + max + "개, 고른 순서대로. 안 고르면 높은 업적부터)" : "(컴팩트형은 대표 업적만 보여요)";
+    document.querySelectorAll("#sPick input").forEach(function (c) {
+      c.checked = D.pick.indexOf(c.value) >= 0;
+      c.disabled = !max || (!c.checked && D.pick.length >= max);
+    });
+  }
+  function changed() { dirty = true; $("saveSt").textContent = "저장하지 않은 변경이 있어요"; preview(); }
+  $("sPublic").addEventListener("change", function () { D.public = this.checked; changed(); });
+  $("sSize").addEventListener("change", function (e) { D.size = e.target.value; syncPick(); changed(); });
+  $("sLabel").addEventListener("change", function (e) { D.label = e.target.value; changed(); });
+  $("sFeat").addEventListener("change", function () { D.feat = this.value; changed(); });
+  $("sPick").addEventListener("change", function (e) {
+    var id = e.target.value;
+    D.pick = D.pick.filter(function (x) { return x !== id; });
+    if (e.target.checked) D.pick.push(id);
+    syncPick(); changed();
+  });
+  $("sShow").addEventListener("change", function (e) { D.show = Object.assign({}, D.show); D.show[e.target.value] = e.target.checked; changed(); });
+  $("saveBtn").addEventListener("click", async function () {
+    busy($("saveBtn"), true, "저장 중");
+    var j = await api("wowner", { key: ls.get(KEY(ID)), act: "set", set: D });
+    busy($("saveBtn"), false);
+    if (!j.ok) { $("saveSt").textContent = j.error || "저장하지 못했어요."; return authFail(j); }
+    V = j; D = JSON.parse(JSON.stringify(j.set)); dirty = false;
+    $("saveSt").textContent = "저장했어요. 블로그에 붙인 위젯에도 반영돼요.";
+    step(3); preview();
+  });
+  $("refreshBtn").addEventListener("click", async function () {
+    busy($("refreshBtn"), true, "읽는 중");
+    var j = await api("wowner", { key: ls.get(KEY(ID)), act: "refresh", oldK: V.k });
+    busy($("refreshBtn"), false);
+    if (!j.ok) return authFail(j) || msg($("dzMsg"), A.esc(j.error || "새로 읽지 못했어요."), true);
+    var keep = D; show(j); D = keep; renderSettings(); preview();
+  });
+  function authFail(j) { if (j && j.auth === false) { ls.del(KEY(ID)); msg($("dzMsg"), "관리 열쇠가 맞지 않아요. 처음부터 다시 본인 확인을 해 주세요.", true); return true; } return false; }
+
+  // ---- 미리보기·삽입 코드 ----
+  function imgUrl(size) { return W + "w/" + ID + "/" + V.k + "/" + (size || D.size) + ".svg"; }
+  function profileUrl() { return A.SITE + "blog/?u=" + encodeURIComponent(ID) + "&k=" + V.k; }
+  var pvT = 0;
+  function preview() {
+    clearTimeout(pvT);
+    pvT = setTimeout(function () {
+      var q = new URLSearchParams({ pick: (D.pick || []).join(","), feat: D.feat || "", label: D.label || "title", t: String(Date.now()) });
+      $("pvImg").src = imgUrl() + "?" + q.toString();
+      $("pvImg").width = 170;
+      $("pvNote").textContent = dirty ? "저장 전 미리보기" : D.public ? "지금 블로그에 보이는 모습" : "비공개 상태예요";
+      var name = (D.label === "nick" ? (V.snap || {}).nick : (V.snap || {}).title) || ID;
+      $("code").value = '<a href="' + profileUrl() + '" target="_blank"><img src="' + imgUrl() + '" width="170" alt="' + A.esc(name) + ' 블로그 업적 - 체험단모아" style="border:0"></a>';
+      $("pngLink").hidden = true;
+    }, 250);
+  }
+  function copy(text, out, ok) {
+    var done = function () { if (out.tagName === "P") out.textContent = ok; else msg(out, ok); };
+    var fallback = function () { var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) { if (out.tagName === "P") out.textContent = "복사가 안 되면 직접 길게 눌러 복사해 주세요."; } t.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  }
+  $("copyBtn").addEventListener("click", function () {
+    copy($("code").value, $("copySt"), dirty ? "복사했어요. 바꾼 설정은 '설정 저장'을 눌러야 블로그 위젯에 반영돼요." : "복사했어요. 네이버 '위젯 직접등록'에 붙여 넣어 주세요.");
+    step(3);
+  });
+  // 위젯을 PNG 그림으로 (2배 크기로 선명하게)
+  $("pngBtn").addEventListener("click", async function () {
+    busy($("pngBtn"), true, "만드는 중");
+    try {
+      var svg = await (await fetch($("pvImg").src)).text();
+      var url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+      var im = new Image();
+      await new Promise(function (ok, no) { im.onload = ok; im.onerror = no; im.src = url; });
+      var c = document.createElement("canvas"); c.width = im.width * 3; c.height = im.height * 3;
+      var x = c.getContext("2d"); x.scale(3, 3); x.drawImage(im, 0, 0);
+      URL.revokeObjectURL(url);
+      var a = $("pngLink"); a.href = c.toDataURL("image/png"); a.hidden = false; a.click();
+      $("copySt").textContent = "그림을 내려받았어요. 안 받아지면 아래 '그림 내려받기'를 눌러 주세요.";
+    } catch (e) { $("copySt").textContent = "그림을 만들지 못했어요. 잠시 뒤 다시 해 주세요."; }
+    busy($("pngBtn"), false);
+  });
+
+  // ---- 공유 이미지 ----
+  var SH = null;
+  function renderShare() {
+    var fresh = A.fresh(V.ach.list), seen = {};
+    var items = fresh.map(function (f) { seen[f.a.id + ":" + f.i] = 1; return { a: f.a, i: f.i, st: f.st, isNew: true }; });
+    on().forEach(function (a) { var i = a.lv - 1; if (!seen[a.id + ":" + i]) items.push({ a: a, i: i, st: a.steps[i], isNew: false }); });
+    $("shList").innerHTML = items.length ? items.map(function (it, n) {
+      var lab = it.st.label, w = A.when(it.st);
+      return '<div class="shi">' + A.badge({ icon: it.a.icon, lv: it.i + 1, max: it.a.max, special: it.a.special }, 44) +
+        "<div><b>" + A.esc(lab) + (it.isNew ? '<span class="new">새 업적</span>' : "") + "</b><small>" + A.esc(it.a.name) + (w ? " · " + A.esc(w) : "") + "</small></div>" +
+        '<button class="cm-btn" type="button" data-n="' + n + '">이미지 만들기</button></div>';
+    }).join("") : '<p class="cm-cap">아직 달성한 업적이 없어요.</p>';
+    $("shList").onclick = function (e) { var b = e.target.closest("button[data-n]"); if (b) { SH = items[+b.dataset.n]; makeShare("1:1"); } };
+  }
+  async function makeShare(ratio) {
+    if (!SH) return;
+    $("shOut").hidden = false; $("shTitle").textContent = "만드는 중…";
+    var s = V.snap || {};
+    var url = await A.shareImage({ a: SH.a, step: SH.i, blog: (D.label === "nick" ? s.nick : s.title) || s.title || ID, level: V.ach.level, count: V.ach.count, ratio: ratio });
+    $("shImg").src = url; $("shImg").alt = SH.st.label + " 달성 공유 이미지";
+    $("shSave").href = url; $("shSave").download = "체험단모아-" + SH.st.label.replace(/\s+/g, "") + ".png";
+    $("shTitle").textContent = SH.st.label + (SH.a.special ? "" : " 달성");
+    document.querySelectorAll("#shOut [data-r]").forEach(function (b) { b.classList.toggle("pri", b.dataset.r === ratio); });
+    $("shOut").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  document.querySelectorAll("#shOut [data-r]").forEach(function (b) { b.addEventListener("click", function () { makeShare(b.dataset.r); }); });
+
+  // ---- 관리: 다시 발급·지우기 (두 번 눌러야 실행) ----
+  function twice(btn, label, fn) {
+    var armed = false, t = 0;
+    btn.addEventListener("click", function () {
+      if (!armed) { armed = true; btn.dataset.l0 = btn.dataset.l0 || btn.textContent; btn.textContent = label; t = setTimeout(function () { armed = false; btn.textContent = btn.dataset.l0; }, 5000); return; }
+      clearTimeout(t); armed = false; btn.textContent = btn.dataset.l0; fn();
+    });
+  }
+  twice($("reBtn"), "한 번 더 누르면 예전 코드가 꺼져요", async function () {
+    var j = await api("wowner", { key: ls.get(KEY(ID)), act: "reissue", oldK: V.k });
+    if (!j.ok) return authFail(j) || msg($("dzMsg"), A.esc(j.error || "다시 발급하지 못했어요."), true);
+    var keep = D; show(j); D = keep; renderSettings(); preview();
+    msg($("dzMsg"), "새 코드를 발급했어요. 블로그에 붙인 예전 위젯은 이제 안 보이니, 새 삽입 코드로 바꿔 주세요.");
+  });
+  twice($("delBtn"), "한 번 더 누르면 위젯과 저장된 정보가 지워져요", async function () {
+    var j = await api("wowner", { key: ls.get(KEY(ID)), act: "delete", oldK: V.k });
+    if (!j.ok) return authFail(j) || msg($("dzMsg"), A.esc(j.error || "지우지 못했어요."), true);
+    ls.del(KEY(ID));
+    $("manage").hidden = true; $("start").hidden = false; step(1);
+    msg($("startMsg"), "위젯과 저장된 정보를 모두 지웠어요. 블로그에 붙인 위젯 코드도 지워 주세요.");
+  });
+
+  // 히스토리에서 ?blog=아이디 로 들어오면 바로 시작
+  var q = new URLSearchParams(location.search).get("blog");
+  if (q && pickId(q)) { $("blog").value = pickId(q); $("startForm").requestSubmit ? $("startForm").requestSubmit() : $("startBtn").click(); }
+})();
+</script>
+<script>
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘) + 지금 페이지 표시
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    var here = (location.pathname.split("/").pop() || "index.html") + location.search;
+    document.querySelectorAll(".sh-nav a, .mnav a").forEach(function (a) { if (a.getAttribute("href") === here) { a.classList.add("on"); a.setAttribute("aria-current", "page"); } });
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>
