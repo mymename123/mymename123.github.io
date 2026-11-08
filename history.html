@@ -371,6 +371,157 @@
   document.addEventListener("focusout", () => { $("tip").hidden = true; });
   addEventListener("scroll", () => { $("tip").hidden = true; }, { passive: true });
 
+  // ---- 📍 다녀간 장소: 글 본문에 넣은 지도를 서버가 30개씩 읽어 셈 ----
+  // 한 번에 하나씩만 부름 (동시에 여러 번 부르면 네이버가 글을 빠뜨림). 결과는 이 페이지 안에서만 쓰고 저장하지 않음
+  const PLACE_SIZE = 30, PLACE_MAX = 300;
+  const PL = {};               // 블로그 아이디 → { done, pages, p: Promise }
+  let plQ = Promise.resolve(), plMain = "", plFriend = "";
+  const plWanted = (id) => id === plMain || id === plFriend;
+  function plCall(id, pg) {
+    const job = plQ.then(async () => {
+      for (let t = 0; t < 2 && plWanted(id); t++) {
+        try {
+          const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(id) + "&mode=places&page=" + pg + "&size=" + PLACE_SIZE);
+          const j = await res.json();
+          if (res.ok && j && Array.isArray(j.posts)) return j.posts;
+        } catch (e) {}
+        await new Promise((ok) => setTimeout(ok, 1500));
+      }
+      return null;
+    });
+    plQ = job.catch(() => null);
+    return job;
+  }
+  function scanPlaces(r) {
+    const id = r.blog.id;
+    if (PL[id]) return PL[id].p;
+    const total = (r.stats || {}).total || 0;
+    const want = Math.min(total || PLACE_MAX, PLACE_MAX);
+    const st = (PL[id] = { done: 0, want, pages: Math.max(1, Math.ceil(want / PLACE_SIZE)) });
+    st.p = (async () => {
+      const got = new Map();
+      let ended = false, lost = 0;
+      for (let pg = 1; pg <= st.pages; pg++) {
+        if (!plWanted(id)) { delete PL[id]; throw new Error("그만 셈"); }
+        const posts = await plCall(id, pg);
+        if (posts && posts.some((x) => x.p == null)) { // 본문을 못 읽은 글이 있으면 그 쪽만 한 번 더
+          const again = await plCall(id, pg);
+          if (again) again.forEach((x) => { const i = posts.findIndex((y) => y.no === x.no); if (x.p != null && i >= 0 && posts[i].p == null) posts[i] = x; });
+        }
+        st.done = pg;
+        document.dispatchEvent(new CustomEvent("plstep", { detail: id }));
+        if (!posts) { lost++; continue; }
+        posts.forEach((x) => { if (!got.has(x.no)) got.set(x.no, x); });
+        if (posts.length < PLACE_SIZE) { ended = true; break; }
+      }
+      if (!got.size) { delete PL[id]; throw new Error("장소를 세지 못했어요."); }
+      return placeSummary([...got.values()], total, !lost && (ended || (total > 0 && got.size >= total)));
+    })();
+    st.p.catch(() => {});
+    return st.p;
+  }
+  // 주소 첫 두 낱말로 동네 (서울특별시 광진구 → 서울 광진구)
+  const SIDO = [["서울", "서울"], ["부산", "부산"], ["대구", "대구"], ["인천", "인천"], ["광주", "광주"], ["대전", "대전"], ["울산", "울산"], ["세종", "세종"], ["경기", "경기"], ["강원", "강원"],
+    ["충청북", "충북"], ["충북", "충북"], ["충청남", "충남"], ["충남", "충남"], ["전라북", "전북"], ["전북", "전북"], ["전라남", "전남"], ["전남", "전남"], ["경상북", "경북"], ["경북", "경북"], ["경상남", "경남"], ["경남", "경남"], ["제주", "제주"]];
+  function regionOf(addr) {
+    const w = String(addr || "").trim().split(/\s+/);
+    const sd = (SIDO.find(([k]) => (w[0] || "").startsWith(k)) || [])[1];
+    if (!sd) return "";
+    return sd !== "세종" && /[시군구]$/.test(w[1] || "") ? sd + " " + w[1] : sd;
+  }
+  // 글마다 받은 장소를 모아 셈: 같은 장소(placeId, 없으면 이름)는 여러 글에 넣어도 1곳
+  function placeSummary(posts, total, full) {
+    const ky = new Date(Date.now() + 9 * 3600000).getUTCFullYear(), yStart = Date.UTC(ky, 0, 1) - 9 * 3600000;
+    const map = new Map(), byName = new Map(), yearKeys = new Set();
+    let withMap = 0, missed = 0, oldest = Infinity;
+    posts.forEach((x) => {
+      if (x.d) oldest = Math.min(oldest, x.d);
+      if (x.p == null) missed++;
+      const list = (x.p || []).slice();
+      if (x.pn && !list.some((q) => q.name === x.pn)) list.push({ id: "", name: x.pn, addr: "" });
+      if (list.length) withMap++;
+      list.forEach((q) => {
+        let k = q.id ? "#" + q.id : "";
+        if (!k || !map.has(k)) k = byName.get(q.name) || k || "@" + q.name;
+        if (!map.has(k)) map.set(k, { name: q.name, addr: q.addr || "", posts: 0, last: 0 });
+        const e = map.get(k);
+        e.posts++;
+        if (!e.addr && q.addr) e.addr = q.addr;
+        if ((x.d || 0) > e.last) e.last = x.d;
+        byName.set(q.name, k);
+        if (x.d >= yStart) yearKeys.add(k);
+      });
+    });
+    const all = [...map.entries()], reg = {};
+    all.forEach(([, e]) => { const g = regionOf(e.addr); if (g) reg[g] = (reg[g] || 0) + 1; });
+    return {
+      deep: true, count: map.size, from: posts.length, total, full, withMap, missed,
+      top: all.filter(([, e]) => e.posts >= 2).sort((a, b) => b[1].posts - a[1].posts || b[1].last - a[1].last).slice(0, 5).map(([, e]) => ({ name: e.name, count: e.posts })),
+      recent: all.slice().sort((a, b) => b[1].last - a[1].last).slice(0, 5).map(([, e]) => e.name),
+      regions: Object.entries(reg).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count })),
+      sido: new Set(Object.keys(reg).map((g) => g.split(" ")[0])).size,
+      keys: all.map(([k, e]) => ({ k, name: e.name })),
+      year: { year: ky, count: yearKeys.size, complete: !!full || oldest < yStart }
+    };
+  }
+  function applyPlaces(r, P) {
+    r.places = P;
+    const EY = r.engage && r.engage.year;
+    if (EY) { EY.places = P.year.count; EY.placesComplete = P.year.complete; }
+  }
+  // 내 블로그: 결과를 먼저 보여 주고, 장소는 뒤에서 세서 배지·장소 칸만 바꿈
+  function startPlaces(r) {
+    scanPlaces(r).then((P) => applyPlaces(r, P), () => { r.places = Object.assign({}, r.places, { scanning: false, failed: true }); })
+      .then(() => refreshPlaces(r));
+  }
+  function refreshPlaces(r) {
+    const H = window.__H;
+    if (!H || H.r !== r) return;
+    H.ach = achievements(r);
+    if ($("achBox")) $("achBox").innerHTML = achHtml(r);
+    if ($("placeBox")) $("placeBox").innerHTML = placeHtml(r);
+    if ($("heroTags")) $("heroTags").innerHTML = heroTags(r);
+  }
+  // 몇 개째 읽는 중인지 (글 수로)
+  const plProg = (id) => { const st = PL[id]; return st ? fmt(Math.min(st.done * PLACE_SIZE, st.want)) + "/" + fmt(st.want) + "개" : "…"; };
+  document.addEventListener("plstep", (e) => {
+    const H = window.__H;
+    if (H && H.r.blog.id === e.detail && $("plProg")) $("plProg").textContent = plProg(e.detail);
+  });
+  function placeTier(r) {
+    const P = r.places || {};
+    if (P.scanning) return { icon: "📍", name: "발도장", on: false, lv: 0, max: 4, title: "장소 세는 중…", desc: "글 속 지도를 읽고 있어요", pct: null };
+    return tier("발도장", "📍", P.count, [1, 10, 30, 100], (n) => "장소 " + n + "곳 기록", "곳");
+  }
+  function placeHtml(r) {
+    const P = r.places || {};
+    let h = `<h2>📍 다녀간 장소</h2>`;
+    if (P.scanning) return h + `<p class="cap"><span class="spin"></span>글을 하나씩 열어 지도(장소)를 세는 중이에요… <b id="plProg">${plProg(r.blog.id)}</b></p>`;
+    if (!P.deep && !P.count) return h + `<p class="cap">${P.failed ? "글 속 지도를 읽지 못했어요. 잠시 뒤 다시 해 보세요." : "글에 넣은 지도(장소)가 없어요."}</p>`;
+    const facts = [[fmt(P.count) + "곳", "글에 지도로 남긴 장소"]];
+    if (P.withMap != null) facts.push([fmt(P.withMap) + "개", "장소를 넣은 글"]);
+    if (P.sido) facts.push([fmt(P.sido) + "곳", "다녀간 시·도"]);
+    h += `<div class="facts">${facts.map(([b, t]) => `<div><b>${b}</b><span>${t}</span></div>`).join("")}</div>`;
+    if (!P.deep && (P.top || []).length) h += `<h2 style="margin-top:16px">📌 최근 글에서 찾은 곳</h2><div class="chips">${P.top.map((p) => `<span>${esc(p.name)}</span>`).join("")}</div>`;
+    else if ((P.top || []).length) h += `<h2 style="margin-top:16px">⭐ 자주 간 곳</h2><div class="chips">${P.top.map((p) => `<span>${esc(p.name)}<b>${p.count}</b></span>`).join("")}</div>`;
+    else if ((P.recent || []).length) h += `<h2 style="margin-top:16px">🆕 최근 다녀간 곳</h2><div class="chips">${P.recent.map((n) => `<span>${esc(n)}</span>`).join("")}</div>`;
+    if ((P.regions || []).length) h += `<h2 style="margin-top:16px">🗺️ 자주 간 동네</h2><div class="chips">${P.regions.map((g) => `<span>${esc(g.name)}<b>${g.count}</b></span>`).join("")}</div>`;
+    const basis = !P.deep ? (P.failed ? "글 속 지도를 다 읽지 못해서 최근 글 일부만 센 값이에요." : "최근 글 일부만 센 값이에요.")
+      : !P.count ? "글 " + fmt(P.from) + "개를 열어 봤는데 지도(장소)를 넣은 글이 없어요. 글쓰기에서 📍장소를 넣으면 여기에 모여요."
+      : (P.full ? "글 " + fmt(P.from) + "개를 모두 열어" : "최근 글 " + fmt(P.from) + "개를 열어") + " 본문에 넣은 지도(장소)를 셌어요. 같은 곳은 여러 글에 넣어도 1곳으로 세요.";
+    return h + `<p class="cap">${basis}${P.deep && P.missed ? " 글 " + fmt(P.missed) + "개는 읽지 못해서 빠졌어요." : ""}</p>`;
+  }
+  function heroTags(r) {
+    const B = r.blog || {};
+    return (B.topic ? `<span class="tag">📂 ${esc(B.topic)}</span>` : "") + achievements(r).filter((a) => a.on && a.gold).map((a) => `<span class="tag">${a.icon} ${esc(a.name)}</span>`).join("");
+  }
+  function achHtml(r) {
+    const ach = achievements(r), got = ach.filter((a) => a.on);
+    return `<h2>🏆 업적 배지</h2><p class="bcount">${ach.length}개 중 <b>${got.length}개</b> 달성</p><div class="badges">` +
+      ach.map((a) => `<div class="bd${a.on ? "" : " off"}${a.gold ? " gold" : ""}"><div class="i">${a.icon}</div><div class="n">${esc(a.name)}</div>${a.max ? `<div class="lv">Lv.${a.lv} / ${a.max}</div>` : ""}<div class="d"><b>${esc(a.title)}</b>${a.desc ? "<br>" + esc(a.desc) : ""}</div>${a.max && a.pct != null && a.lv < a.max ? `<div class="pg" aria-hidden="true"><i style="width:${a.pct}%"></i></div>` : ""}</div>`).join("") +
+      `</div>`;
+  }
+
   // ---- 업적 배지 ----
   function tier(name, icon, val, steps, labelFn, unit) {
     if (val == null) return null;
@@ -395,7 +546,7 @@
       tier("소통왕", "💬", E.comments, [10, 100, 500, 1000, 5000], (n) => "댓글 " + fmt(n) + "개", "개"),
       tier("하루 방문자", "🚀", (r.visitors || {}).max, [10, 100, 500, 1000, 5000], (n) => "하루 " + fmt(n) + "명", "명"),
       tier("내돈내산", "🧾", E.own, [1, 10, 30, 100], (n) => "내돈내산 글 " + n + "개", "개"),
-      tier("발도장", "📍", (r.places || {}).count, [1, 10, 30, 100], (n) => "장소 " + n + "곳 리뷰", "곳")
+      placeTier(r)
     ].filter(Boolean);
     const hrs = S.hours || [], ht = hrs.reduce((a, b) => a + b, 0) || 1;
     const share = (a, b) => hrs.slice(a, b + 1).reduce((x, y) => x + y, 0) / ht;
@@ -472,7 +623,7 @@
           <h2>${esc(B.title || B.id)}</h2>
           <div class="since">${esc(B.nick || "")}${B.nick ? " · " : ""}@${esc(B.id)}${since ? " · BLOGGER SINCE " + since : ""}</div>
           <span class="type">${esc(window.__H.type)}</span></div></div>
-        <div class="tags">${B.topic ? `<span class="tag">📂 ${esc(B.topic)}</span>` : ""}${got.filter((a) => a.gold).map((a) => `<span class="tag">${a.icon} ${esc(a.name)}</span>`).join("")}</div>
+        <div class="tags" id="heroTags">${heroTags(r)}</div>
         <div class="big">
           <div><b>${fmt(S.total)}</b><span>누적 포스팅</span></div>
           <div><b>${I.totalVisitors != null ? fmt(I.totalVisitors) : "비공개"}</b><span>누적 방문자</span></div>
@@ -492,9 +643,7 @@
         <p class="note" id="vsMsg"></p>
         <div id="vsOut"></div>
       </div>` +
-      `<div class="card"><h2>🏆 업적 배지</h2><p class="bcount">${ach.length}개 중 <b>${got.length}개</b> 달성</p><div class="badges">` +
-        ach.map((a) => `<div class="bd${a.on ? "" : " off"}${a.gold ? " gold" : ""}"><div class="i">${a.icon}</div><div class="n">${esc(a.name)}</div>${a.max ? `<div class="lv">Lv.${a.lv} / ${a.max}</div>` : ""}<div class="d"><b>${esc(a.title)}</b>${a.desc ? "<br>" + esc(a.desc) : ""}</div>${a.max && a.pct != null && a.lv < a.max ? `<div class="pg" aria-hidden="true"><i style="width:${a.pct}%"></i></div>` : ""}</div>`).join("") +
-      `</div></div>` +
+      `<div class="card" id="achBox">${achHtml(r)}</div>` +
       `<div class="card"><h2>📜 나의 블로그 연혁</h2><ul class="tl">${yrHtml}</ul></div>` +
       `<div class="card wr"><h2>🎁 ${year.year || ""} 블로그 결산</h2><div class="wgrid">
         <div><b>${yPosts != null ? fmt(yPosts) + "개" : "-"}</b><span>올해 쓴 글</span></div>
@@ -531,12 +680,11 @@
       `<div class="card"><h2>💼 협찬·리뷰 기록</h2><div class="facts">
           ${spon != null ? `<div><b>${spon ? "약 " + fmt(spon) + "개" : "0개"}</b><span>협찬·체험단으로 보이는 글</span></div>` : ""}
           ${ownShare != null ? `<div><b>${fmt(E.own)}개</b><span>내돈내산 표시 글 (${ownShare}%)</span></div>` : ""}
-          ${P.count ? `<div><b>${fmt(P.count)}곳</b><span>장소를 남긴 곳</span></div>` : ""}
           ${E.videos ? `<div><b>${fmt(E.videos)}개</b><span>영상 넣은 글</span></div>` : ""}
         </div>
-        ${(P.top || []).length ? `<h2 style="margin-top:16px">📍 자주 간 곳</h2><div class="chips">${P.top.map((p) => `<span>${esc(p.name)}<b>${p.count}</b></span>`).join("")}</div>` : ""}
-        <p class="cap">협찬 수는 제목·카테고리에 '협찬·체험단·제공받아·원고료' 같은 말이 들어간 글을 센 대략적인 값이에요${S.sponsored ? " (글 " + fmt(S.sponsored.from) + "개 확인)" : ""}.${E.from ? " 내돈내산·장소·영상은 최근 글 " + fmt(E.from) + "개 기준이에요." : ""} 애드포스트·협찬 수익은 네이버가 공개하지 않아서 넣지 못했어요.</p>
+        <p class="cap">협찬 수는 제목·카테고리에 '협찬·체험단·제공받아·원고료' 같은 말이 들어간 글을 센 대략적인 값이에요${S.sponsored ? " (글 " + fmt(S.sponsored.from) + "개 확인)" : ""}.${E.from ? " 내돈내산·영상은 최근 글 " + fmt(E.from) + "개 기준이에요." : ""} 애드포스트·협찬 수익은 네이버가 공개하지 않아서 넣지 못했어요.</p>
       </div>` +
+      `<div class="card" id="placeBox">${placeHtml(r)}</div>` +
       ((r.best || []).length ? `<div class="card best"><h2>❤️ 반응 좋은 글 TOP ${r.best.length}</h2>${r.best.map((b, i) => `<a href="${postUrl(B.id, b.logNo)}" target="_blank" rel="noopener"><span class="r">${i + 1}</span><span class="tt">${esc(b.title)}</span><span class="m">❤️ ${fmt(b.likes)} · 💬 ${fmt(b.comments)}${b.date ? " · " + ymd(b.date) : ""}${b.category ? " · " + esc(cleanCat(b.category)) : ""}</span></a>`).join("")}<p class="cap">공감과 댓글(2배)을 합친 순서 · 최근 글 ${fmt(E.from)}개 중</p></div>` : "") +
       ((r.mostRead || []).length ? `<div class="card best"><h2>👀 많이 본 글</h2>${r.mostRead.map((b, i) => `<a href="${postUrl(B.id, b.logNo)}" target="_blank" rel="noopener"><span class="r">${i + 1}</span><span class="tt">${esc(b.title)}</span><span class="m">조회 ${fmt(b.reads)}</span></a>`).join("")}</div>` : "") +
       (((r.visitors || {}).days || []).length ? `<div class="card"><h2>👣 최근 방문자</h2>${vbars(r.visitors.days.map((v) => ({ label: +v.day.slice(4, 6) + "월 " + +v.day.slice(6) + "일", short: +v.day.slice(6) + "일", v: v.cnt })), { aria: "최근 방문자 수", unit: "명" })}<p class="cap">오늘은 아직 집계 중이에요. 네이버가 최근 며칠만 공개해요.</p></div>` : "") +
@@ -584,7 +732,15 @@
   function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
   async function saveCard(kind) {
     const H = window.__H; if (!H) return;
-    const { r, ach, ev } = H, S = r.stats || {}, I = r.info || {}, B = r.blog || {}, E = r.engage || {}, Y = S.year || {}, EY = E.year || null;
+    const st = PL[H.r.blog.id];
+    if (st && (H.r.places || {}).scanning) {
+      $("saveMsg").innerHTML = "<span class='spin'></span>장소를 다 센 뒤에 사진을 만들게요…";
+      try { await st.p; } catch (e) {}
+      await new Promise((ok) => setTimeout(ok, 30));
+      $("saveMsg").textContent = "";
+      if (window.__H !== H) return;
+    }
+    const { r, ev } = H, ach = achievements(H.r), S = r.stats || {}, I = r.info || {}, B = r.blog || {}, E = r.engage || {}, Y = S.year || {}, EY = E.year || null;
     const yP = Y.posts != null ? Y.posts : EY && EY.complete ? EY.posts : null;
     try { await document.fonts.ready; } catch (e) {}
     const W = 1080, Hh = 1350, c = document.createElement("canvas"); c.width = W; c.height = Hh;
@@ -619,7 +775,7 @@
       const part = EY && !EY.complete ? " (최근 글)" : "";
       rows = [["반응 1위", yb ? yb.title : "-"]];
       if (EY) rows.push(["올해 공감·댓글", "❤️ " + fmt(EY.likes) + "   💬 " + fmt(EY.comments) + part]);
-      if (EY && EY.places) rows.push(["올해 다녀온 곳", fmt(EY.places) + "곳" + part]);
+      if (EY && EY.places) rows.push(["올해 다녀온 곳", fmt(EY.places) + "곳" + (EY.placesComplete === true ? "" : EY.placesComplete === false ? " (최근 글)" : part)]);
       if (EY && EY.own) rows.push(["올해 내돈내산", fmt(EY.own) + "개" + part]);
       rows.push(["지금까지 방문자", I.totalVisitors != null ? fmt(I.totalVisitors) + "명" : "비공개"]);
       rows.push(["이웃", fmt(I.neighbors) + "명"]);
@@ -698,7 +854,8 @@
     ["🏆", "업적 배지", (m) => m.badges, (v) => fmt(v) + "개"],
     ["⚡", "최근 30일 글", (m) => m.last30, (v) => fmt(v) + "개"],
     ["🎯", "글 1개당 방문자", (m) => m.perPost, (v) => fmt(Math.round(v)) + "명"],
-    ["🚀", "최근 하루 최고 방문자", (m) => m.dayMax, (v) => fmt(v) + "명"]
+    ["🚀", "최근 하루 최고 방문자", (m) => m.dayMax, (v) => fmt(v) + "명"],
+    ["📍", "다녀간 장소", (m) => m.places, (v) => fmt(v) + "곳"]
   ];
   function vsMetrics(r) {
     const S = r.stats || {}, I = r.info || {}, E = r.engage || {}, EY = E.year || null, Y = S.year || {};
@@ -708,7 +865,8 @@
       streak: S.bestStreak ? S.bestStreak.days : null, last30: S.last30,
       likesPer: E.from ? E.likes / E.from : null, commentsPer: E.from ? E.comments / E.from : null,
       perPost: I.totalVisitors != null && S.total ? I.totalVisitors / S.total : null,
-      dayMax: (r.visitors || {}).max, badges: achievements(r).filter((a) => a.on).length
+      dayMax: (r.visitors || {}).max, badges: achievements(r).filter((a) => a.on).length,
+      places: (r.places || {}).deep ? r.places.count : null // 글 속 지도를 다 센 블로그끼리만 승부
     };
   }
   function vsCompare(ra, rb) {
@@ -738,9 +896,10 @@
     const wa = new Set((Sa.topWords || []).map((w) => w.word));
     const cw = (Sb.topWords || []).map((w) => w.word).filter((w) => wa.has(w)).slice(0, 5);
     if (cw.length) out.push("🔤 제목에 둘 다 자주 쓴 말: " + cw.join(", "));
-    const pa = new Set(((ra.places || {}).top || []).map((p) => p.name));
-    const cp = ((rb.places || {}).top || []).map((p) => p.name).filter((p) => pa.has(p));
-    if (cp.length) out.push("📍 둘 다 다녀간 곳: " + cp.join(", "));
+    const keysOf = (r) => { const P = r.places || {}; return P.keys || (P.top || []).map((p) => ({ k: "@" + p.name, name: p.name })); };
+    const ka = new Set(keysOf(ra).map((p) => p.k)), kn = new Set(keysOf(ra).map((p) => p.name));
+    const cp = keysOf(rb).filter((p) => ka.has(p.k) || kn.has(p.name)).map((p) => p.name);
+    if (cp.length) out.push("📍 둘 다 다녀간 곳" + (cp.length > 5 ? " " + cp.length + "곳" : "") + ": " + cp.slice(0, 5).join(", ") + (cp.length > 5 ? " 등" : ""));
     return out;
   }
   async function runVs() {
@@ -751,15 +910,26 @@
     if (v === H.r.blog.id) { $("vsMsg").innerHTML = "<span class='err'>내 블로그와 같은 블로그예요. 친구 블로그를 넣어 주세요.</span>"; return; }
     $("vsGo").disabled = true;
     $("vsMsg").innerHTML = "<span class='spin'></span>친구 블로그를 읽는 중이에요… (5~15초)";
-    try { finishVs(await fetchHist(v)); }
+    try { await finishVs(await fetchHist(v)); }
     catch (e) { $("vsMsg").innerHTML = "<span class='err'>" + esc(e.message || "비교에 실패했어요.") + "</span>"; }
     finally { $("vsGo").disabled = false; }
   }
-  function finishVs(rb) {
+  async function finishVs(rb) {
     const ra = window.__H.r;
     if (rb.blog.id === ra.blog.id) { $("vsMsg").innerHTML = "<span class='err'>내 블로그와 같은 블로그예요. 친구 블로그를 넣어 주세요.</span>"; return; }
     $("vsBlog").value = rb.blog.id;
     history.replaceState(null, "", "?blog=" + encodeURIComponent(ra.blog.id) + "&vs=" + encodeURIComponent(rb.blog.id));
+    // 발도장·다녀간 장소가 공평하게: 두 블로그 모두 글 속 지도를 센 뒤 비교 (서버에 하나씩 부르니 차례로 셈)
+    plFriend = rb.blog.id;
+    rb.places = Object.assign({}, rb.places, { scanning: true });
+    const prog = () => { $("vsMsg").innerHTML = "<span class='spin'></span>두 블로그의 글 속 장소를 세는 중이에요… (나 " + plProg(ra.blog.id) + " · 친구 " + plProg(rb.blog.id) + ")"; };
+    const job = scanPlaces(rb);
+    prog();
+    document.addEventListener("plstep", prog);
+    try { applyPlaces(rb, await job); } catch (e) { rb.places = Object.assign({}, rb.places, { scanning: false, failed: true }); }
+    try { await (PL[ra.blog.id] || {}).p; } catch (e) {}
+    document.removeEventListener("plstep", prog);
+    if (!window.__H || window.__H.r !== ra) return;
     showVs(rb);
     $("vsMsg").textContent = "";
     $("vsRes").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -820,7 +990,8 @@
     ctx.textAlign = "center"; ctx.fillStyle = "#fff"; ctx.font = "800 44px " + F;
     ctx.fillText(V.cmp.wa > V.cmp.wb ? "🏆 " + V.na + " 승!" : V.cmp.wb > V.cmp.wa ? "🏆 " + V.nb + " 승!" : "🤝 무승부!", W / 2, 470);
     // 항목: 점수에 들어간 승부를 전부 보여 줌 (많으면 줄 간격을 좁힘)
-    const rows = V.cmp.rows, tight = rows.length > 9, rh = tight ? 58 : 74, vf = tight ? 30 : 34, lf = tight ? 23 : 26, by = tight ? 42 : 50;
+    const rows = V.cmp.rows, rh = Math.min(74, Math.floor((Hh - 88 - 566) / Math.max(1, rows.length)));
+    const vf = rh >= 74 ? 34 : rh >= 58 ? 30 : 28, lf = rh >= 74 ? 26 : rh >= 58 ? 23 : 22, by = rh >= 74 ? 50 : rh >= 58 ? 42 : 39;
     let y = 566;
     rows.forEach((x) => {
       ctx.textAlign = "center"; ctx.font = "600 " + lf + "px " + F; ctx.fillStyle = "#fff"; ctx.globalAlpha = .72; ctx.fillText(x.icon + " " + x.label, W / 2, y + (vf - lf) / 2 + 2); ctx.globalAlpha = 1;
@@ -845,6 +1016,9 @@
     try {
       const r = await fetchHist(v);
       if (r.blog && r.blog.id) { $("blog").value = r.blog.id; saveRecent(r.blog.id, r.blog.title); history.replaceState(null, "", "?blog=" + encodeURIComponent(r.blog.id)); }
+      plMain = r.blog.id; plFriend = "";
+      r.places = Object.assign({}, r.places, { scanning: true });
+      startPlaces(r);
       show(r);
       $("msg").textContent = "다 읽었어요. 결과는 저장되지 않아서 페이지를 나가면 사라져요.";
     } catch (e) {
