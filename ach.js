@@ -1,4 +1,4 @@
-// 체험단모아 업적 공통 도구: 업적 아이콘·단계 색·배지 그림·공유 이미지 (widget.html, blog/ 공개 프로필에서 씀)
+// 블로랩 업적 공통 도구: 업적 아이콘·단계 색·배지 그림·공유 이미지 (widget.html, blog/ 공개 프로필에서 씀)
 // 업적 계산은 서버(워커)가 하고, 여기는 그리기만 함. 아이콘·색은 워커의 위젯 그림과 같게 맞춤
 (function (G) {
   var ICON = {
@@ -34,7 +34,7 @@
     return '<svg class="achb" width="' + px + '" height="' + px + '" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="' + c + '"/>' +
       '<g transform="translate(10.5 10.5) scale(1.125)"><path d="' + (ICON[a.icon] || ICON.star) + '" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
   }
-  // 달성 날짜 문구: 정확한 날 / 체험단모아가 확인한 날 / 등록 전에 이미 달성(날짜 모름)
+  // 달성 날짜 문구: 정확한 날 / 블로랩이 확인한 날 / 등록 전에 이미 달성(날짜 모름)
   function when(st) {
     if (!st || !st.on) return "";
     if (st.x === 1 && st.d) return ymd(st.d);
@@ -42,7 +42,7 @@
     if (st.x === -1) return "등록 전 달성";
     return "";
   }
-  // 새로 달성한 업적: 정확한 날짜가 30일 안이거나, 체험단모아가 14일 안에 확인한 것
+  // 새로 달성한 업적: 정확한 날짜가 30일 안이거나, 블로랩이 14일 안에 확인한 것
   function fresh(list, now) {
     now = now || Date.now();
     var out = [];
@@ -81,7 +81,7 @@
     var my = 96;
     x.lineWidth = 8; x.strokeStyle = "#2bd48a"; x.beginPath(); x.arc(92, my, 22, 0, Math.PI * 2); x.stroke();
     x.fillStyle = "#2bd48a"; x.beginPath(); x.arc(92, my, 9, 0, Math.PI * 2); x.fill();
-    x.fillStyle = "#ffffff"; x.font = "700 36px " + FF; x.textBaseline = "middle"; x.fillText("체험단모아", 130, my + 2);
+    x.fillStyle = "#ffffff"; x.font = "700 36px " + FF; x.textBaseline = "middle"; x.fillText("블로랩", 130, my + 2);
     x.font = "500 28px " + FF; x.fillStyle = "#b4c0cf"; x.textAlign = "right"; x.fillText("블로그 업적", W - 72, my + 2); x.textAlign = "left";
     // 가운데: 배지
     var cy = H * 0.4, R = 170;
