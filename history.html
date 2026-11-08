@@ -265,8 +265,8 @@
     <h1>📜 내 블로그 히스토리</h1>
     <p class="sub">블로그 주소만 넣으면 첫 글부터 지금까지의 연혁, 누적 방문자, 업적 배지, 올해 결산, 글쓰기 성향을 한눈에 보여 드려요. 친구 블로그와 🆚 대결도 할 수 있고, 결과는 사진으로 저장할 수 있어요.</p>
     <label for="blog">네이버 블로그 주소</label>
-    <div class="inrow"><input id="blog" placeholder="블로그 주소, 글 주소 또는 아이디" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
-    <p class="hint">아이디(예: peechu_)나 <b>글 주소</b>를 넣어도 블로그를 알아서 찾아요. 네이버 앱 <b>공유 → 링크 복사</b>도 돼요.</p>
+    <div class="inrow"><input id="blog" placeholder="아이디, 블로그 이름 또는 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
+    <p class="hint">아이디(예: peechu_)나 <b>블로그 이름·별명</b>을 치면 칸 아래에 블로그가 떠요. <b>글 주소</b>나 네이버 앱 <b>공유 → 링크 복사</b>도 돼요.</p>
     <div class="recent" id="recent" hidden></div>
     <button class="go" id="go">히스토리 보기</button>
     <p class="note" id="msg">공개된 정보만 읽어요. 로그인이나 비밀번호는 필요 없고, 결과는 저장되지 않아요.</p>
@@ -654,7 +654,7 @@
       <p class="cap" id="saveMsg"></p>` +
       `<div class="card vsin" id="vsCard"><h2>🆚 친구 블로그와 대결</h2>
         <p class="sub">친구 블로그 주소, 글 주소, 아이디 중 하나를 넣으면 항목별로 누가 이기는지 비교해 드려요.</p>
-        <div class="inrow"><input id="vsBlog" placeholder="친구 블로그 주소, 글 주소 또는 아이디" aria-label="친구 블로그 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="vsPaste" type="button">📋 붙여넣기</button></div>
+        <div class="inrow"><input id="vsBlog" placeholder="친구 아이디, 블로그 이름 또는 주소" aria-label="친구 블로그 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="vsPaste" type="button">📋 붙여넣기</button></div>
         <button class="go" id="vsGo" type="button">🆚 대결하기</button>
         <p class="note" id="vsMsg"></p>
         <div id="vsOut"></div>
