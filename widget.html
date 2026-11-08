@@ -339,6 +339,14 @@
       if (j.ok) return show(j);
       if (j.auth === false) ls.del(KEY(ID)); else return msg($("startMsg"), A.esc(j.error || "불러오지 못했어요."), true);
     }
+    // 로그인해서 '내 블로그'로 확인한 블로그면 소개글 코드 없이 바로
+    var B = window.BLAuth;
+    if (B && B.on() && B.token()) {
+      try {
+        var m = await (await B.fetch("/?mode=wmember&blog=" + encodeURIComponent(ID), { method: "POST", body: "{}" })).json();
+        if (m.ok && m.key) { busy($("startBtn"), false); ls.set(KEY(ID), m.key); return show(m, "내 블로그로 확인된 블로그라 코드 없이 바로 열었어요."); }
+      } catch (e) {}
+    }
     var c = await api("wclaim");
     busy($("startBtn"), false);
     if (!c.ok) return msg($("startMsg"), A.esc(c.error || "확인 코드를 받지 못했어요."), true);

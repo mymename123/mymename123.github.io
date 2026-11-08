@@ -138,7 +138,7 @@
         (pro ? "<span>" + (D.pro && D.pro.how === "beta" ? "베타 PRO · " : "") + ymd(D.pro.until) + "까지</span><span>오늘 진단 <b>" + D.today.used + "/" + D.today.limit + "</b>회</span>" : '<span class="cm-cap">내 블로그 1개 · 블로그당 무료 첫 진단</span>') +
         "<span>충전 토큰 <b>" + num(t.balance) + "</b>개</span></div>" +
         '<p class="cm-cap">' + (pro ? "PRO는 하루 " + D.today.limit + "번까지 어느 블로그든 진단할 수 있고, 결과를 가리지 않고 다 보여 드려요. 한국 시간 자정에 다시 " + D.today.limit + "번이 되고, 남은 횟수는 다음 날로 넘어가지 않아요. 더 하려면 충전 토큰 " + t.cost + "개를 써요."
-          : "PRO는 하루 5번 어느 블로그든 진단하고 할 일·추천 주제·재신청 날짜까지 볼 수 있어요. 결제는 준비 중이에요.") +
+          : "PRO는 하루 5번 어느 블로그든 진단하고 할 일·추천 주제·재신청 날짜까지 볼 수 있어요. 결제는 준비 중이에요. <a href=\"pricing.html\" style=\"color:var(--green)\">요금제 보기</a>") +
         (t.balance && !pro ? " 남은 충전 토큰은 내 블로그 진단에 쓸 수 있어요." : "") + "</p>" +
         (pro || t.balance ? '<div class="mb-row"><a class="cm-btn" href="analyze.html">다른 블로그 진단하기</a></div>' : "") +
         (tx ? '<details class="mb-more"><summary>토큰 내역 보기</summary><ul class="mb-tx">' + tx + "</ul></details>" : "") +

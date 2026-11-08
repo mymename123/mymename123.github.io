@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>요금제 | 블로랩</title>
+<!-- 공개 전 초안: 메뉴에 연결하지 않음, 검색 제외 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .pr-main { padding-block: 40px 72px; display: flex; flex-direction: column; gap: 16px; max-width: 880px; margin: 0 auto; }
+  .pr-head { display: flex; flex-direction: column; gap: 8px; }
+  .pr-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pr-plan { display: flex; flex-direction: column; gap: 10px; }
+  .pr-plan.pro { border-color: var(--green); box-shadow: 0 0 0 1px var(--green) inset; }
+  .pr-name { font-size: 13px; font-weight: 700; letter-spacing: .6px; color: var(--sub); }
+  .pr-plan.pro .pr-name { color: var(--green); }
+  .pr-price { font-size: 30px; font-weight: 700; letter-spacing: -0.6px; font-variant-numeric: tabular-nums; }
+  .pr-price small { font-size: 15px; font-weight: 500; color: var(--sub); letter-spacing: 0; }
+  .pr-plan ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .pr-tbl { overflow-x: auto; }
+  .pr-tbl table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .pr-tbl th, .pr-tbl td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .pr-tbl thead th { font-size: 13px; color: var(--sub); font-weight: 600; }
+  .pr-tbl tbody th { font-weight: 500; }
+  .pr-tbl td { min-width: 104px; }
+  .pr-y { color: var(--green); font-weight: 700; }
+  .pr-n { color: var(--sub); }
+  .pr-note { display: flex; flex-direction: column; gap: 8px; }
+  .pr-note ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .pr-soon { font-size: 14px; padding: 12px 14px; border-radius: 10px; background: var(--chip); }
+  @media (max-width: 600px) { .pr-plans { grid-template-columns: 1fr; } .pr-tbl table { font-size: 13.5px; } .pr-tbl th, .pr-tbl td { padding: 8px 6px; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap pr-main" id="main">
+  <div class="pr-head"><span class="cm-kicker">블로랩 요금제</span><h1 class="cm-h2">FREE와 PRO</h1>
+    <p class="cm-lead">히스토리·친구 대결·업적 위젯은 지금처럼 로그인 없이 무료예요. AI가 글을 읽는 체험단·애드포스트 진단만 횟수가 정해져 있어요.</p></div>
+  <p class="pr-soon" role="status">PRO 결제는 준비 중이에요. 결제를 열기 전까지는 아래 내용이 바뀔 수 있어요.</p>
+  <div class="pr-plans">
+    <section class="cm-card pr-plan" aria-labelledby="pF"><span class="pr-name" id="pF">FREE</span><div class="pr-price">0원</div>
+      <ul><li>내 블로그 1개 등록, 날짜별 숫자 기록</li><li>내 블로그 체험단·애드포스트 진단 첫 1번씩 무료</li><li>점수와 떨어졌을 가능성 상위 2개</li></ul>
+      <div><a class="cm-btn" href="me.html">내 블로그 등록하기</a></div></section>
+    <section class="cm-card pr-plan pro" aria-labelledby="pP"><span class="pr-name" id="pP">PRO</span><div class="pr-price">2,900원 <small>/ 월</small></div>
+      <ul><li>진단 하루 5번, 어느 블로그든</li><li>할 일·추천 주제·재신청 날짜까지 전부</li><li>내 블로그 여러 개, 충전 토큰 사기</li></ul>
+      <div><button class="cm-btn pri" type="button" disabled>준비 중</button></div></section>
+  </div>
+  <section class="cm-card" aria-labelledby="pT"><h2 class="cm-h3" id="pT">한눈에 비교</h2>
+    <div class="pr-tbl"><table><thead><tr><th scope="col">기능</th><th scope="col">FREE</th><th scope="col">PRO</th></tr></thead><tbody><tr><th scope='row'>블로그 히스토리·친구 대결·업적 위젯</th><td>무료, 로그인 없이</td><td>무료, 로그인 없이</td></tr><tr><th scope='row'>내 블로그 등록</th><td>1개</td><td>여러 개</td></tr><tr><th scope='row'>날짜별 숫자 기록 (글·방문자·이웃)</th><td><span class="pr-y" aria-label="있음">✓</span></td><td><span class="pr-y" aria-label="있음">✓</span></td></tr><tr><th scope='row'>체험단·애드포스트 진단</th><td>내 블로그 종류별 첫 1번 무료</td><td>하루 5번, 어느 블로그든</td></tr><tr><th scope='row'>결과: 점수·떨어졌을 가능성</th><td>상위 2개까지</td><td>전부</td></tr><tr><th scope='row'>결과: 할 일·추천 주제·재신청 날짜</th><td><span class="pr-n" aria-label="없음">–</span></td><td><span class="pr-y" aria-label="있음">✓</span></td></tr><tr><th scope='row'>진단 결과 저장·다시 보기</th><td><span class="pr-y" aria-label="있음">✓</span></td><td><span class="pr-y" aria-label="있음">✓</span></td></tr><tr><th scope='row'>충전 토큰 사기</th><td><span class="pr-n" aria-label="없음">–</span></td><td>1,000원 = 500개 (진단 5번)</td></tr></tbody></table></div></section>
+  <section class="cm-card pr-note" aria-labelledby="pN"><h2 class="cm-h3" id="pN">알아 두세요</h2>
+    <ul>
+      <li><b>PRO 하루 5번</b>은 한국 시간 자정에 다시 5번이 되고, 남은 횟수는 다음 날로 넘어가지 않아요.</li>
+      <li>5번을 다 쓰면 <b>충전 토큰 100개</b>로 1번 더 진단할 수 있어요. 토큰을 쓸 때는 진단 전에 꼭 한 번 물어봐요.</li>
+      <li>충전 토큰은 PRO 회원만 살 수 있어요. PRO가 끝나도 남은 토큰은 내 블로그 진단에 계속 쓸 수 있어요.</li>
+      <li>진단에 실패하면 무료 횟수·하루 횟수·토큰은 쓰지 않은 것으로 돌려드려요.</li>
+      <li>무료 첫 진단은 회원이 아니라 <b>블로그당</b> 1번이에요. 다른 계정으로 같은 블로그를 등록해도 다시 받을 수 없어요.</li>
+      <li>진단 결과는 "가능성"과 "개선점"이에요. 실제 선정·심사 기준과 탈락 사유는 업체와 네이버만 알 수 있어요.</li>
+      <li>해지·환불 규칙과 가격의 부가세 포함 여부는 결제를 열 때 이용약관과 함께 적어 드려요.</li>
+    </ul></section>
+</main>
+<script src="auth.js"></script>
+<script>
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>

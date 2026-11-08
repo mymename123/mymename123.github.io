@@ -346,6 +346,7 @@
     try {
       const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v) + (MODE === "adpost" ? "&mode=adpost" : ""));
       const r = await res.json();
+      if (r.status === "need_login") { $("msg").innerHTML = "<span class='err'>" + esc(r.error) + "</span> <a href='login.html?r=" + encodeURIComponent(location.pathname + location.search) + "'>로그인하기</a>"; return; }
       if (!res.ok || r.error) throw new Error(r.error || "분석에 실패했어요.");
       r.mode === "adpost" ? showAd(r, false) : show(r, false);
       if (r.blog && r.blog.id) { $("blog").value = r.blog.id; saveRecent(r.blog.id, r.blog.title); }
