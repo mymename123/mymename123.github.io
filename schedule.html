@@ -422,5 +422,6 @@ load();
   // 홈 화면 추가(앱처럼 설치)·공유로 받기용. 캐시는 안 함
   if ("serviceWorker" in navigator) addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
 </script>
+<script src="auth.js"></script>
 </body>
 </html>
