@@ -209,7 +209,38 @@
   .best .m { grid-column: 2; font-size: 12.5px; color: var(--sub); }
   .chips span b { color: var(--green); margin-left: 3px; font-size: 12px; }
   .warn { background: var(--soft); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(--sub); margin-bottom: 12px; }
-  @media (max-width: 600px) { #saveH { flex-basis: 100%; } .big b { font-size: 22px; } .mini { grid-template-columns: repeat(2, 1fr); } .hero h2 { font-size: 21px; } .wgrid b { font-size: 18px; } .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* 🆚 친구 블로그와 대결: 나 = 초록, 친구 = 보라 (색약 구분 확인, 이름·숫자로도 구분) */
+  :root { --me: #03c75a; --fr: #6f5ce6; }
+  @media (prefers-color-scheme: dark) { :root { --me: #04a84d; --fr: #7d6cf0; } }
+  .vsin .sub { margin-bottom: 10px; }
+  .vsres { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .vh { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; text-align: center; }
+  .vp { min-width: 0; border-radius: 14px; padding: 12px 10px; border: 2px solid var(--line); }
+  .vp.a { border-color: var(--me); } .vp.b { border-color: var(--fr); }
+  .vp .pf2 { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 6px; background: var(--soft); }
+  .vp b { display: block; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+  .vp span { display: block; font-size: 12px; color: var(--sub); overflow-wrap: anywhere; line-height: 1.5; }
+  .vp .who2 { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; }
+  .vp.a .who2 { color: var(--me); } .vp.b .who2 { color: var(--fr); }
+  .vx2 { font-weight: 900; font-size: 20px; color: var(--sub); }
+  .vscore { text-align: center; font-size: 46px; font-weight: 900; line-height: 1.1; margin: 16px 0 4px; font-variant-numeric: tabular-nums; }
+  .vscore .a { color: var(--me); } .vscore .b { color: var(--fr); } .vscore .c { color: var(--sub); margin: 0 12px; }
+  .vwin { text-align: center; font-weight: 800; font-size: 17px; margin-bottom: 10px; }
+  .vrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .vrow:last-of-type { border-bottom: 0; }
+  .vrow .l, .vrow .r { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--sub); overflow-wrap: anywhere; line-height: 1.4; }
+  .vrow .l { text-align: left; } .vrow .r { text-align: right; }
+  .vrow .w { color: var(--text); font-weight: 800; }
+  .vrow .m { text-align: center; min-width: 0; }
+  .vrow .n { font-size: 12.5px; color: var(--sub); margin-bottom: 5px; line-height: 1.4; }
+  .vbar { display: flex; gap: 2px; height: 8px; }
+  .vbar i { display: block; height: 100%; min-width: 3px; }
+  .vbar .a { background: var(--me); border-radius: 4px 0 0 4px; }
+  .vbar .b { background: var(--fr); border-radius: 0 4px 4px 0; }
+  .vbar .z { background: var(--soft); border-radius: 4px; flex: 1 1 0; }
+  .vfacts { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .vfacts li { background: var(--soft); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; line-height: 1.55; }
+  @media (max-width: 600px) { #saveH { flex-basis: 100%; } .vscore { font-size: 40px; } .big b { font-size: 22px; } .mini { grid-template-columns: repeat(2, 1fr); } .hero h2 { font-size: 21px; } .wgrid b { font-size: 18px; } .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 </head>
 <body>
@@ -221,10 +252,10 @@
 <div class="wrap">
   <div class="card">
     <h1>📜 내 블로그 히스토리</h1>
-    <p class="sub">블로그 주소만 넣으면 첫 글부터 지금까지의 연혁, 누적 방문자, 업적 배지, 올해 결산, 글쓰기 성향을 한눈에 보여 드려요. 결과는 사진으로도 저장할 수 있어요.</p>
+    <p class="sub">블로그 주소만 넣으면 첫 글부터 지금까지의 연혁, 누적 방문자, 업적 배지, 올해 결산, 글쓰기 성향을 한눈에 보여 드려요. 친구 블로그와 🆚 대결도 할 수 있고, 결과는 사진으로 저장할 수 있어요.</p>
     <label for="blog">네이버 블로그 주소</label>
-    <div class="inrow"><input id="blog" placeholder="블로그 주소 또는 아이디" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
-    <p class="hint">아이디만 써도 돼요 (예: peechu_). 친구 블로그도 볼 수 있어요.</p>
+    <div class="inrow"><input id="blog" placeholder="블로그 주소, 글 주소 또는 아이디" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
+    <p class="hint">아이디(예: peechu_)나 <b>글 주소</b>를 넣어도 블로그를 알아서 찾아요. 네이버 앱 <b>공유 → 링크 복사</b>도 돼요.</p>
     <div class="recent" id="recent" hidden></div>
     <button class="go" id="go">히스토리 보기</button>
     <p class="note" id="msg">공개된 정보만 읽어요. 로그인이나 비밀번호는 필요 없고, 결과는 저장되지 않아요.</p>
@@ -454,6 +485,13 @@
       </div>
       <div class="acts"><button id="saveH" type="button">📸 히스토리 사진으로 저장</button><button id="saveW" class="alt" type="button">🎁 ${year.year || ""} 결산 사진</button><button id="copyL" class="alt" type="button">🔗 링크 복사</button></div>
       <p class="cap" id="saveMsg"></p>` +
+      `<div class="card vsin" id="vsCard"><h2>🆚 친구 블로그와 대결</h2>
+        <p class="sub">친구 블로그 주소, 글 주소, 아이디 중 하나를 넣으면 항목별로 누가 이기는지 비교해 드려요.</p>
+        <div class="inrow"><input id="vsBlog" placeholder="친구 블로그 주소, 글 주소 또는 아이디" aria-label="친구 블로그 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="vsPaste" type="button">📋 붙여넣기</button></div>
+        <button class="go" id="vsGo" type="button">🆚 대결하기</button>
+        <p class="note" id="vsMsg"></p>
+        <div id="vsOut"></div>
+      </div>` +
       `<div class="card"><h2>🏆 업적 배지</h2><p class="bcount">${ach.length}개 중 <b>${got.length}개</b> 달성</p><div class="badges">` +
         ach.map((a) => `<div class="bd${a.on ? "" : " off"}${a.gold ? " gold" : ""}"><div class="i">${a.icon}</div><div class="n">${esc(a.name)}</div>${a.max ? `<div class="lv">Lv.${a.lv} / ${a.max}</div>` : ""}<div class="d"><b>${esc(a.title)}</b>${a.desc ? "<br>" + esc(a.desc) : ""}</div>${a.max && a.pct != null && a.lv < a.max ? `<div class="pg" aria-hidden="true"><i style="width:${a.pct}%"></i></div>` : ""}</div>`).join("") +
       `</div></div>` +
@@ -504,6 +542,15 @@
       (((r.visitors || {}).days || []).length ? `<div class="card"><h2>👣 최근 방문자</h2>${vbars(r.visitors.days.map((v) => ({ label: +v.day.slice(4, 6) + "월 " + +v.day.slice(6) + "일", short: +v.day.slice(6) + "일", v: v.cnt })), { aria: "최근 방문자 수", unit: "명" })}<p class="cap">오늘은 아직 집계 중이에요. 네이버가 최근 며칠만 공개해요.</p></div>` : "") +
       `<p class="note">※ 네이버에 공개된 정보로 자동 계산한 결과예요. 비공개 글, 글별 조회수, 애드포스트 수익처럼 공개되지 않는 정보는 넣지 않았어요. 결과는 저장되지 않아요.</p>`;
     $("saveH").addEventListener("click", () => saveCard("history"));
+    bindIdInput($("vsBlog"), runVs);
+    $("vsGo").addEventListener("click", runVs);
+    $("vsPaste").addEventListener("click", async () => {
+      let t = ""; try { t = await navigator.clipboard.readText(); } catch (e) {}
+      const id = pickBlog(t) || pickBlog(onlyId(t));
+      if (id) { $("vsBlog").value = id; runVs(); return; }
+      $("vsBlog").focus();
+      $("vsMsg").innerHTML = t ? "<span class='err'>복사한 내용에서 블로그 주소를 못 찾았어요.</span>" : "칸을 길게 눌러 <b>붙여넣기</b> 해 주세요.";
+    });
     $("saveW").addEventListener("click", () => saveCard("wrapped"));
     $("copyL").addEventListener("click", async () => {
       const u = location.origin + location.pathname + "?blog=" + encodeURIComponent(B.id);
@@ -596,8 +643,11 @@
     ctx.font = "44px " + F; on.forEach((a, i) => ctx.fillText(a.icon, 72 + i * 66, y));
     ctx.font = "500 24px " + F; ctx.globalAlpha = .85; ctx.fillText("업적 " + ach.filter((a) => a.on).length + "개 달성", 72, y + 66);
     ctx.textAlign = "right"; ctx.fillText("체험단모아 · mymename123.github.io/history.html", W - 72, Hh - 64); ctx.textAlign = "left"; ctx.globalAlpha = 1;
-    const name = (wrapped ? "blog-wrapped-" : "blog-history-") + B.id + ".png";
-    // 미리보기로 띄움: 폰(네이버 앱 안 포함)은 길게 눌러 저장, PC는 저장 버튼
+    showShot(c, (wrapped ? "blog-wrapped-" : "blog-history-") + B.id + ".png");
+  }
+  // 미리보기로 띄움: 폰(네이버 앱 안 포함)은 길게 눌러 저장, PC는 저장 버튼
+  function showShot(c, name) {
+    const H = window.__H; if (!H) return;
     const url = c.toDataURL("image/png");
     $("shotImg").src = url; $("shotDl").href = url; $("shotDl").setAttribute("download", name);
     $("shotShare").hidden = true; H.file = null;
@@ -619,15 +669,181 @@
     try { await navigator.share({ files: [f], title: "내 블로그 히스토리" }); } catch (e) {}
   });
 
+  async function fetchHist(v) {
+    const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v) + "&mode=history");
+    let r = null; try { r = await res.json(); } catch (e) {}
+    if (!res.ok || !r || r.error) throw new Error((r && r.error) || "분석에 실패했어요. 잠시 뒤 다시 해 주세요.");
+    return r;
+  }
+  // 아이디 칸 공통: 한글·공백은 빼고, 글 주소·앱 공유 문구를 붙여 넣으면 아이디만 남김
+  function bindIdInput(inp, onEnter) {
+    inp.addEventListener("input", (e) => { if (e.isComposing) return; const v = onlyId(inp.value); if (v !== inp.value) inp.value = v; });
+    inp.addEventListener("compositionend", () => { inp.value = onlyId(inp.value); });
+    inp.addEventListener("paste", (e) => { const t = (e.clipboardData || window.clipboardData).getData("text"); const id = pickBlog(t) || pickBlog(onlyId(t)); e.preventDefault(); inp.value = id || onlyId(t); });
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") onEnter(); });
+  }
+
+  // ---- 🆚 친구 블로그와 대결 ----
+  const nm = (r) => r.blog.nick || r.blog.title || r.blog.id;
+  // [아이콘, 이름, 값 꺼내기, 보여 주기] — 숫자가 큰 쪽이 이김
+  const VS_ROUNDS = [
+    ["📝", "누적 포스팅", (m) => m.posts, (v) => fmt(v) + "개"],
+    ["👀", "누적 방문자", (m) => m.visitors, (v) => fmt(v) + "명"],
+    ["🤝", "이웃", (m) => m.neighbors, (v) => fmt(v) + "명"],
+    ["🎂", "블로그 나이", (m) => m.days, (v) => dur(v)],
+    ["🗓️", "올해 쓴 글", (m) => m.year, (v) => fmt(v) + "개"],
+    ["🔥", "최장 연속 포스팅", (m) => m.streak, (v) => fmt(v) + "일"],
+    ["❤️", "글당 공감", (m) => m.likesPer, (v) => v.toFixed(1) + "개"],
+    ["💬", "글당 댓글", (m) => m.commentsPer, (v) => v.toFixed(1) + "개"],
+    ["🏆", "업적 배지", (m) => m.badges, (v) => fmt(v) + "개"],
+    ["⚡", "최근 30일 글", (m) => m.last30, (v) => fmt(v) + "개"],
+    ["🎯", "글 1개당 방문자", (m) => m.perPost, (v) => fmt(Math.round(v)) + "명"],
+    ["🚀", "최근 하루 최고 방문자", (m) => m.dayMax, (v) => fmt(v) + "명"]
+  ];
+  function vsMetrics(r) {
+    const S = r.stats || {}, I = r.info || {}, E = r.engage || {}, EY = E.year || null, Y = S.year || {};
+    return {
+      posts: S.total, visitors: I.totalVisitors, neighbors: I.neighbors, days: S.days,
+      year: Y.posts != null ? Y.posts : EY && EY.complete ? EY.posts : null,
+      streak: S.bestStreak ? S.bestStreak.days : null, last30: S.last30,
+      likesPer: E.from ? E.likes / E.from : null, commentsPer: E.from ? E.comments / E.from : null,
+      perPost: I.totalVisitors != null && S.total ? I.totalVisitors / S.total : null,
+      dayMax: (r.visitors || {}).max, badges: achievements(r).filter((a) => a.on).length
+    };
+  }
+  function vsCompare(ra, rb) {
+    const ma = vsMetrics(ra), mb = vsMetrics(rb);
+    let wa = 0, wb = 0;
+    const rows = VS_ROUNDS.map(([icon, label, get, f]) => {
+      const a = get(ma), b = get(mb);
+      if (a == null || b == null || isNaN(a) || isNaN(b)) return null; // 한쪽이라도 모르면 승부 안 함
+      const win = a > b ? "a" : b > a ? "b" : "";
+      if (win === "a") wa++; else if (win === "b") wb++;
+      return { icon, label, a, b, fa: f(a), fb: f(b), win, pa: a + b > 0 ? Math.round((a / (a + b)) * 100) : 50 };
+    }).filter(Boolean);
+    return { rows, wa, wb };
+  }
+  function vsFacts(ra, rb, na, nb) {
+    const out = [], Sa = ra.stats || {}, Sb = rb.stats || {};
+    if (Sa.firstDate && Sb.firstDate) {
+      const d = Math.round(Math.abs(Sa.firstDate - Sb.firstDate) / D);
+      out.push(d >= 30 ? "🎂 " + (Sa.firstDate < Sb.firstDate ? na : nb) + "님이 " + dur(d) + " 먼저 블로그를 시작했어요." : "🎂 둘이 거의 같은 때 블로그를 시작했어요.");
+    }
+    const ta = bloggerType(ra), tb = bloggerType(rb);
+    out.push(ta === tb ? "🧬 둘 다 '" + ta + "' 스타일이에요." : "🧬 " + na + "님은 '" + ta + "', " + nb + "님은 '" + tb + "' 스타일이에요.");
+    const ha = peak(Sa.hours), hb = peak(Sb.hours);
+    if (ha >= 0 && hb >= 0) out.push(ha === hb ? "⏰ 둘 다 " + ha + "시쯤 글을 가장 많이 올려요." : "⏰ " + na + "님은 " + ha + "시, " + nb + "님은 " + hb + "시쯤 주로 올려요.");
+    const ca = ((Sa.categories || [])[0] || {}).name, cb = ((Sb.categories || [])[0] || {}).name;
+    if (ca && cb && cleanCat(ca).toLowerCase() === cleanCat(cb).toLowerCase()) out.push("📂 둘 다 '" + cleanCat(ca) + "' 카테고리에 가장 많이 써요.");
+    const wa = new Set((Sa.topWords || []).map((w) => w.word));
+    const cw = (Sb.topWords || []).map((w) => w.word).filter((w) => wa.has(w)).slice(0, 5);
+    if (cw.length) out.push("🔤 제목에 둘 다 자주 쓴 말: " + cw.join(", "));
+    const pa = new Set(((ra.places || {}).top || []).map((p) => p.name));
+    const cp = ((rb.places || {}).top || []).map((p) => p.name).filter((p) => pa.has(p));
+    if (cp.length) out.push("📍 둘 다 다녀간 곳: " + cp.join(", "));
+    return out;
+  }
+  async function runVs() {
+    const H = window.__H; if (!H) return;
+    const raw = $("vsBlog").value;
+    const v = pickBlog(raw) || pickBlog(onlyId(raw)) || raw.trim();
+    if (!pickBlog(v)) { $("vsMsg").innerHTML = "<span class='err'>친구 블로그 주소, 글 주소, 아이디 중 하나를 넣어 주세요.</span>"; return; }
+    if (v === H.r.blog.id) { $("vsMsg").innerHTML = "<span class='err'>내 블로그와 같은 블로그예요. 친구 블로그를 넣어 주세요.</span>"; return; }
+    $("vsGo").disabled = true;
+    $("vsMsg").innerHTML = "<span class='spin'></span>친구 블로그를 읽는 중이에요… (5~15초)";
+    try { finishVs(await fetchHist(v)); }
+    catch (e) { $("vsMsg").innerHTML = "<span class='err'>" + esc(e.message || "비교에 실패했어요.") + "</span>"; }
+    finally { $("vsGo").disabled = false; }
+  }
+  function finishVs(rb) {
+    const ra = window.__H.r;
+    if (rb.blog.id === ra.blog.id) { $("vsMsg").innerHTML = "<span class='err'>내 블로그와 같은 블로그예요. 친구 블로그를 넣어 주세요.</span>"; return; }
+    $("vsBlog").value = rb.blog.id;
+    history.replaceState(null, "", "?blog=" + encodeURIComponent(ra.blog.id) + "&vs=" + encodeURIComponent(rb.blog.id));
+    showVs(rb);
+    $("vsMsg").textContent = "";
+    $("vsRes").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function showVs(rb) {
+    const ra = window.__H.r, na = nm(ra), nb = nm(rb);
+    const cmp = vsCompare(ra, rb), facts = vsFacts(ra, rb, na, nb);
+    window.__V = { ra, rb, cmp, na, nb };
+    const player = (r, side, label) => `<div class="vp ${side}"><div class="who2">${label}</div>${r.blog.profile ? `<img class="pf2" src="${esc(r.blog.profile)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<b>${esc(r.blog.title || r.blog.id)}</b><span>${r.blog.nick ? esc(r.blog.nick) + " · " : ""}@${esc(r.blog.id)}</span><span>${esc(bloggerType(r))}</span></div>`;
+    const win = cmp.wa > cmp.wb ? "🏆 " + esc(na) + " 승!" : cmp.wb > cmp.wa ? "🏆 " + esc(nb) + " 승!" : "🤝 무승부!";
+    $("vsOut").innerHTML = `<div class="vsres" id="vsRes">
+      <div class="vh">${player(ra, "a", "나")}<div class="vx2" aria-hidden="true">VS</div>${player(rb, "b", "친구")}</div>
+      <div class="vscore" role="img" aria-label="${cmp.wa} 대 ${cmp.wb}"><span class="a">${cmp.wa}</span><span class="c">:</span><span class="b">${cmp.wb}</span></div>
+      <div class="vwin">${win}</div>
+      ${cmp.rows.map((x) => `<div class="vrow"><div class="l${x.win === "a" ? " w" : ""}">${x.win === "a" ? "👑 " : ""}${esc(x.fa)}</div><div class="m"><div class="n">${x.icon} ${esc(x.label)}</div><div class="vbar" aria-hidden="true">${x.a + x.b > 0 ? `<i class="a" style="flex:${x.pa} 1 0"></i><i class="b" style="flex:${100 - x.pa} 1 0"></i>` : `<i class="z"></i>`}</div></div><div class="r${x.win === "b" ? " w" : ""}">${esc(x.fb)}${x.win === "b" ? " 👑" : ""}</div></div>`).join("")}
+      <div class="acts"><button id="vsSave" type="button">📸 대결 사진 저장</button><button id="vsLink" class="alt" type="button">🔗 대결 링크 복사</button></div>
+      <p class="cap" id="vsSaveMsg"></p>
+      ${facts.length ? `<h2 style="margin-top:14px">🔍 둘의 공통점·차이점</h2><ul class="vfacts">${facts.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+      <p class="cap">공감·댓글은 각자 최근 글의 글당 평균이에요. 블로그 나이는 오래될수록 이기는 걸로 셌어요. 둘 중 한쪽이라도 모르는 항목은 승부에서 뺐어요.</p>
+    </div>`;
+    $("vsSave").addEventListener("click", saveVsCard);
+    $("vsLink").addEventListener("click", async () => {
+      const u = location.origin + location.pathname + "?blog=" + encodeURIComponent(ra.blog.id) + "&vs=" + encodeURIComponent(rb.blog.id);
+      try { await navigator.clipboard.writeText(u); $("vsSaveMsg").textContent = "대결 링크를 복사했어요. 친구에게 보내 보세요!"; }
+      catch (e) { $("vsSaveMsg").textContent = u; }
+    });
+  }
+  // 📸 대결 사진 (1080×1350)
+  async function saveVsCard() {
+    const V = window.__V; if (!V) return;
+    try { await document.fonts.ready; } catch (e) {}
+    const W = 1080, Hh = 1350, c = document.createElement("canvas"); c.width = W; c.height = Hh;
+    const ctx = c.getContext("2d"), F = '"Pretendard","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+    const ME = "#19d36e", FR = "#9a8cff";
+    const g = ctx.createLinearGradient(0, 0, 0, Hh); g.addColorStop(0, "#171b28"); g.addColorStop(1, "#0d1017");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, Hh);
+    [[200, ME, "rgba(3,199,90,.32)"], [880, FR, "rgba(124,108,240,.36)"]].forEach(([x, , col]) => {
+      const rg = ctx.createRadialGradient(x, 210, 10, x, 210, 470); rg.addColorStop(0, col); rg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, Hh);
+    });
+    ctx.textBaseline = "top"; ctx.textAlign = "center"; ctx.fillStyle = "#fff";
+    ctx.font = "800 28px " + F; ctx.globalAlpha = .7; ctx.fillText("BLOG  VS  BLOG", W / 2, 60); ctx.globalAlpha = 1;
+    // 두 사람 이름 (제목 줄 수가 달라도 @아이디 줄은 같은 높이에)
+    const player = (r, x, color, tag) => {
+      ctx.textAlign = "center"; ctx.font = "800 26px " + F; ctx.fillStyle = color; ctx.fillText(tag, x, 120);
+      ctx.fillStyle = "#fff"; ctx.font = "800 42px " + F; return wrapText(ctx, r.blog.title || r.blog.id, x, 160, 400, 50, 2);
+    };
+    const yId = Math.max(player(V.ra, 270, ME, "나"), player(V.rb, 810, FR, "친구")) + 6;
+    ctx.font = "500 26px " + F; ctx.fillStyle = "#fff"; ctx.globalAlpha = .8;
+    wrapText(ctx, "@" + V.ra.blog.id, 270, yId, 400, 32, 1); wrapText(ctx, "@" + V.rb.blog.id, 810, yId, 400, 32, 1); ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(255,255,255,.12)"; ctx.beginPath(); ctx.arc(W / 2, 205, 50, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = "900 40px " + F; ctx.textBaseline = "middle"; ctx.fillText("VS", W / 2, 207); ctx.textBaseline = "top";
+    // 점수
+    ctx.font = "900 120px " + F;
+    ctx.textAlign = "right"; ctx.fillStyle = ME; ctx.fillText(String(V.cmp.wa), W / 2 - 50, 320);
+    ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.fillText(":", W / 2, 312);
+    ctx.textAlign = "left"; ctx.fillStyle = FR; ctx.fillText(String(V.cmp.wb), W / 2 + 50, 320);
+    ctx.textAlign = "center"; ctx.fillStyle = "#fff"; ctx.font = "800 44px " + F;
+    ctx.fillText(V.cmp.wa > V.cmp.wb ? "🏆 " + V.na + " 승!" : V.cmp.wb > V.cmp.wa ? "🏆 " + V.nb + " 승!" : "🤝 무승부!", W / 2, 470);
+    // 항목: 점수에 들어간 승부를 전부 보여 줌 (많으면 줄 간격을 좁힘)
+    const rows = V.cmp.rows, tight = rows.length > 9, rh = tight ? 58 : 74, vf = tight ? 30 : 34, lf = tight ? 23 : 26, by = tight ? 42 : 50;
+    let y = 566;
+    rows.forEach((x) => {
+      ctx.textAlign = "center"; ctx.font = "600 " + lf + "px " + F; ctx.fillStyle = "#fff"; ctx.globalAlpha = .72; ctx.fillText(x.icon + " " + x.label, W / 2, y + (vf - lf) / 2 + 2); ctx.globalAlpha = 1;
+      ctx.font = "800 " + vf + "px " + F;
+      ctx.textAlign = "left"; ctx.fillStyle = x.win === "a" ? "#fff" : "rgba(255,255,255,.55)"; ctx.fillText((x.win === "a" ? "👑 " : "") + x.fa, 80, y);
+      ctx.textAlign = "right"; ctx.fillStyle = x.win === "b" ? "#fff" : "rgba(255,255,255,.55)"; ctx.fillText(x.fb + (x.win === "b" ? " 👑" : ""), W - 80, y);
+      const bw = W - 160, la = x.a + x.b > 0 ? Math.max(6, Math.min(bw - 10, Math.round((bw - 4) * x.pa / 100))) : (bw - 4) / 2;
+      ctx.fillStyle = ME; rr(ctx, 80, y + by, la, 8, 4); ctx.fill();
+      ctx.fillStyle = FR; rr(ctx, 80 + la + 4, y + by, bw - la - 4, 8, 4); ctx.fill();
+      y += rh;
+    });
+    ctx.textAlign = "center"; ctx.fillStyle = "#fff"; ctx.font = "500 24px " + F; ctx.globalAlpha = .7;
+    ctx.fillText("체험단모아 · mymename123.github.io/history.html", W / 2, Hh - 64); ctx.globalAlpha = 1; ctx.textAlign = "left";
+    showShot(c, "blog-vs-" + V.ra.blog.id + "-" + V.rb.blog.id + ".png");
+  }
+
   async function run() {
     const v = pickBlog($("blog").value) || pickBlog(onlyId($("blog").value)) || $("blog").value.trim();
     if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) peechu_ 또는 https://blog.naver.com/아이디</span>"; return; }
     $("go").disabled = true;
     $("msg").innerHTML = "<span class='spin'></span>첫 글부터 지금까지 읽는 중이에요… (5~15초)";
     try {
-      const res = await fetch(WORKER_URL + "?blog=" + encodeURIComponent(v) + "&mode=history");
-      const r = await res.json();
-      if (!res.ok || r.error) throw new Error(r.error || "분석에 실패했어요.");
+      const r = await fetchHist(v);
       if (r.blog && r.blog.id) { $("blog").value = r.blog.id; saveRecent(r.blog.id, r.blog.title); history.replaceState(null, "", "?blog=" + encodeURIComponent(r.blog.id)); }
       show(r);
       $("msg").textContent = "다 읽었어요. 결과는 저장되지 않아서 페이지를 나가면 사라져요.";
@@ -637,7 +853,21 @@
   }
   $("go").addEventListener("click", run);
   $("blog").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
-  (function () { const q = Q0.get("blog"); if (q && pickBlog(q)) { $("blog").value = pickBlog(q); run(); } })();
+  // 주소에 ?blog=아이디 (&vs=친구아이디) 가 있으면 바로 보여 줌. 대결은 두 블로그를 동시에 읽음
+  (function () {
+    const q = Q0.get("blog"), vs = Q0.get("vs");
+    if (!q || !pickBlog(q)) return;
+    $("blog").value = pickBlog(q);
+    const vp = vs && pickBlog(vs) ? fetchHist(pickBlog(vs)).catch((e) => e) : null;
+    run().then(async () => {
+      if (!vp || !window.__H) return;
+      $("vsBlog").value = pickBlog(vs);
+      $("vsMsg").innerHTML = "<span class='spin'></span>친구 블로그를 읽는 중이에요…";
+      const rb = await vp;
+      if (rb instanceof Error) { $("vsMsg").innerHTML = "<span class='err'>" + esc(rb.message) + "</span>"; return; }
+      finishVs(rb);
+    });
+  })();
   if ("serviceWorker" in navigator) addEventListener("load", () => { navigator.serviceWorker.register("/sw.js").catch(() => {}); });
   document.getElementById("year").textContent = new Date().getFullYear();
   (function () {
