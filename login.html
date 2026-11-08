@@ -36,7 +36,14 @@
   .lg-who > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .lg-who b { font-size: 19px; overflow-wrap: anywhere; }
   .lg-acts { display: flex; flex-wrap: wrap; gap: 8px; }
-  .lg-confirm { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+  .lg-after { max-width: 488px; margin: 14px auto 0; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+  .lg-after:empty { display: none; }
+  .lg-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .lg-quiet:hover { color: var(--text); }
+  .lg-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
+  #byeBox { align-self: stretch; }
+  #byeBox:empty { display: none; }
+  .lg-confirm { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
   .lg-confirm p { margin: 0; }
   .lg-confirm ul { margin: 0; padding-left: 20px; color: var(--sub); font-size: 14px; }
   .lg-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
@@ -58,13 +65,14 @@
   <div class="cm-card lg-card" id="box" aria-live="polite">
     <div class="lg-wait"><span class="cm-spin" aria-hidden="true"></span>잠시만요…</div>
   </div>
+  <div class="lg-after" id="after"></div>
 </main>
 
 <script src="auth.js"></script>
 <script>
   // 로그인 화면: 고르기 → (카카오·네이버·구글) → 돌아와서 #c=1회용 코드로 로그인 마무리 → 내 정보
   (function () {
-    var A = window.BLAuth, box = document.getElementById("box");
+    var A = window.BLAuth, box = document.getElementById("box"), after = document.getElementById("after");
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
     var ERR = {
       cancel: "로그인을 취소했어요.",
@@ -72,6 +80,7 @@
       provider: "로그인한 곳에서 회원 정보를 받지 못했어요. 잠시 뒤 다시 해 주세요.",
       nokey: "이 로그인은 아직 준비 중이에요.",
       nodb: "로그인은 아직 준비 중이에요.",
+      rejoin: "탈퇴한 계정은 30일 동안 다시 가입할 수 없어요.",
       server: "잠시 문제가 생겼어요. 잠시 뒤 다시 해 주세요."
     };
     var ICON = {
@@ -86,7 +95,10 @@
     var hash = new URLSearchParams(location.hash.slice(1));
     if (location.hash) history.replaceState(null, "", "login.html" + (ret !== "/" ? "?r=" + encodeURIComponent(ret) : ""));
 
+    // "2026-12-10" → "2026년 12월 10일"
+    function day(d) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ""); return m ? m[1] + "년 " + (+m[2]) + "월 " + (+m[3]) + "일" : ""; }
     function choose(err) {
+      after.innerHTML = "";
       if (!A.on() && !err) {
         box.innerHTML = '<div class="lg-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">로그인은 곧 열려요</h1>' +
           '<p class="cm-lead">지금은 로그인 없이 모든 기능을 쓸 수 있어요.</p></div><a class="cm-btn" href="index.html">첫 화면으로</a>';
@@ -119,22 +131,24 @@
         (since ? " · " + since.getFullYear() + "년 " + (since.getMonth() + 1) + "월 " + since.getDate() + "일 가입" : "") + "</span></div></div>" +
         '<p class="cm-cap">이 기기에서 로그인돼 있어요. 다른 기기에서는 따로 로그인해 주세요.</p>' +
         '<div class="lg-acts">' + (ret !== "/" ? '<a class="cm-btn pri" href="' + esc(ret.slice(1) || "index.html") + '">보던 페이지로</a>' : '<a class="cm-btn pri" href="index.html">첫 화면으로</a>') +
-        '<button class="cm-btn" type="button" id="out">로그아웃</button></div>' +
-        '<div class="lg-note"><button class="cm-btn ghost danger" type="button" id="bye" style="align-self:flex-start">회원 탈퇴</button><div id="byeBox"></div></div>';
+        '<button class="cm-btn" type="button" id="out">로그아웃</button></div>';
+      // 탈퇴는 카드 밖 아래에 작은 글씨로 (동혁 결정: 눈에 덜 띄게, 빨간색 말고 검은색)
+      after.innerHTML = '<button class="lg-quiet" type="button" id="bye" aria-expanded="false" aria-controls="byeBox">회원 탈퇴</button><div id="byeBox"></div>';
       document.getElementById("out").addEventListener("click", function () {
         this.disabled = true;
         A.logout().then(function () { choose(); notice("로그아웃했어요."); });
       });
       document.getElementById("bye").addEventListener("click", function () {
-        var b = document.getElementById("byeBox");
-        if (b.innerHTML) { b.innerHTML = ""; return; }
-        b.innerHTML = '<div class="lg-confirm"><p><b>정말 탈퇴할까요?</b></p><ul><li>회원 번호와 닉네임이 바로 지워져요.</li><li>되돌릴 수 없어요. 다시 로그인하면 새 회원이 돼요.</li></ul>' +
-          '<div class="lg-acts"><button class="cm-btn danger" type="button" id="byeYes">탈퇴하기</button><button class="cm-btn ghost" type="button" id="byeNo">취소</button></div><p id="byeMsg" class="cm-cap" role="alert"></p></div>';
-        document.getElementById("byeNo").addEventListener("click", function () { b.innerHTML = ""; });
+        var b = document.getElementById("byeBox"), t = this;
+        if (b.innerHTML) { b.innerHTML = ""; t.setAttribute("aria-expanded", "false"); return; }
+        t.setAttribute("aria-expanded", "true");
+        b.innerHTML = '<div class="lg-confirm"><p><b>정말 탈퇴할까요?</b></p><ul><li>회원 번호와 닉네임이 바로 지워지고, 되돌릴 수 없어요.</li><li>같은 계정으로는 30일 동안 다시 가입할 수 없어요.</li></ul>' +
+          '<div class="lg-acts"><button class="cm-btn" type="button" id="byeYes">탈퇴하기</button><button class="cm-btn ghost" type="button" id="byeNo">취소</button></div><p id="byeMsg" class="cm-cap" role="alert"></p></div>';
+        document.getElementById("byeNo").addEventListener("click", function () { b.innerHTML = ""; t.setAttribute("aria-expanded", "false"); t.focus(); });
         document.getElementById("byeYes").addEventListener("click", function () {
           var y = this; y.disabled = true; y.textContent = "탈퇴하는 중…";
           A.withdraw().then(function (j) {
-            if (j && j.ok) { choose(); notice("탈퇴했어요. 그동안 고마웠어요."); return; }
+            if (j && j.ok) { choose(); notice("탈퇴했어요. 그동안 고마웠어요." + (j.rejoin ? " 같은 계정으로는 " + day(j.rejoin) + "부터 다시 가입할 수 있어요." : "")); return; }
             y.disabled = false; y.textContent = "탈퇴하기";
             document.getElementById("byeMsg").textContent = (j && j.error) || "탈퇴하지 못했어요. 잠시 뒤 다시 해 주세요.";
           });
@@ -146,7 +160,7 @@
       p.className = "cm-msg"; p.setAttribute("role", "status"); p.textContent = t;
       box.insertBefore(p, box.children[1] || null);
     }
-    function wait(t) { box.innerHTML = '<div class="lg-wait"><span class="cm-spin" aria-hidden="true"></span>' + esc(t) + "</div>"; }
+    function wait(t) { after.innerHTML = ""; box.innerHTML = '<div class="lg-wait"><span class="cm-spin" aria-hidden="true"></span>' + esc(t) + "</div>"; }
 
     var code = hash.get("c"), err = hash.get("e");
     if (code) {
@@ -163,7 +177,7 @@
         })
         .catch(function () { choose("인터넷 연결을 확인하고 다시 해 주세요."); });
     } else if (err) {
-      choose(ERR[err] || ERR.server);
+      choose((ERR[err] || ERR.server) + (err === "rejoin" && day(hash.get("u")) ? " " + day(hash.get("u")) + "부터 다시 가입할 수 있어요." : ""));
     } else if (A.token()) {
       A.me(true).then(function (j) {
         if (j && j.login) account(j.user);
