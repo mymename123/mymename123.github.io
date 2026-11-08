@@ -147,6 +147,7 @@
   .sbox img { display: block; width: 100%; height: auto; border-radius: 10px; }
   .sbox .sh { font-size: 13px; color: var(--sub); margin: 10px 0 0; text-align: center; line-height: 1.55; }
   .sbox .acts { margin-bottom: 0; }
+  .sbox .acts button, .sbox .acts .btn { flex-basis: 90px; }
   /* 업적 배지 */
   .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .bd { border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; min-width: 0; }
@@ -513,16 +514,24 @@
   }
 
   // ---- 📸 사진으로 저장 (그림을 직접 그려서 PNG로) ----
+  // 띄어쓰기 단위로 줄을 바꾸고(너무 긴 단어만 글자 단위), 마지막 줄이 넘치면 …
   function wrapText(ctx, text, x, y, maxW, lh, maxLines) {
-    const chars = String(text || "").split(""); let line = "", lines = 0;
-    for (let i = 0; i < chars.length; i++) {
-      const test = line + chars[i];
-      if (ctx.measureText(test).width > maxW && line) {
-        lines++; if (lines === maxLines) { ctx.fillText(line.slice(0, -1) + "…", x, y); return y + lh; }
-        ctx.fillText(line, x, y); y += lh; line = chars[i];
+    const units = [];
+    String(text || "").split(/(\s+)/).forEach((w) => { if (!w) return; if (ctx.measureText(w).width <= maxW) units.push(w); else units.push(...w.split("")); });
+    let line = "", lines = 0;
+    for (let i = 0; i < units.length; i++) {
+      const test = line + units[i];
+      if (ctx.measureText(test).width > maxW && line.trim()) {
+        lines++;
+        if (lines === maxLines) {
+          let s = line + units.slice(i).join("");
+          while (s.length && ctx.measureText(s.trimEnd() + "…").width > maxW) s = s.slice(0, -1);
+          ctx.fillText(s.trimEnd() + "…", x, y); return y + lh;
+        }
+        ctx.fillText(line.trimEnd(), x, y); y += lh; line = /^\s+$/.test(units[i]) ? "" : units[i];
       } else line = test;
     }
-    if (line) { ctx.fillText(line, x, y); y += lh; }
+    if (line.trim()) { ctx.fillText(line.trimEnd(), x, y); y += lh; }
     return y;
   }
   function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
