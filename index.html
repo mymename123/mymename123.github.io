@@ -8,6 +8,18 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0e1a2b">
+<script>
+  // 즐겨찾기·주소창·검색으로 들어오면 #guide 같은 꼬리표가 있어도 맨 위부터 보여 줌.
+  // 사이트 안 링크(예: 꿀팁 글의 "← 꿀팁 전체 보기")로 온 경우만 그 위치로 이동.
+  (function () {
+    try {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      var same = false;
+      try { same = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+      if (location.hash && !same) history.replaceState(null, "", location.pathname + location.search);
+    } catch (e) {}
+  })();
+</script>
 <title>블로랩 | 블로그 히스토리·체험단 진단·사이트 모음</title>
 <meta name="description" content="네이버 블로그 주소 하나로 업적·연혁·성장 기록을 보고, 체험단·애드포스트에 불리할 수 있는 부분을 점검해요. 디너의여왕, 리뷰노트, 레뷰 등 체험단 사이트 18곳 바로가기와 신청 가이드도 있어요.">
 <meta property="og:title" content="블로랩 | 블로그 히스토리·체험단 진단·사이트 모음">
@@ -94,6 +106,46 @@
   .pk-t { list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; line-height: 1.5; }
   .pk-t li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; }
   .pk-t span { color: var(--sub); font-variant-numeric: tabular-nums; }
+  /* 예시 화면 넘기기 (5초마다 자동, 마우스를 올리거나 멈춤을 누르면 멈춤) */
+  .peek { --amber: #c98a0b; gap: 14px; }
+  .pk-slides { display: grid; overflow: hidden; }
+  .pk-s { grid-area: 1 / 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; opacity: 0; visibility: hidden; transform: translateX(28px); transition: opacity .45s ease, transform .45s ease, visibility 0s .45s; }
+  .pk-s.on { opacity: 1; visibility: visible; transform: none; transition: opacity .45s ease, transform .45s ease, visibility 0s; }
+  .pk-s.out { transform: translateX(-28px); }
+  .pk-sum { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--bg); font-size: 14px; line-height: 1.6; }
+  .pk-sum b { color: var(--text); }
+  .pk-sc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .pk-sc li { display: grid; grid-template-columns: 84px minmax(0, 1fr) 28px; align-items: center; gap: 10px; font-size: 13.5px; }
+  .pk-sc li > span:first-child { color: var(--sub); }
+  .pk-sc b { text-align: right; font-variant-numeric: tabular-nums; }
+  .bar i.lo { background: var(--amber); }
+  .pk-ck { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .pk-ck li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .pk-ck li:last-child { border-bottom: 0; }
+  .pk-ck small { margin-left: 6px; font-size: 12px; color: var(--sub); }
+  .pk-ck b { font-variant-numeric: tabular-nums; }
+  .pk-ck b.lo { color: var(--amber); }
+  .pk-w { flex: 1; display: flex; align-items: center; gap: 16px; padding: 4px 0 0; }
+  .pk-w img { flex: none; width: 150px; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(14,26,43,.18); }
+  .pk-w ul { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; line-height: 1.5; color: var(--sub); min-width: 0; }
+  .pk-cta { align-self: flex-start; margin-top: auto; font: inherit; font-size: 14px; font-weight: 700; color: var(--green); background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: none; }
+  .pk-cta:hover { text-decoration: underline; }
+  .pk-nav { display: flex; align-items: center; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .pk-arr { flex: none; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 50%; background: var(--card); color: var(--text); cursor: pointer; padding: 0; }
+  .pk-arr:hover { border-color: var(--green); color: var(--green); }
+  .pk-pz { margin-left: auto; }
+  .pk-pz .pl { display: none; }
+  .peek.stop .pk-pz .ps { display: none; }
+  .peek.stop .pk-pz .pl { display: inline; }
+  .pk-dots { display: flex; align-items: center; gap: 2px; }
+  .pk-dots button { width: 28px; height: 34px; padding: 0; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .pk-dots i { display: block; width: 8px; height: 8px; border-radius: 4px; background: var(--line); position: relative; overflow: hidden; transition: width .3s ease; }
+  .pk-dots button[aria-current="true"] i { width: 24px; background: color-mix(in srgb, var(--green) 25%, var(--line)); }
+  .pk-dots button[aria-current="true"] i::after { content: ""; position: absolute; inset: 0; background: var(--green); transform-origin: left; transform: scaleX(1); }
+  .peek.run .pk-dots button[aria-current="true"] i::after { animation: pkfill 5s linear forwards; }
+  @keyframes pkfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .pk-arr:focus-visible, .pk-dots button:focus-visible, .pk-cta:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .pk-s, .pk-s.on { transition: none; transform: none; } .pk-dots i { transition: none; } }
 
   /* 믿을 수 있는 이유 */
   .trust { background: var(--card); border-bottom: 1px solid var(--line); }
@@ -202,7 +254,8 @@
     .hero-l { gap: 16px; }
     .hero h1 { margin-top: -6px; font-size: 29px; letter-spacing: -0.8px; }
     .hero .lead { font-size: 15.5px; }
-    .peek { display: none; }
+    .peek { max-width: none; padding: 18px; }
+    .pk-w img { width: 112px; }
     .tabs { align-self: stretch; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; }
     .tabs button { padding: 10px 4px; font-size: 13.5px; }
     .go { flex: 1 1 100%; }
@@ -253,20 +306,79 @@
     </form>
     <p class="hint" id="hint"><b>업적 배지 · 연혁 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요.</p>
   </div>
-  <div class="peek" aria-label="내 블로그 히스토리 예시 화면">
-    <div class="pk-h"><div><span class="pk-k">내 블로그 히스토리</span><strong>예시 블로그</strong></div><span class="tag">예시 화면</span></div>
-    <div class="pk-lv"><div class="pk-lvt"><b>LEVEL 7</b><span>다음 레벨까지 업적 2단계</span></div><div class="bar"><i style="width:78%"></i></div></div>
-    <div class="pk-b">
-      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>5만명</b><span>누적 방문</span></div>
-      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>300개</b><span>포스팅</span></div>
-      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#6b7a8c"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M15 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 18.5V20M9.5 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.4M15 5.6a3 3 0 0 1 0 5.8" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>1,000명</b><span>이웃</span></div>
-      <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#c3cbd5"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3 0-3-1-5.5 0-8z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b class="off">도전 중</b><span>100일 연속</span></div>
+  <div class="peek" id="peek" role="region" aria-roledescription="carousel" aria-label="블로랩 기능 미리보기">
+    <div class="pk-slides" id="pkSlides" aria-live="off">
+      <div class="pk-s on" role="group" aria-roledescription="slide" aria-label="1 / 4: 블로그 히스토리">
+        <div class="pk-h"><div><span class="pk-k">내 블로그 히스토리</span><strong>예시 블로그</strong></div><span class="tag">예시 화면</span></div>
+        <div class="pk-lv"><div class="pk-lvt"><b>LEVEL 7</b><span>다음 레벨까지 업적 2단계</span></div><div class="bar"><i style="width:78%"></i></div></div>
+        <div class="pk-b">
+          <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>5만명</b><span>누적 방문</span></div>
+          <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#b88a00"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>300개</b><span>포스팅</span></div>
+          <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#6b7a8c"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M15 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 18.5V20M9.5 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.4M15 5.6a3 3 0 0 1 0 5.8" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b>1,000명</b><span>이웃</span></div>
+          <div><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#c3cbd5"/><g transform="translate(10.5 10.5) scale(1.125)"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3 0-3-1-5.5 0-8z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></svg><b class="off">도전 중</b><span>100일 연속</span></div>
+        </div>
+        <ol class="pk-t">
+          <li><span>2024.03</span>블로그 첫 글</li>
+          <li><span>2025.06</span>100번째 글 · 누적 방문자 1만명</li>
+          <li><span>2026.10</span>300번째 글 · 이웃 1,000명</li>
+        </ol>
+
+        <button type="button" class="pk-cta" data-mode="history">내 블로그 히스토리 보기 <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="pk-s" role="group" aria-roledescription="slide" aria-label="2 / 4: 체험단 탈락원인 진단" aria-hidden="true" inert>
+        <div class="pk-h"><div><span class="pk-k">체험단 탈락원인 진단</span><strong>체험단, 왜 자꾸 떨어질까?</strong></div><span class="tag">예시 화면</span></div>
+        <p class="pk-sum">글 길이와 사진 수가 후기 견본으로 보기엔 조금 적어서 떨어졌을 <b>가능성</b>이 있어요.</p>
+        <ul class="pk-sc">
+          <li><span>활동성</span><span class="bar"><i style="width:70%"></i></span><b>70</b></li>
+          <li><span>글 길이·품질</span><span class="bar"><i class="lo" style="width:45%"></i></span><b>45</b></li>
+          <li><span>사진 품질</span><span class="bar"><i class="lo" style="width:50%"></i></span><b>50</b></li>
+          <li><span>지역 경쟁력</span><span class="bar"><i style="width:80%"></i></span><b>80</b></li>
+        </ul>
+        <ol class="pk-t">
+          <li><span>할 일 1</span>위치·메뉴·맛·총평으로 1,000자 이상</li>
+          <li><span>할 일 2</span>외관·메뉴판·내부까지 사진 12장 이상</li>
+        </ol>
+        <button type="button" class="pk-cta" data-mode="exp">체험단 진단 해 보기 <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="pk-s" role="group" aria-roledescription="slide" aria-label="3 / 4: 애드포스트 탈락원인 진단" aria-hidden="true" inert>
+        <div class="pk-h"><div><span class="pk-k">애드포스트 탈락원인 진단</span><strong>애드포스트, 왜 탈락했을까?</strong></div><span class="tag">예시 화면</span></div>
+        <ul class="pk-ck">
+          <li><svg class="ck" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>운영 기간<small>90일 이상</small></span><b>214일</b></li>
+          <li><svg class="ck" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--amber)"/><path d="M12 6.5v7M12 17.2v.3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg><span>공개 글<small>50개 이상</small></span><b class="lo">23개</b></li>
+          <li><svg class="ck" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>하루 방문자<small>100명 이상</small></span><b>132명</b></li>
+        </ul>
+        <p class="pk-sum">공개 글이 기준보다 <b>27개 적어서</b> 떨어졌을 가능성이 가장 커요.</p>
+        <ol class="pk-t">
+          <li><span>다음 할 일</span>주 3개씩 쓰면 9주 뒤 50개</li>
+          <li><span>재신청</span>2027년 1월 추천</li>
+        </ol>
+        <button type="button" class="pk-cta" data-mode="adpost">애드포스트 진단 해 보기 <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="pk-s" role="group" aria-roledescription="slide" aria-label="4 / 4: 블로그 업적 위젯" aria-hidden="true" inert>
+        <div class="pk-h"><div><span class="pk-k">블로그 업적 위젯</span><strong>달성한 업적을 내 블로그에 자랑하기</strong></div><span class="tag">예시 화면</span></div>
+        <div class="pk-w">
+          <img src="img/widget-sample.svg" width="150" height="166" alt="블로그 업적 위젯 예시: 별명, 레벨, 업적 배지 3개" loading="lazy">
+          <ul>
+            <li>별명·레벨 자동 표시</li>
+            <li>업적은 최대 3개</li>
+            <li>숫자 자동 새로 고침</li>
+            <li>누르면 공개 프로필</li>
+          </ul>
+        </div>
+        <a class="pk-cta" href="widget.html">업적 위젯 만들기 <span aria-hidden="true">→</span></a>
+      </div>
     </div>
-    <ol class="pk-t">
-      <li><span>2024.03</span>블로그 첫 글</li>
-      <li><span>2025.06</span>100번째 글 · 누적 방문자 1만명</li>
-      <li><span>2026.10</span>300번째 글 · 이웃 1,000명</li>
-    </ol>
+    <div class="pk-nav">
+      <button type="button" class="pk-arr" id="pkPrev" aria-label="이전 화면"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="pk-dots" id="pkDots">
+        <button type="button" aria-label="1번째: 블로그 히스토리" aria-current="true"><i></i></button>
+        <button type="button" aria-label="2번째: 체험단 진단"><i></i></button>
+        <button type="button" aria-label="3번째: 애드포스트 진단"><i></i></button>
+        <button type="button" aria-label="4번째: 업적 위젯"><i></i></button>
+      </div>
+      <button type="button" class="pk-arr" id="pkNext" aria-label="다음 화면"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="pk-arr pk-pz" id="pkPause" aria-label="자동 넘김 멈추기"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path class="ps" d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path class="pl" d="M8 5l11 7-11 7z" fill="currentColor"/></svg></button>
+    </div>
   </div>
 </div>
 </div>
@@ -551,6 +663,68 @@
       if (v) { p.set("blog", v); p.set("go", "1"); }
       const s = p.toString();
       location.href = T.page + (s ? "?" + s : "");
+    });
+  })();
+</script>
+<script>
+  // 첫 화면 오른쪽 예시 화면: 5초마다 다음 기능으로 넘어감. 앞·뒤 버튼, 점, 밀기(휴대폰)로 이동.
+  // 마우스를 올리거나 안을 누르고 있으면 잠시 멈추고, 멈춤 버튼으로 계속 멈출 수 있음. '움직임 줄이기' 설정이면 자동으로 안 넘김.
+  (function () {
+    var root = document.getElementById("peek");
+    if (!root) return;
+    var box = document.getElementById("pkSlides"), S = [].slice.call(root.querySelectorAll(".pk-s")), D = [].slice.call(document.querySelectorAll("#pkDots button"));
+    var cur = 0, timer = 0, hold = false, stop = false, DUR = 5000;
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { stop = true; root.classList.add("stop"); }
+    function show(i, byUser) {
+      i = (i + S.length) % S.length;
+      S.forEach(function (s, k) {
+        var on = k === i;
+        s.classList.toggle("on", on);
+        s.classList.toggle("out", k === cur && !on);
+        s.setAttribute("aria-hidden", on ? "false" : "true");
+        s.inert = !on;
+      });
+      D.forEach(function (d, k) { if (k === i) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); });
+      cur = i;
+      box.setAttribute("aria-live", byUser ? "polite" : "off");
+      run();
+    }
+    function run() {
+      clearTimeout(timer);
+      root.classList.remove("run");
+      if (stop || hold || document.hidden) return;
+      void root.offsetWidth; // 점 채우기 애니메이션을 처음부터 다시
+      root.classList.add("run");
+      timer = setTimeout(function () { show(cur + 1, false); }, DUR);
+    }
+    document.getElementById("pkPrev").addEventListener("click", function () { show(cur - 1, true); });
+    document.getElementById("pkNext").addEventListener("click", function () { show(cur + 1, true); });
+    D.forEach(function (d, k) { d.addEventListener("click", function () { show(k, true); }); });
+    var pz = document.getElementById("pkPause");
+    function setStop(v) { stop = v; root.classList.toggle("stop", v); pz.setAttribute("aria-label", v ? "자동 넘김 다시 켜기" : "자동 넘김 멈추기"); run(); }
+    pz.addEventListener("click", function () { setStop(!stop); });
+    setStop(stop);
+    root.addEventListener("mouseenter", function () { hold = true; run(); });
+    root.addEventListener("mouseleave", function () { hold = false; run(); });
+    root.addEventListener("focusin", function () { hold = true; run(); });
+    root.addEventListener("focusout", function (e) { if (!root.contains(e.relatedTarget)) { hold = false; run(); } });
+    document.addEventListener("visibilitychange", run);
+    // 휴대폰: 옆으로 밀어서 넘기기
+    var x0 = null, y0 = 0;
+    box.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener("touchend", function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(cur + (dx < 0 ? 1 : -1), true);
+    });
+    // "해 보기" 버튼: 위쪽 입력칸의 같은 도구 탭을 고르고 입력칸으로
+    root.querySelectorAll("button.pk-cta").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = document.getElementById("t-" + b.dataset.mode), q = document.getElementById("q");
+        if (t) t.click();
+        if (q) { q.focus(); if (q.getBoundingClientRect().top < 0) q.scrollIntoView({ block: "center" }); }
+      });
     });
   })();
 </script>
