@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#03c75a">
+<meta name="theme-color" content="#0e1a2b">
 <title>체험단모아 | 블로그 체험단·협찬 사이트 모음</title>
 <meta name="description" content="네이버 블로그로 신청할 수 있는 체험단·협찬 사이트를 한곳에 모았어요. 디너의여왕, 리뷰노트, 레뷰, 강남맛집 등 18곳 바로가기와 초보 블로거를 위한 체험단 신청 가이드.">
 <meta property="og:title" content="체험단모아 | 블로그 체험단·협찬 사이트 모음">
@@ -45,169 +45,254 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6918326143546132" crossorigin="anonymous"></script>
 <style>
   :root {
-    --bg: #f6f7f9; --card: #fff; --line: #e3e5e8; --text: #1f2328; --sub: #6b7280;
-    --green: #03c75a; --green-d: #02a64b; --chip: #eef8f2;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #15171a; --card: #1f2226; --line: #33373d; --text: #e8eaed; --sub: #9aa0a6; --chip: #1d3327;
-    }
+    --bg: #f5f7fa; --card: #fff; --line: #e3e8ee; --text: #0e1a2b; --sub: #4a5a70;
+    --green: #0a7a52; --green-d: #065c3d; --chip: #e8f4ee;
   }
   * { box-sizing: border-box; }
-  body { word-break: keep-all; margin: 0; background: var(--bg); color: var(--text); font: 15px/1.7 "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  body { word-break: keep-all; margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.7 "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
   a { color: inherit; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
-  header { background: var(--card); border-bottom: 1px solid var(--line); }
-  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-  .logo { font-weight: 800; font-size: 20px; text-decoration: none; }
-  .logo b { color: var(--green); }
-  nav a { margin-left: 14px; font-size: 14px; color: var(--sub); text-decoration: none; }
-  nav a:hover { color: var(--green); }
-  .hero { padding: 36px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .hero > div:first-child { min-width: 0; flex: 1 1 320px; }
-  /* 진단 바로가기 버튼 두 개: PC는 제목 오른쪽, 폰은 제목 아래 2칸 */
-  .dx { display: grid; gap: 10px; width: 300px; max-width: 100%; }
-  .dx a { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 14px; color: #fff; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,.12); transition: transform .15s, box-shadow .15s; }
-  .dx a:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
-  .dx a:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
-  .dx .e { font-size: 26px; line-height: 1; }
-  .dx b { display: block; font-size: 16px; line-height: 1.35; }
-  .dx small { display: block; font-size: 12.5px; opacity: .92; line-height: 1.4; }
-  .dx .exp { background: linear-gradient(135deg, #03c75a, #02a64b); }
-  .dx .ad2 { background: linear-gradient(135deg, #ff8a3d, #f0612a); }
-  .dx .hs { background: linear-gradient(135deg, #6f5ce6, #4a39b8); }
-  .dx em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; background: rgba(255,255,255,.25); padding: 1px 6px; border-radius: 99px; vertical-align: 2px; margin-left: 2px; }
-  @media (prefers-reduced-motion: reduce) { .dx a { transition: none; } .dx a:hover { transform: none; } }
-  .hero h1 { font-size: 26px; line-height: 1.4; margin: 0 0 8px; }
-  .hero p { color: var(--sub); margin: 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 18px; }
-  .site { display: flex; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-decoration: none; transition: border-color .15s, transform .15s; }
-  .site:hover { border-color: var(--green); transform: translateY(-2px); }
-  .ico { flex: 0 0 64px; width: 64px; height: 64px; border-radius: 14px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .ico img { width: 48px; height: 48px; object-fit: contain; }
-  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--green); color: #fff; font-weight: 800; font-size: 26px; }
-  .site h3 { margin: 0; font-size: 16px; }
-  .site p { word-break: keep-all; margin: 3px 0 0; font-size: 12.5px; color: var(--sub); line-height: 1.5; }
-  .ad { margin: 24px 0; min-height: 0; text-align: center; }
-  /* 광고가 안 채워진 칸(심사 중·광고 없음)은 숨김 */
+  .wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* 첫 화면 (남색) */
+  .band { background: var(--navy); color: #fff; }
+  .hero { display: flex; flex-wrap: wrap; gap: 48px; align-items: center; padding-block: 56px 72px; }
+  .hero-l { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .hero h1 { margin: 0; font-size: 44px; line-height: 1.28; font-weight: 700; letter-spacing: -1.2px; text-wrap: balance; }
+  .hero .lead { margin: 0; font-size: 17.5px; line-height: 1.7; color: var(--navy-sub); max-width: 560px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; background: var(--navy2); padding: 6px; border-radius: 12px; align-self: flex-start; max-width: 100%; }
+  .tabs button { font-size: 14.5px; padding: 10px 16px; border: 0; border-radius: 8px; background: transparent; color: #c6d0dd; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: #fff; color: var(--navy); font-weight: 600; }
+  .tabs button em { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--navy); background: var(--mint); border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: 1px; }
+  .tabs button:focus-visible, .go:focus-visible, .q:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
+  .ask { display: flex; flex-wrap: wrap; gap: 10px; max-width: 600px; margin: 0; }
+  .q { flex: 1 1 280px; min-width: 0; font-size: 16px; padding: 15px 17px; border: 1px solid var(--navy-line); border-radius: 10px; background: var(--navy2); color: #fff; }
+  .q::placeholder { color: #8d9bb0; }
+  .go { font-size: 16px; font-weight: 700; padding: 15px 24px; border: 0; border-radius: 10px; background: var(--mint); color: var(--navy); cursor: pointer; }
+  .go:hover { background: #4fe0a0; }
+  .hint { margin: -6px 0 0; font-size: 14px; color: var(--navy-sub); }
+  .hint b { color: #fff; font-weight: 600; }
+  .report { flex: 1 1 340px; min-width: 0; background: #fff; color: #0e1a2b; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+  .report .rh { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .report .rh strong { font-size: 16px; }
+  .tag { font-size: 12px; color: #4a5a70; background: #eef2f6; padding: 3px 9px; border-radius: 6px; }
+  .meter { display: flex; flex-direction: column; gap: 7px; }
+  .meter .ml { display: flex; justify-content: space-between; font-size: 14px; }
+  .meter .ok { color: #0a7a52; font-weight: 600; } .meter .warn { color: #8f5400; font-weight: 600; }
+  .bar { height: 8px; background: #eef2f6; border-radius: 4px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; }
+  .report p { margin: 0; padding-top: 10px; border-top: 1px solid #e3e8ee; font-size: 13px; color: #4a5a70; line-height: 1.6; }
+
+  /* 믿을 수 있는 이유 */
+  .trust { background: var(--card); border-bottom: 1px solid var(--line); }
+  .trust .wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px 24px; padding-block: 22px; }
+  .trust div { display: flex; gap: 12px; align-items: flex-start; }
+  .trust svg { flex: none; margin-top: 3px; }
+  .trust b { display: block; font-size: 15px; }
+  .trust span { font-size: 14px; color: var(--sub); }
+
+  section.blk { padding-top: 64px; }
+  .sh2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 18px; }
+  .sh2 h2 { margin: 0; font-size: 28px; letter-spacing: -0.6px; line-height: 1.35; }
+  .sh2 p { margin: 0; font-size: 14px; color: var(--sub); }
+
+  /* 사이트 18곳 */
+  .slist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 20px; }
+  .srow { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .srow:hover b { color: var(--green); }
+  .srow b { display: block; font-size: 16px; transition: color .15s; }
+  .srow small { display: block; font-size: 13px; color: var(--sub); line-height: 1.45; }
+  .srow .open { font-size: 14px; font-weight: 600; color: var(--green); white-space: nowrap; }
+  .ico { width: 44px; height: 44px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ico img { width: 32px; height: 32px; object-fit: contain; }
+  .ico .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-weight: 700; font-size: 18px; }
+  .slist .srow:nth-last-child(-n+2) { border-bottom: 0; }
+  .note { font-size: 13px; color: var(--sub); margin: 12px 0 0; }
+
+  /* 도구 3가지 */
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+  .tool { display: flex; flex-direction: column; gap: 10px; padding: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
+  .tool:hover { border-color: var(--green); transform: translateY(-2px); }
+  .tool .ti { width: 44px; height: 44px; border-radius: 11px; background: var(--chip); display: flex; align-items: center; justify-content: center; }
+  .tool .k { font-size: 13px; font-weight: 600; color: var(--green); }
+  .tool b { font-size: 19px; line-height: 1.4; }
+  .tool p { margin: 0; font-size: 14.5px; color: var(--sub); line-height: 1.65; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+  .chips span { font-size: 12px; color: var(--sub); background: var(--bg); border: 1px solid var(--line); padding: 3px 9px; border-radius: 6px; }
+
+  /* 일정 관리 + 꿀팁 */
+  .duo { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .sched { flex: 1 1 300px; min-width: 0; background: var(--navy); border: 1px solid var(--line); color: #fff; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .sched .k { font-size: 13px; font-weight: 600; color: var(--mint); }
+  .sched b { font-size: 22px; line-height: 1.4; }
+  .sched p { margin: 0; font-size: 14.5px; color: var(--navy-sub); line-height: 1.65; }
+  .sched a { margin-top: 8px; align-self: flex-start; background: var(--mint); color: var(--navy); font-weight: 700; padding: 12px 20px; border-radius: 10px; text-decoration: none; }
+  .tipcol { flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 28px; }
+  .tg h3 { font-size: 14px; color: var(--sub); margin: 0 0 4px; font-weight: 600; }
+  .tg a { display: block; padding: 11px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); font-size: 15px; line-height: 1.5; }
+  .tg a:hover { color: var(--green); }
+  .tg + .tg { margin-top: 0; }
+
+  .ad { margin: 40px 0 0; text-align: center; }
   ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
-  section.guide { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 22px 10px; margin: 26px 0; }
-  section.guide h2 { margin: 0 0 10px; font-size: 20px; }
-  section.guide h3 { margin: 18px 0 4px; font-size: 16px; }
-  section.guide p, section.guide li { color: var(--text); }
-  section.guide ol, section.guide ul { padding-left: 20px; }
-  details { border-top: 1px solid var(--line); padding: 10px 0; }
-  details summary { cursor: pointer; font-weight: 700; }
-  .note { font-size: 12.5px; color: var(--sub); }
-  h2.sec { font-size: 20px; margin: 30px 0 12px; }
-  .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-  .tip { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
-  .tip:hover { border-color: var(--green); transform: translateY(-2px); }
-  .tip .te { font-size: 24px; flex: 0 0 auto; }
-  .tip b { font-size: 15px; line-height: 1.5; }
-  h3.tg { font-size: 15px; color: var(--sub); margin: 18px 0 8px; }
-  .tip.sched { margin-top: 24px; border-color: var(--green); }
-  .tip .ts { font-size: 13px; color: var(--sub); line-height: 1.5; }
-  footer { border-top: 1px solid var(--line); margin-top: 30px; padding: 20px 0 40px; font-size: 13px; color: var(--sub); }
-  footer a { margin-right: 12px; }
-  @media (max-width: 520px) {
-    .hero h1 { font-size: 21px; }
-    .hero { gap: 16px; }
-    .dx { width: 100%; gap: 8px; }
-    .dx a { padding: 12px 14px; }
-    nav a { margin-left: 10px; font-size: 13px; }
-    .grid { grid-template-columns: 1fr 1fr; }
-    .site { flex-direction: column; gap: 8px; padding: 14px 10px; text-align: center; }
-    .site > div { width: 100%; }
-    .site h3 { font-size: 15px; }
-    .logo { font-size: 18px; }
+
+  /* 가이드·FAQ */
+  section.guide { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 28px 14px; margin-top: 24px; }
+  section.guide h3 { margin: 20px 0 4px; font-size: 17px; }
+  section.guide p:first-of-type { margin-top: 0; }
+  section.guide ul { padding-left: 20px; }
+  details { border-top: 1px solid var(--line); padding: 12px 0; }
+  details:first-of-type { border-top: 0; }
+  details summary { cursor: pointer; font-weight: 600; }
+
+  footer.sf { margin-top: 72px; background: var(--navy); color: var(--navy-sub); font-size: 13.5px; }
+  footer.sf .wrap { padding-block: 36px 52px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px 32px; }
+  footer.sf strong { color: #fff; font-size: 16px; }
+  footer.sf p { margin: 6px 0 0; line-height: 1.7; max-width: 640px; }
+  footer.sf nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  footer.sf a { color: #c6d0dd; text-decoration: none; }
+  footer.sf a:hover { color: #fff; }
+
+  @media (max-width: 980px) { .slist { grid-template-columns: 1fr; } .slist .srow:nth-last-child(2) { border-bottom: 1px solid var(--line); } }
+  @media (max-width: 640px) {
+    .hero { padding-block: 32px 40px; gap: 24px; }
+    .hero h1 { font-size: 29px; letter-spacing: -0.8px; }
+    .hero .lead { font-size: 16px; }
+    .report { display: none; }
+    .tabs { align-self: stretch; }
+    .tabs button { flex: 1 1 auto; padding: 10px 10px; font-size: 14px; }
+    .go { flex: 1 1 100%; }
+    section.blk { padding-top: 44px; }
+    .sh2 h2 { font-size: 23px; }
+    .slist { padding: 2px 14px; }
+    section.guide { padding: 22px 18px 10px; }
   }
-  @media (max-width: 380px) {
-    nav a { margin-left: 8px; font-size: 12px; }
-    .grid { gap: 8px; }
-    .ico { flex-basis: 56px; width: 56px; height: 56px; }
-    .ico img { width: 42px; height: 42px; }
-  }
-  /* ☰ 메뉴 (오른쪽 위) */
-  .menu { position: relative; }
-  .mbtn { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; padding: 0; cursor: pointer; }
-  .mbtn span { display: block; width: 18px; height: 2px; border-radius: 2px; background: var(--text); transition: transform .2s, opacity .2s; }
-  .mbtn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-  .mbtn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-  .mbtn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-  .mbtn:focus-visible, .mnav a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
-  .mnav { position: absolute; right: 0; top: 50px; min-width: 190px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.14); padding: 6px; z-index: 50; display: flex; flex-direction: column; }
-  .mnav[hidden] { display: none; }
-  header .mnav a, .mnav a { margin: 0 !important; padding: 11px 14px; border-radius: 8px; font-size: 15px; color: var(--text) !important; text-decoration: none; }
-  .mnav a:hover, .mnav a.on { background: var(--line); }
-  .mnav a.on { font-weight: 700; }
-  @media (prefers-reduced-motion: reduce) { .mbtn span { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .tool, .srow b { transition: none; } .tool:hover { transform: none; } }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <a class="logo" href="index.html"><b>체험단</b>모아</a>
-    <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
-    <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="history.html">내 블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+<div class="band">
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="index.html#sites">사이트 모음</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="history.html">블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="history.html">내 블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+
+<div class="wrap hero">
+  <div class="hero-l">
+    <h1>체험단에 자꾸 떨어진다면,<br>블로그부터 점검해 보세요</h1>
+    <p class="lead">네이버 블로그 공개 정보로 체험단 선정과 애드포스트 승인에 불리할 수 있는 부분을 찾아 드려요. 체험단 사이트 <span id="count">18</span>곳도 아래에 모아 두었어요.</p>
+    <div class="tabs" role="tablist" aria-label="도구 고르기">
+      <button type="button" role="tab" id="t-exp" aria-selected="true" aria-controls="ask" data-mode="exp">체험단 진단</button>
+      <button type="button" role="tab" id="t-adpost" aria-selected="false" aria-controls="ask" data-mode="adpost" tabindex="-1">애드포스트 진단</button>
+      <button type="button" role="tab" id="t-history" aria-selected="false" aria-controls="ask" data-mode="history" tabindex="-1">블로그 히스토리<em>NEW</em></button>
+    </div>
+    <form class="ask" id="ask" role="tabpanel" aria-labelledby="t-exp">
+      <label class="sr" for="q">블로그 주소 또는 아이디</label>
+      <input class="q" id="q" type="text" inputmode="url" autocomplete="off" placeholder="블로그 주소, 아이디, 글 링크 모두 돼요">
+      <button class="go" id="go" type="submit">진단 시작</button>
+    </form>
+    <p class="hint" id="hint"><b>선정에 불리할 수 있는 부분</b>을 가능성으로 알려 드려요. 로그인 없이 무료예요.</p>
   </div>
-</header>
+  <div class="report" aria-label="진단 결과 예시">
+    <div class="rh"><strong>진단 리포트</strong><span class="tag">예시 화면</span></div>
+    <div class="meter"><div class="ml"><span>운영 기간</span><span class="ok">충분</span></div><div class="bar"><i style="width:86%;background:#2bb673"></i></div></div>
+    <div class="meter"><div class="ml"><span>최근 글 꾸준함</span><span class="warn">보완</span></div><div class="bar"><i style="width:42%;background:#e0a100"></i></div></div>
+    <div class="meter"><div class="ml"><span>이웃·방문자</span><span class="ok">충분</span></div><div class="bar"><i style="width:74%;background:#2bb673"></i></div></div>
+    <div class="meter"><div class="ml"><span>사진·글 분량</span><span class="warn">보완</span></div><div class="bar"><i style="width:51%;background:#e0a100"></i></div></div>
+    <p>실제 탈락 사유가 아니라, 공개된 정보로 본 가능성을 알려 드려요.</p>
+  </div>
+</div>
+</div>
+
+<div class="trust"><div class="wrap">
+  <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>로그인 필요 없음</b><span>블로그 주소만 있으면 돼요</span></p></div>
+  <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>결과를 저장하지 않음</b><span>진단이 끝나면 남지 않아요</span></p></div>
+  <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><p style="margin:0"><b>공개 정보만 사용</b><span>누구나 볼 수 있는 정보로 계산해요</span></p></div>
+</div></div>
 
 <main class="wrap">
-  <div class="hero">
-    <div>
-      <h1>네이버 블로그로 신청하는<br>체험단·협찬 사이트 한눈에 보기</h1>
-      <p>맛집·제품·뷰티 체험단 사이트 <span id="count">18</span>곳을 한곳에 모았어요!</p>
-    </div>
-    <div class="dx">
-      <a class="exp" href="analyze.html"><span class="e">🎯</span><span><b>체험단 탈락원인 진단</b><small>블로그 주소만 넣으면 끝</small></span></a>
-      <a class="ad2" href="analyze.html?mode=adpost"><span class="e">💰</span><span><b>애드포스트 탈락원인 진단</b><small>운영 기간·글·방문자 점검</small></span></a>
-      <a class="hs" href="history.html"><span class="e">📜</span><span><b>내 블로그 히스토리 <em>NEW</em></b><small>업적·올해 결산·친구와 VS 대결</small></span></a>
-    </div>
-  </div>
+  <section class="blk" id="sites">
+    <div class="sh2"><h2>체험단 사이트 18곳</h2><p>누르면 각 사이트가 새 창으로 열려요</p></div>
+    <div class="slist" id="grid"></div>
+    <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없어요.</p>
+  </section>
 
   <!-- 광고 1 (위쪽) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
-  <div id="sites">
-    <div class="grid" id="grid"></div>
-    <p class="note">사이트 정보는 바뀔 수 있어요. 캠페인 조건과 규정은 꼭 각 사이트에서 직접 확인해 주세요. 체험단모아는 각 사이트와 제휴 관계가 없는 개인 정리 페이지예요.</p>
-  </div>
-
-  <a class="tip sched" href="schedule.html"><span class="te">📅</span><span><b>체험단 일정 관리</b><br><span class="ts">신청·선정·방문·후기 마감을 달력으로 한눈에. 마감 임박은 빨간색으로 알려 줘요. 로그인 없이 무료!</span></span></a>
-  <section id="tips">
-    <h2 class="sec">블로그 체험단 꿀팁</h2>
-    <h3 class="tg">처음 시작한다면</h3>
-    <div class="tips">
-      <a class="tip" href="tip-compare.html"><span class="te">🧭</span><span><b>체험단 사이트, 어디가 어떻게 다를까요?</b></span></a>
-      <a class="tip" href="tip-newbie.html"><span class="te">🌱</span><span><b>블로그 초보도 체험단 선정되는 법</b></span></a>
-      <a class="tip" href="tip-profile.html"><span class="te">🪪</span><span><b>체험단 선정에 유리한 블로그 프로필 만들기</b></span></a>
-      <a class="tip" href="tip-apply.html"><span class="te">✍️</span><span><b>선정되는 체험단 신청 문구 쓰는 법</b></span></a>
-    </div>
-    <h3 class="tg">선정된 뒤에</h3>
-    <div class="tips">
-      <a class="tip" href="tip-visit.html"><span class="te">🍽️</span><span><b>맛집 체험단 방문 당일, 이것만 챙기세요</b></span></a>
-      <a class="tip" href="tip-photo.html"><span class="te">📸</span><span><b>맛집 체험단 사진, 이 순서로 찍으면 편해요</b></span></a>
-      <a class="tip" href="tip-thumbnail.html"><span class="te">🖼️</span><span><b>체험단 후기 대표 사진, 이것만 바꿔도 눈에 띄어요</b></span></a>
-      <a class="tip" href="tip-delivery.html"><span class="te">📦</span><span><b>배송형 제품 체험단 후기, 이렇게 구성하세요</b></span></a>
-      <a class="tip" href="tip-review.html"><span class="te">✅</span><span><b>체험단 후기 발행 전 체크리스트</b></span></a>
-      <a class="tip" href="tip-revision.html"><span class="te">🛠️</span><span><b>체험단 수정 요청이 왔을 때 대처법</b></span></a>
-      <a class="tip" href="tip-schedule.html"><span class="te">🗓️</span><span><b>체험단 너무 많이 붙었을 때 일정 관리법</b></span></a>
-    </div>
-    <h3 class="tg">알아 두면 좋은 것</h3>
-    <div class="tips">
-      <a class="tip" href="tip-disclosure.html"><span class="te">📢</span><span><b>체험단 후기 광고 표시, 이렇게 하면 돼요</b></span></a>
-      <a class="tip" href="tip-tax.html"><span class="te">🧾</span><span><b>체험단으로 받은 제품, 세금 내야 하나요?</b></span></a>
-      <a class="tip" href="tip-search.html"><span class="te">🔍</span><span><b>네이버 블로그 검색 노출, 기본부터 챙겨요</b></span></a>
-      <a class="tip" href="tip-hottopic.html"><span class="te">🔥</span><span><b>네이버 블로그 핫토픽, 실제 선정 글 15개를 분석해 봤어요</b></span></a>
-      <a class="tip" href="tip-mistakes.html"><span class="te">⚠️</span><span><b>체험단 블로거가 자주 하는 실수 7가지</b></span></a>
+  <section class="blk" id="tools">
+    <div class="sh2"><h2>무료 도구 3가지</h2><p>블로그 주소 하나로 바로 확인해요</p></div>
+    <div class="tools">
+      <a class="tool" href="analyze.html">
+        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 11.5v1"/></svg></span>
+        <span class="k">체험단</span><b>체험단 탈락원인 진단</b>
+        <p>선정에 불리할 수 있는 부분과 고칠 점을 알려 드려요.</p>
+        <span class="chips"><span>글 꾸준함</span><span>사진 수</span><span>글 길이</span></span>
+      </a>
+      <a class="tool" href="analyze.html?mode=adpost">
+        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="11" rx="2"/><path d="M12 9.5v5M9.5 12h5"/></svg></span>
+        <span class="k">애드포스트</span><b>애드포스트 탈락원인 진단</b>
+        <p>승인 기준과 내 블로그를 나란히 비교해요.</p>
+        <span class="chips"><span>운영 90일</span><span>글 50개</span><span>방문자 100명</span></span>
+      </a>
+      <a class="tool" href="history.html">
+        <span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2"/><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/></svg></span>
+        <span class="k">NEW</span><b>내 블로그 히스토리</b>
+        <p>업적 배지, 올해 결산, 다녀간 장소, 친구와 VS 대결까지.</p>
+        <span class="chips"><span>업적</span><span>올해 결산</span><span>VS 대결</span></span>
+      </a>
     </div>
   </section>
+
+  <section class="blk" id="tips">
+    <div class="sh2"><h2>블로그 체험단 꿀팁</h2><p>처음 신청부터 후기 발행까지 16편</p></div>
+    <div class="duo">
+      <div class="sched">
+        <span class="k">일정 관리</span>
+        <b>신청·선정·방문·후기 마감을 달력으로 한눈에</b>
+        <p>마감이 가까우면 빨간색으로 알려 줘요. 로그인 없이 무료예요.</p>
+        <a href="schedule.html">일정 관리 열기</a>
+      </div>
+      <div class="tipcol">
+        <div class="tg">
+          <h3>처음 시작한다면</h3>
+          <a href="tip-compare.html">체험단 사이트, 어디가 어떻게 다를까요?</a>
+          <a href="tip-newbie.html">블로그 초보도 체험단 선정되는 법</a>
+          <a href="tip-profile.html">체험단 선정에 유리한 블로그 프로필 만들기</a>
+          <a href="tip-apply.html">선정되는 체험단 신청 문구 쓰는 법</a>
+          <h3 style="margin-top:22px">알아 두면 좋은 것</h3>
+          <a href="tip-disclosure.html">체험단 후기 광고 표시, 이렇게 하면 돼요</a>
+          <a href="tip-tax.html">체험단으로 받은 제품, 세금 내야 하나요?</a>
+          <a href="tip-search.html">네이버 블로그 검색 노출, 기본부터 챙겨요</a>
+          <a href="tip-hottopic.html">네이버 블로그 핫토픽, 실제 선정 글 15개를 분석해 봤어요</a>
+          <a href="tip-mistakes.html">체험단 블로거가 자주 하는 실수 7가지</a>
+        </div>
+        <div class="tg">
+          <h3>선정된 뒤에</h3>
+          <a href="tip-visit.html">맛집 체험단 방문 당일, 이것만 챙기세요</a>
+          <a href="tip-photo.html">맛집 체험단 사진, 이 순서로 찍으면 편해요</a>
+          <a href="tip-thumbnail.html">체험단 후기 대표 사진, 이것만 바꿔도 눈에 띄어요</a>
+          <a href="tip-delivery.html">배송형 제품 체험단 후기, 이렇게 구성하세요</a>
+          <a href="tip-review.html">체험단 후기 발행 전 체크리스트</a>
+          <a href="tip-revision.html">체험단 수정 요청이 왔을 때 대처법</a>
+          <a href="tip-schedule.html">체험단 너무 많이 붙었을 때 일정 관리법</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 광고 2 (중간) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000002" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
-  <section class="guide" id="guide">
-    <h2>처음 하는 블로그 체험단, 이렇게 시작해요</h2>
+  <section class="blk" id="guide">
+    <div class="sh2"><h2>처음 하는 블로그 체험단, 이렇게 시작해요</h2></div>
+    <section class="guide">
     <p>체험단은 업체가 제품이나 식사를 제공하고, 블로거는 직접 경험한 내용을 후기로 남기는 방식이에요. 처음엔 선정이 잘 안 되는 게 당연하니, 아래 순서대로 차근차근 쌓아 가면 돼요.</p>
 
     <h3>1. 블로그 기본기 먼저</h3>
@@ -238,28 +323,32 @@
       <li>신청 문구에는 "어떻게 써 줄지"를 구체적으로 적어 주세요. 예) 메뉴별 사진, 찾아가는 길, 장단점 정리.</li>
       <li>한꺼번에 많이 붙으면 감당이 어려우니, 일주일에 갈 수 있는 곳 수를 미리 정해 두세요.</li>
     </ul>
+    </section>
   </section>
 
-  <section class="guide" id="faq">
-    <h2>자주 묻는 질문</h2>
+  <section class="blk" id="faq">
+    <div class="sh2"><h2>자주 묻는 질문</h2></div>
+    <section class="guide">
     <details><summary>블로그 방문자가 적어도 신청할 수 있나요?</summary><p>네, 대부분 사이트는 방문자 수와 상관없이 신청할 수 있어요. 다만 인기 캠페인은 방문자 수나 이전 후기 품질을 보고 고르는 경우가 많아서, 처음에는 경쟁이 적은 캠페인부터 넓게 신청하는 게 좋아요.</p></details>
     <details><summary>체험단은 돈이 드나요?</summary><p>가입과 신청은 보통 무료예요. 다만 제공 범위를 넘는 추가 주문이나 이동 비용은 본인 부담인 경우가 많으니 캠페인 안내를 꼭 읽어 보세요.</p></details>
     <details><summary>후기는 어떻게 쓰는 게 좋나요?</summary><p>직접 경험한 내용을 사진과 함께 구체적으로 쓰는 게 가장 좋아요. 맛·분위기·서비스처럼 좋았던 점을 자세히 소개하고, 가격이나 주차처럼 방문 전에 알면 좋은 정보도 함께 적어 주면 독자에게 도움이 돼요. 업체가 준 미션(키워드, 사진 수 등)을 지키는 것도 잊지 마세요. 사실과 다르게 부풀리는 표현은 피하는 게 좋아요.</p></details>
     <details><summary>선정되고 나서 못 가게 되면 어떻게 하나요?</summary><p>알게 된 즉시 사이트 안내에 따라 취소하거나 문의하세요. 연락 없이 방문하지 않거나 후기를 올리지 않으면 이후 신청이 제한될 수 있어요.</p></details>
+    </section>
   </section>
 
   <!-- 광고 3 (아래쪽) -->
   <div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000003" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 </main>
 
-<footer>
+<footer class="sf">
   <div class="wrap">
-    <a href="about.html">소개·문의</a><a href="privacy.html">개인정보처리방침</a>
-    <a href="https://blog.naver.com/peechu_" target="_blank" rel="noopener">운영자 블로그 (모리사)</a>
-    <div style="margin-top:8px">체험단모아는 개인이 정리한 페이지이며, 소개한 체험단 사이트·업체와 제휴 관계가 없어요.<br>© <span id="year"></span> 체험단모아 · 모리사. 이 페이지의 글과 구성은 무단 복제·배포를 금지합니다. 각 사이트의 이름과 아이콘은 해당 사이트의 것이에요.</div>
+    <div>
+      <strong>체험단모아</strong>
+      <p>네이버 블로그 공개 정보만 쓰는 무료 체험단 도우미예요. 소개한 체험단 사이트·업체와 제휴 관계가 없어요.<br>© <span id="year"></span> 체험단모아 · 모리사. 글과 구성의 무단 복제·배포를 금지합니다. 각 사이트의 이름과 아이콘은 해당 사이트의 것이에요.</p>
+    </div>
+    <nav aria-label="하단 메뉴"><a href="about.html">소개·문의</a><a href="privacy.html">개인정보처리방침</a><a href="https://blog.naver.com/peechu_" target="_blank" rel="noopener">운영자 블로그</a></nav>
   </div>
 </footer>
-
 <script>
   // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 한 줄 설명, (선택) 로고 파일]
   // 로고를 못 가져오는 사이트는 icons 폴더에 그림을 넣고 5번째 칸에 "icons/파일이름.png"를 적어요.
@@ -328,16 +417,20 @@
     grid.innerHTML = "";
     SITES.forEach(([name, url, desc, logo]) => {
       const a = document.createElement("a");
-      a.className = "site";
+      a.className = "srow";
       a.href = url;
       a.target = "_blank";
       a.rel = "noopener nofollow";
       a.appendChild(icon(name, url, logo));
-      const d = document.createElement("div");
-      d.innerHTML = "<h3></h3><p></p>";
-      d.querySelector("h3").textContent = name;
-      d.querySelector("p").textContent = desc;
+      const d = document.createElement("span");
+      d.innerHTML = "<b></b><small></small>";
+      d.querySelector("b").textContent = name;
+      d.querySelector("small").textContent = desc;
       a.appendChild(d);
+      const o = document.createElement("span");
+      o.className = "open";
+      o.textContent = "열기 →";
+      a.appendChild(o);
       grid.appendChild(a);
     });
   }
@@ -348,14 +441,48 @@
   const ads = document.querySelectorAll("ins.adsbygoogle");
   if (ads.length && /0{16}/.test(ads[0].dataset.adClient || "")) ads.forEach((x) => x.closest(".ad").remove());
   else ads.forEach(() => { try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {} });
+
+  // 첫 화면 도구 탭: 고른 도구 페이지로 블로그 주소를 넘겨서 바로 시작
+  (function () {
+    const TOOL = {
+      exp: { go: "진단 시작", page: "analyze.html", extra: {}, hint: "<b>선정에 불리할 수 있는 부분</b>을 가능성으로 알려 드려요. 로그인 없이 무료예요." },
+      adpost: { go: "진단 시작", page: "analyze.html", extra: { mode: "adpost" }, hint: "<b>운영 90일 · 글 50개 · 방문자 100명</b> 기준과 내 블로그를 비교해요." },
+      history: { go: "히스토리 보기", page: "history.html", extra: {}, hint: "<b>업적 배지 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요." }
+    };
+    const tabs = Array.from(document.querySelectorAll(".tabs [role=tab]"));
+    const form = document.getElementById("ask"), q = document.getElementById("q");
+    let mode = "exp";
+    function pick(t, focus) {
+      mode = t.dataset.mode;
+      tabs.forEach((x) => { const on = x === t; x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1; });
+      form.setAttribute("aria-labelledby", t.id);
+      document.getElementById("go").textContent = TOOL[mode].go;
+      document.getElementById("hint").innerHTML = TOOL[mode].hint;
+      if (focus) t.focus();
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => pick(t));
+      t.addEventListener("keydown", (e) => {
+        const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (d) { e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); }
+      });
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const T = TOOL[mode], p = new URLSearchParams(T.extra), v = q.value.trim();
+      if (v) { p.set("blog", v); p.set("go", "1"); }
+      const s = p.toString();
+      location.href = T.page + (s ? "?" + s : "");
+    });
+  })();
 </script>
 <script>
-  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘) + 지금 페이지 표시
   (function () {
     var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
     if (!b || !n) return;
-    var here = location.pathname.split("/").pop() || "index.html";
-    n.querySelectorAll("a").forEach(function (a) { if (a.getAttribute("href") === here + location.search) a.classList.add("on"); });
+    var here = (location.pathname.split("/").pop() || "index.html") + location.search;
+    document.querySelectorAll(".sh-nav a, .mnav a").forEach(function (a) { if (a.getAttribute("href") === here) { a.classList.add("on"); a.setAttribute("aria-current", "page"); } });
     function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
     b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
     n.addEventListener("click", function () { set(false); });

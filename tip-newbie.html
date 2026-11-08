@@ -59,10 +59,20 @@
   footer { margin-top: 26px; font-size: 13px; color: var(--sub); } footer a { margin-right: 12px; color: var(--sub); }
   @media (max-width: 520px) { h1 { font-size: 21px; } .card { padding: 20px 16px; } body { font-size: 15.5px; } }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#2bd48a" stroke-width="2.5"/><circle cx="14" cy="14" r="5" fill="#2bd48a"/></svg>체험단모아</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="index.html#sites">사이트 모음</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="history.html">블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="index.html#sites">체험단 사이트 모음</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="history.html">내 블로그 히스토리</a><a href="schedule.html">일정 관리</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
 <div class="wrap">
-  <p><a href="index.html">← 체험단모아로 돌아가기</a></p>
+  <p class="crumb"><a href="index.html#tips">← 꿀팁 전체 보기</a></p>
   <article class="card">
     <h1>블로그 초보도 체험단 선정되는 법</h1>
     <p class="lead">방문자 수가 적은 신생 블로그도 체험단에 선정될 수 있어요. 경쟁을 피하는 캠페인 고르기부터 블로그 기본기까지 정리했어요.</p>
@@ -126,6 +136,20 @@
       return;
     }
     slots.forEach(function () { (window.adsbygoogle = window.adsbygoogle || []).push({}); });
+  })();
+</script>
+<script>
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘) + 지금 페이지 표시
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    var here = (location.pathname.split("/").pop() || "index.html") + location.search;
+    document.querySelectorAll(".sh-nav a, .mnav a").forEach(function (a) { if (a.getAttribute("href") === here) { a.classList.add("on"); a.setAttribute("aria-current", "page"); } });
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
   })();
 </script>
 </body>

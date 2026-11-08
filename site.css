@@ -1,0 +1,47 @@
+/* 체험단모아 공통 디자인 (C안: 남색 머리말 + 초록 포인트). 각 페이지의 <style> 다음에 불러서 색·글꼴·머리말을 맞춰요. */
+:root {
+  --bg: #f5f7fa; --card: #ffffff; --line: #e3e8ee; --text: #0e1a2b; --sub: #4a5a70;
+  --green: #0a7a52; --green-d: #065c3d; --chip: #e8f4ee;
+  --navy: #0e1a2b; --navy2: #17263b; --navy-line: #2a3c55; --navy-sub: #b4c0cf; --mint: #2bd48a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1422; --card: #13213a; --line: #26364f; --text: #e6ecf3; --sub: #9daabd;
+    --green: #22a06b; --green-d: #1b8458; --chip: #15302a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1422; --card: #13213a; --line: #26364f; --text: #e6ecf3; --sub: #9daabd;
+  --green: #22a06b; --green-d: #1b8458; --chip: #15302a; color-scheme: dark;
+}
+body { font-family: "IBM Plex Sans KR", "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+input, button, select, textarea { font-family: inherit; }
+
+/* 머리말 */
+header.sh { background: var(--navy); border-bottom: 1px solid var(--navy-line); color: #fff; position: relative; z-index: 40; }
+.sh-in { max-width: 1160px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sh-logo { display: flex; align-items: center; gap: 9px; color: #fff !important; font-weight: 700; font-size: 19px; text-decoration: none; letter-spacing: -0.3px; }
+.sh-logo svg { flex: none; }
+.sh-nav { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.sh-nav a { color: #c6d0dd !important; font-size: 14.5px; text-decoration: none; margin: 0 !important; }
+.sh-nav a:hover, .sh-nav a.on { color: #fff !important; }
+.sh .menu { display: none; position: relative; }
+.sh .mbtn { width: 42px; height: 42px; border: 1px solid var(--navy-line); border-radius: 10px; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; padding: 0; cursor: pointer; }
+.sh .mbtn span { display: block; width: 18px; height: 2px; border-radius: 2px; background: #fff; transition: transform .2s, opacity .2s; }
+.sh .mbtn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.sh .mbtn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.sh .mbtn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.sh .mbtn:focus-visible, .sh a:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
+.sh .mnav { position: absolute; right: 0; top: 50px; min-width: 200px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.18); padding: 6px; z-index: 50; display: flex; flex-direction: column; }
+.sh .mnav[hidden] { display: none; }
+.sh .mnav a { margin: 0 !important; padding: 11px 14px; border-radius: 8px; font-size: 15px; color: var(--text) !important; text-decoration: none; }
+.sh .mnav a:hover, .sh .mnav a.on { background: var(--bg); }
+.sh .mnav a.on { font-weight: 700; }
+@media (max-width: 900px) { .sh-nav { display: none; } .sh .menu { display: block; } }
+@media (prefers-reduced-motion: reduce) { .sh .mbtn span { transition: none; } }
+
+/* 꿀팁 글 위 길잡이 */
+.crumb { font-size: 14px; margin: 0 0 14px; }
+.crumb a { color: var(--sub) !important; text-decoration: none; }
+.crumb a:hover { color: var(--green) !important; }
