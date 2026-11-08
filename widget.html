@@ -169,7 +169,7 @@
     </div>
     <form class="row" id="startForm">
       <label class="sr" for="blog">블로그 주소 또는 아이디</label>
-      <input class="cm-input" id="blog" type="text" inputmode="url" autocomplete="off" placeholder="blog.naver.com/아이디 또는 아이디">
+      <input class="cm-input" id="blog" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="blog.naver.com/아이디 또는 아이디">
       <button class="cm-btn pri" id="startBtn" type="submit">시작하기</button>
     </form>
     <div id="startMsg" role="status" aria-live="polite"></div>
@@ -289,6 +289,7 @@
 <footer class="pf"><div class="cm-wrap cm-narrow"><a href="index.html">첫 화면</a><a href="history.html">내 블로그 히스토리</a><a href="privacy.html">개인정보처리방침</a><a href="about.html">소개·문의</a><br>블로랩은 네이버 블로그 공개 정보만 읽어요. 네이버와 관계없는 개인 운영 사이트예요.</div></footer>
 
 <script src="ach.js"></script>
+<script src="blogsuggest.js"></script>
 <script>
 (function () {
   "use strict";
@@ -321,9 +322,12 @@
   }
   function step(n) { Array.prototype.forEach.call($("steps").children, function (li, i) { li.className = i + 1 < n ? "done" : i + 1 === n ? "on" : ""; }); }
 
+  // 아이디·블로그 이름을 치면 칸 아래에 블로그 목록 (고르면 바로 시작)
+  if (window.BlogSuggest) BlogSuggest.attach($("blog"), { onPick: function () { $("startForm").requestSubmit ? $("startForm").requestSubmit() : $("startBtn").click(); } });
   // ---- 1. 시작 ----
   $("startForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    if (window.BlogSuggest && BlogSuggest.ask($("blog"))) return; // 블로그 이름을 쳤으면 목록에서 고르게
     var id = pickId($("blog").value);
     if (!id) return msg($("startMsg"), "네이버 블로그 주소나 아이디를 넣어 주세요. 예) blog.naver.com/아이디", true);
     ID = id; msg($("startMsg"), "");

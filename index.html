@@ -301,7 +301,7 @@
     </div>
     <form class="ask" id="ask" role="tabpanel" aria-labelledby="t-history">
       <label class="sr" for="q">블로그 주소 또는 아이디</label>
-      <input class="q" id="q" type="text" inputmode="url" autocomplete="off" placeholder="블로그 주소, 아이디, 글 링크 모두 돼요">
+      <input class="q" id="q" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="블로그 주소, 아이디, 글 링크 모두 돼요">
       <button class="go" id="go" type="submit">히스토리 보기</button>
     </form>
     <p class="hint" id="hint"><b>업적 배지 · 연혁 · 올해 결산 · 다녀간 장소 · 친구와 VS 대결</b>을 보여 드려요.</p>
@@ -539,6 +539,7 @@
     <nav aria-label="하단 메뉴"><a href="about.html">소개·문의</a><a href="privacy.html">개인정보처리방침</a><a href="https://blog.naver.com/peechu_" target="_blank" rel="noopener">운영자 블로그</a></nav>
   </div>
 </footer>
+<script src="blogsuggest.js"></script>
 <script>
   // 사이트를 더하거나 빼려면 이 목록만 고치면 돼요. [이름, 주소, 한 줄 설명, (선택) 로고 파일]
   // 로고를 못 가져오는 사이트는 icons 폴더에 그림을 넣고 5번째 칸에 "icons/파일이름.png"를 적어요.
@@ -657,8 +658,11 @@
         if (d) { e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); }
       });
     });
+    // 아이디·블로그 이름을 치면 칸 아래에 블로그 목록 (고르면 바로 시작)
+    if (window.BlogSuggest) BlogSuggest.attach(q, { onPick: () => (form.requestSubmit ? form.requestSubmit() : document.getElementById("go").click()) });
     form.addEventListener("submit", (e) => {
       e.preventDefault();
+      if (window.BlogSuggest && BlogSuggest.ask(q)) return; // 블로그 이름을 쳤으면 목록에서 고르게
       const T = TOOL[mode], p = new URLSearchParams(T.extra), v = q.value.trim();
       if (v) { p.set("blog", v); p.set("go", "1"); }
       const s = p.toString();
