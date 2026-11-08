@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>관리자 | 블로랩</title>
+<!-- 회원 페이지에는 광고·방문자 통계를 넣지 않아요 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .ad-main { padding-block: 40px 72px; display: flex; flex-direction: column; gap: 16px; max-width: 960px; margin: 0 auto; }
+  .ad-card { display: flex; flex-direction: column; gap: 14px; }
+  .ad-card > h2 { margin: 0; }
+  .ad-nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .ad-num { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; min-width: 0; }
+  .ad-num span { font-size: 13px; color: var(--sub); }
+  .ad-num b { font-size: 22px; font-variant-numeric: tabular-nums; }
+  .ad-tbl { overflow-x: auto; }
+  .ad-tbl table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .ad-tbl th, .ad-tbl td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; vertical-align: top; }
+  .ad-tbl th { font-weight: 600; color: var(--sub); font-size: 13px; }
+  .ad-tbl code { font-size: 12.5px; }
+  .ad-act { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .ad-act input { width: 84px; padding: 6px 8px; font: inherit; font-size: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+  .ad-act input.note { width: 120px; }
+  .ad-act button { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; }
+  .ad-act button:hover { border-color: var(--green); color: var(--green); }
+  .ad-warn { color: var(--red); font-weight: 600; }
+  .ad-pro { color: var(--green); font-weight: 600; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap ad-main" id="main" aria-live="polite">
+  <div class="cm-card"><p class="cm-cap">불러오는 중…</p></div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // 관리자 화면: 회원·진단·토큰 숫자, 베타 PRO 켜기·끄기, 토큰 지급 (결제를 붙이기 전 베타 시험용)
+  (function () {
+    var A = window.BLAuth, main = document.getElementById("main");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var num = function (n) { return Number(n || 0).toLocaleString("ko-KR"); };
+    var ymd = function (ms) { var d = new Date(ms); return d.getFullYear() + "." + (d.getMonth() + 1) + "." + d.getDate(); };
+    var PAID = { free_first: "무료 첫 진단", pro_daily: "PRO 하루 5회", paid: "충전 토큰" };
+    var ST = { done: "완료", failed: "실패", pending: "진행 중" };
+    var HEAD = '<div><span class="cm-kicker">블로랩 관리</span><h1 class="cm-h2">관리자</h1></div>';
+    function api(path, body) {
+      return A.fetch(path, body ? { method: "POST", body: JSON.stringify(body) } : {}).then(function (r) { return r.json(); }).catch(function () { return { ok: false, error: "인터넷 연결을 확인해 주세요." }; });
+    }
+    function say(t, err) { var m = document.getElementById("amsg"); if (m) m.innerHTML = '<p class="cm-msg' + (err ? " err" : "") + '" role="' + (err ? "alert" : "status") + '">' + esc(t) + "</p>"; }
+    function load(note) {
+      if (!A.token()) { main.innerHTML = HEAD + '<div class="cm-card"><p class="cm-cap">로그인이 필요해요.</p><div><a class="cm-btn pri" href="login.html?r=%2Fadmin.html">로그인하기</a></div></div>'; return; }
+      api("/admin/stats").then(function (j) {
+        if (!j.ok) { main.innerHTML = HEAD + '<div class="cm-card"><p class="cm-cap">' + esc(j.error || "불러오지 못했어요.") + "</p></div>"; return; }
+        var c = j.count;
+        var today = (j.today || []).map(function (x) { return "<tr><td>" + esc(PAID[x.paid] || x.paid) + "</td><td>" + esc(ST[x.status] || x.status) + "</td><td>" + num(x.n) + "</td></tr>"; }).join("") || '<tr><td colspan="3">오늘 진단 없음</td></tr>';
+        var users = j.users.map(function (u) {
+          return "<tr><td><b>" + esc(u.nick || "(별명 없음)") + '</b><br><code>' + esc(u.id) + "</code></td><td>" + esc(u.provider) + "<br>" + ymd(u.since) + "</td><td>" + (u.blog ? esc(u.blog) : "-") + "</td><td>" +
+            (u.pro ? '<span class="ad-pro">PRO</span><br>' + ymd(u.pro) + "까지" : "FREE") + "</td><td>" + num(u.balance) + "</td>" +
+            '<td><div class="ad-act"><button type="button" data-pro="30" data-u="' + esc(u.id) + '">PRO +30일</button>' + (u.pro ? '<button type="button" data-pro="0" data-u="' + esc(u.id) + '">PRO 끄기</button>' : "") +
+            '</div><div class="ad-act"><input type="number" step="100" value="500" aria-label="토큰 수" id="n-' + esc(u.id) + '"><input class="note" type="text" maxlength="60" placeholder="메모" aria-label="메모" id="m-' + esc(u.id) + '"><button type="button" data-grant="' + esc(u.id) + '">토큰 주기</button></div></td></tr>';
+        }).join("");
+        main.innerHTML = HEAD +
+          '<section class="cm-card ad-card"><h2 class="cm-h3">한눈에 (' + esc(j.day) + ")</h2>" +
+          '<div class="ad-nums"><div class="ad-num"><span>회원</span><b>' + num(c.users) + '</b></div><div class="ad-num"><span>PRO</span><b>' + num(c.pro) + '</b></div><div class="ad-num"><span>등록 블로그</span><b>' + num(c.blogs) + '</b></div><div class="ad-num"><span>완료 진단 (전체)</span><b>' + num(c.diagAll) + '</b></div><div class="ad-num"><span>남은 충전 토큰</span><b>' + num(c.tokens) + "</b></div></div>" +
+          '<div class="ad-tbl"><table><thead><tr><th>오늘 진단</th><th>상태</th><th>건수</th></tr></thead><tbody>' + today + "</tbody></table></div>" +
+          (j.mismatch.length ? '<p class="ad-warn">지갑 잔액과 장부 합계가 다른 회원: ' + j.mismatch.map(function (x) { return esc(x.user) + " (지갑 " + num(x.wallet) + " / 장부 " + num(x.ledger) + ")"; }).join(", ") + "</p>" : '<p class="cm-cap">지갑 잔액 = 장부 합계 ✓</p>') +
+          "</section>" +
+          '<section class="cm-card ad-card"><h2 class="cm-h3">회원 (최근 100명)</h2><p class="cm-cap">결제를 붙이기 전이라 PRO와 토큰은 여기서 직접 줘요. 토큰을 뺄 때는 음수로 넣어요.</p><div id="amsg"></div>' +
+          '<div class="ad-tbl"><table><thead><tr><th>회원</th><th>가입</th><th>내 블로그</th><th>플랜</th><th>토큰</th><th>관리</th></tr></thead><tbody>' + users + "</tbody></table></div></section>";
+        if (note) say(note);
+        main.querySelectorAll("[data-pro]").forEach(function (b) {
+          b.addEventListener("click", function () { b.disabled = true; api("/admin/pro", { user: b.dataset.u, days: +b.dataset.pro }).then(function (r) { r.ok ? load(r.pro ? "PRO를 " + ymd(r.pro) + "까지로 했어요." : "PRO를 껐어요.") : (b.disabled = false, say(r.error, true)); }); });
+        });
+        main.querySelectorAll("[data-grant]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var id = b.dataset.grant, n = +document.getElementById("n-" + id).value, m = document.getElementById("m-" + id).value;
+            if (!n) { say("토큰 수를 넣어 주세요.", true); return; }
+            b.disabled = true;
+            api("/admin/grant", { user: id, amount: n, note: m }).then(function (r) { r.ok ? load("토큰 " + num(n) + "개를 넣었어요. 잔액 " + num(r.balance) + "개") : (b.disabled = false, say(r.error, true)); });
+          });
+        });
+      });
+    }
+    load();
+  })();
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>

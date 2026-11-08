@@ -51,6 +51,18 @@
   .mb-quiet:hover { color: var(--text); }
   .mb-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
   .mb-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  .mb-plan { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .mb-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .4px; background: var(--chip); color: var(--sub); }
+  .mb-badge.pro { background: var(--green); color: #fff; }
+  .mb-tx { list-style: none; margin: 0; padding: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .mb-tx li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .mb-tx li:last-child { border-bottom: 0; }
+  .mb-tx .plus { color: var(--green); font-weight: 600; }
+  .mb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mb-chips a { padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; font-size: 14px; }
+  .mb-chips a[aria-current] { border-color: var(--green); color: var(--green); font-weight: 600; }
+  .mb-uid { font-size: 12.5px; color: var(--sub); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .mb-uid code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   @media (max-width: 560px) { .mb-nums { grid-template-columns: 1fr; } .mb-diags { grid-template-columns: 1fr; } .mb-code code { font-size: 20px; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,7 +90,9 @@
     var $ = function (id) { return document.getElementById(id); };
     var HEAD = '<div class="mb-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">내 블로그</h1></div>';
     var KIND = { exp: "🎯 체험단 탈락원인 진단", adpost: "💰 애드포스트 탈락원인 진단" };
-    var D = null, BUSY = false;
+    var D = null, BUSY = false, ADDING = false;
+    var PICK = (new URLSearchParams(location.search).get("blog") || "").toLowerCase();
+    var REASON = { admin: "관리자 지급", spend: "진단에 사용", restore: "실패한 진단 복구", purchase: "충전", refund: "환불" };
     function num(n) { return n == null ? "-" : Number(n).toLocaleString("ko-KR"); }
     function ymd(ms) { var d = new Date(ms); return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일"; }
     function dayK(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? (+m[2]) + "월 " + (+m[3]) + "일" : s; }
@@ -101,7 +115,7 @@
     function load() {
       if (!A.on()) { gate("곧 열려요", "회원 기능은 준비 중이에요. 지금은 로그인 없이 모든 기능을 쓸 수 있어요.", '<div><a class="cm-btn" href="index.html">첫 화면으로</a></div>'); return; }
       if (!A.token()) { gate("로그인이 필요해요", "내 블로그를 등록하면 날짜별 숫자를 기록하고, 무료 첫 진단 결과를 저장해 둘 수 있어요.", '<div><a class="cm-btn pri" href="login.html?r=' + encodeURIComponent("/me.html") + '">로그인하기</a></div>'); return; }
-      api("/me/blog").then(function (j) {
+      api("/me/blog" + (PICK ? "?blog=" + encodeURIComponent(PICK) : "")).then(function (j) {
         if (j && j.status === "need_login") { A.clear(); load(); return; }
         if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
         D = j; draw();
@@ -109,8 +123,34 @@
     }
 
     function draw() {
-      main.innerHTML = HEAD + (D.blog ? blogCard() + diagCard() : registerCard()) + listCard();
-      if (D.blog) bindBlog(); else bindRegister();
+      var reg = !D.blog || ADDING;
+      main.innerHTML = HEAD + planCard() + (reg ? registerCard() : blogCard() + diagCard()) + listCard();
+      bindPlan();
+      if (reg) bindRegister(); else bindBlog();
+    }
+
+    // ---- 플랜·토큰 ----
+    function planCard() {
+      var pro = D.plan === "pro", t = D.tokens || { balance: 0, tx: [] };
+      var tx = (t.tx || []).map(function (x) { return "<li><span>" + esc(REASON[x.reason] || x.reason) + (x.note ? " · " + esc(x.note) : "") + ' <span class="cm-cap">' + ymd(x.at) + '</span></span><span class="' + (x.amount > 0 ? "plus" : "") + '">' + (x.amount > 0 ? "+" : "") + num(x.amount) + "</span></li>"; }).join("");
+      return '<section class="cm-card mb-card" aria-labelledby="planH"><h2 class="cm-h3" id="planH">내 플랜</h2>' +
+        '<div class="mb-plan"><span class="mb-badge' + (pro ? " pro" : "") + '">' + (pro ? "PRO" : "FREE") + "</span>" +
+        (pro ? "<span>" + (D.pro && D.pro.how === "beta" ? "베타 PRO · " : "") + ymd(D.pro.until) + "까지</span><span>오늘 진단 <b>" + D.today.used + "/" + D.today.limit + "</b>회</span>" : '<span class="cm-cap">내 블로그 1개 · 블로그당 무료 첫 진단</span>') +
+        "<span>충전 토큰 <b>" + num(t.balance) + "</b>개</span></div>" +
+        '<p class="cm-cap">' + (pro ? "PRO는 하루 " + D.today.limit + "번까지 어느 블로그든 진단할 수 있고, 결과를 가리지 않고 다 보여 드려요. 한국 시간 자정에 다시 " + D.today.limit + "번이 되고, 남은 횟수는 다음 날로 넘어가지 않아요. 더 하려면 충전 토큰 " + t.cost + "개를 써요."
+          : "PRO는 하루 5번 어느 블로그든 진단하고 할 일·추천 주제·재신청 날짜까지 볼 수 있어요. 결제는 준비 중이에요.") +
+        (t.balance && !pro ? " 남은 충전 토큰은 내 블로그 진단에 쓸 수 있어요." : "") + "</p>" +
+        (pro || t.balance ? '<div class="mb-row"><a class="cm-btn" href="analyze.html">다른 블로그 진단하기</a></div>' : "") +
+        (tx ? '<details class="mb-more"><summary>토큰 내역 보기</summary><ul class="mb-tx">' + tx + "</ul></details>" : "") +
+        '<div class="mb-uid">회원 번호 <code id="uid">' + esc(D.uid) + '</code><button class="mb-quiet" type="button" id="uidCopy">복사</button>' + (D.admin ? '<a class="mb-quiet" href="admin.html">관리자 화면</a>' : "") + '</div><div id="pmsg"></div></section>';
+    }
+    function bindPlan() {
+      $("uidCopy").addEventListener("click", function () {
+        var t = $("uid").textContent;
+        Promise.resolve().then(function () { return navigator.clipboard.writeText(t); })
+          .then(function () { msg($("pmsg"), "회원 번호를 복사했어요."); })
+          .catch(function () { var r = document.createRange(); r.selectNodeContents($("uid")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); msg($("pmsg"), "회원 번호를 골라 뒀어요. 길게 눌러 복사해 주세요."); });
+      });
     }
 
     // ---- 등록 전 ----
@@ -126,10 +166,12 @@
         '<p class="cm-cap">블로그 소개글에 확인 코드를 잠깐 넣으면 내 블로그로 등록돼요. 등록하면 글 수·누적 방문자·이웃 수가 매일 기록되고, 체험단·애드포스트 진단을 한 번씩 무료로 받아 결과를 저장할 수 있어요.</p>' +
         '<div class="mb-row"><label class="cm-field"><span>블로그 주소 또는 아이디</span><input class="cm-input" id="bid" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="예) peechu_ 또는 https://blog.naver.com/아이디"></label>' +
         '<button class="cm-btn pri" type="button" id="claim">확인 코드 받기</button></div>' +
-        '<p class="cm-cap">FREE 회원은 블로그 1개를 등록할 수 있어요. 이 브라우저에서 업적 위젯을 만든 블로그는 코드 없이 바로 등록돼요.</p><div id="rmsg"></div></section>';
+        '<p class="cm-cap">' + (D.plan === "pro" ? "PRO 회원은 블로그를 여러 개 등록할 수 있어요." : "FREE 회원은 블로그 1개를 등록할 수 있어요.") + " 이 브라우저에서 업적 위젯을 만든 블로그는 코드 없이 바로 등록돼요.</p>" +
+        (ADDING ? '<div class="mb-row"><button class="cm-btn ghost" type="button" id="addNo">취소</button></div>' : "") + '<div id="rmsg"></div></section>';
     }
     function bindRegister() {
       var rm = $("rmsg");
+      if ($("addNo")) $("addNo").addEventListener("click", function () { ADDING = false; draw(); });
       if ($("claim")) {
         var go = function () {
           var id = pickId($("bid").value);
@@ -137,7 +179,7 @@
           busy($("claim"), true, "블로그 찾는 중");
           var k = wkey(id);
           (k ? api("/me/blog", { act: "verify", blog: id, wkey: k }) : Promise.resolve(null)).then(function (v) {
-            if (v && v.ok) { load(); return; }
+            if (v && v.ok) { ADDING = false; PICK = id; load(); return; }
             return api("/me/blog", { act: "claim", blog: id }).then(function (j) {
               busy($("claim"), false);
               if (!j.ok) { msg(rm, j.error, true); return; }
@@ -160,7 +202,7 @@
         var b = this; busy(b, true, "소개글 확인 중");
         api("/me/blog", { act: "verify", blog: D.claim.blog }).then(function (j) {
           busy(b, false);
-          if (j.ok) { load(); return; }
+          if (j.ok) { ADDING = false; PICK = D.claim.blog; load(); return; }
           msg(rm, j.error, true);
         });
       });
@@ -171,43 +213,48 @@
       var b = D.blog, s = D.snaps || [], last = s[s.length - 1] || {}, first = s[0] || {};
       var delta = function (k) { if (s.length < 2 || last[k] == null || first[k] == null) return ""; var d = last[k] - first[k]; return "<i>" + (d >= 0 ? "+" : "") + num(d) + " (" + dayK(first.day) + "부터)</i>"; };
       var rows = s.slice().reverse().slice(0, 14).map(function (x) { return "<tr><td>" + esc(dayK(x.day)) + "</td><td>" + num(x.posts) + "</td><td>" + num(x.visitors) + "</td><td>" + num(x.neighbors) + "</td></tr>"; }).join("");
-      return '<section class="cm-card mb-card" aria-labelledby="blogH"><h2 class="cm-h3" id="blogH">등록한 블로그</h2>' +
+      var chips = (D.blogs || []).length > 1 ? '<nav class="mb-chips" aria-label="내 블로그 고르기">' + D.blogs.map(function (x) { return '<a href="me.html?blog=' + encodeURIComponent(x.id) + '"' + (x.id === b.id ? ' aria-current="true"' : "") + ">" + esc(x.title || x.id) + "</a>"; }).join("") + "</nav>" : "";
+      return '<section class="cm-card mb-card" aria-labelledby="blogH"><h2 class="cm-h3" id="blogH">등록한 블로그</h2>' + chips +
         '<div class="mb-blog"><div><b>' + esc(b.title || b.id) + '</b><a href="https://blog.naver.com/' + encodeURIComponent(b.id) + '" target="_blank" rel="noopener">blog.naver.com/' + esc(b.id) + "</a></div></div>" +
         '<p class="cm-cap">' + ymd(b.since) + " 등록 · " + (b.how === "widget" ? "업적 위젯 열쇠로 확인" : "소개글 코드로 확인") + "</p>" +
         (s.length ? '<div class="mb-nums"><div class="mb-num"><span>공개 글</span><b>' + num(last.posts) + "개</b>" + delta("posts") + '</div><div class="mb-num"><span>누적 방문자</span><b>' + num(last.visitors) + "명</b>" + delta("visitors") + '</div><div class="mb-num"><span>이웃</span><b>' + num(last.neighbors) + "명</b>" + delta("neighbors") + "</div></div>" +
           '<details class="mb-more"><summary>날짜별 기록 보기 (' + s.length + "일)</summary>" + '<div class="mb-tbl"><table><thead><tr><th>날짜</th><th>글</th><th>누적 방문자</th><th>이웃</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
           : '<p class="cm-cap">아직 기록된 숫자가 없어요. 아래 새로 고침을 눌러 보세요.</p>') +
         '<div class="mb-row"><button class="cm-btn" type="button" id="refresh"' + (D.refreshLeft ? "" : " disabled") + ">숫자 새로 고침 (오늘 " + D.refreshLeft + "번 남음)</button></div>" +
-        '<p class="cm-cap">숫자는 매일 한 번 자동으로 기록돼요. 기록이 쌓이면 날짜별 성장 그래프로 보여 드릴게요.</p><div id="bmsg"></div>' +
-        '<div class="mb-foot"><button class="mb-quiet" type="button" id="release" aria-expanded="false">내 블로그 해제</button></div><div id="relBox"></div></section>';
+        '<p class="cm-cap">숫자는 매일 한 번 자동으로 기록돼요. <a href="history.html?blog=' + encodeURIComponent(b.id) + '&go=1" style="color:var(--green)">히스토리에서 날짜별 성장 그래프 보기</a></p><div id="bmsg"></div>' +
+        '<div class="mb-foot">' + (D.plan === "pro" ? '<button class="mb-quiet" type="button" id="addBlog">블로그 더 등록하기</button>' : "") + '<button class="mb-quiet" type="button" id="release" aria-expanded="false">내 블로그 해제</button></div><div id="relBox"></div></section>';
     }
     function diagCard() {
       var f = D.blog.free;
       var done = function (k) { return (D.diags || []).filter(function (x) { return x.kind === k && x.status === "done"; })[0]; };
+      var pro = D.plan === "pro", bal = (D.tokens || {}).balance || 0, cost = (D.tokens || {}).cost || 100;
+      var again = pro && D.today.used < D.today.limit ? "다시 진단 (오늘 " + (D.today.limit - D.today.used) + "번 남음)" : bal >= cost ? "다시 진단 (토큰 " + cost + "개)" : "";
       var item = function (k) {
         var d = done(k);
         return '<div class="mb-diag"><b>' + KIND[k] + "</b>" +
           (f[k] ? '<p class="cm-cap">무료로 한 번 받을 수 있어요. 10~20초 걸려요.</p><div class="mb-ask" id="ask-' + k + '"><button class="cm-btn pri" type="button" data-k="' + k + '">무료로 진단받기</button></div>'
-            : d ? '<p class="cm-cap">' + ymd(d.at) + '에 받았어요.</p><a class="cm-btn" href="analyze.html?saved=' + encodeURIComponent(d.id) + '">결과 보기</a>'
-            : '<p class="cm-cap">이 블로그의 무료 진단은 이미 사용했어요.</p>') + "</div>";
+            : (d ? '<p class="cm-cap">' + ymd(d.at) + '에 마지막으로 받았어요.</p><a class="cm-btn" href="analyze.html?saved=' + encodeURIComponent(d.id) + '">결과 보기</a>' : '<p class="cm-cap">이 블로그의 무료 진단은 이미 사용했어요.</p>') +
+              (again ? '<div class="mb-ask" id="ask-' + k + '"><button class="cm-btn" type="button" data-k="' + k + '" data-again="1">' + esc(again) + "</button></div>" : "")) + "</div>";
       };
-      return '<section class="cm-card mb-card" aria-labelledby="diagH"><h2 class="cm-h3" id="diagH">무료 첫 진단</h2>' +
+      var allUsed = !f.exp && !f.adpost;
+      return '<section class="cm-card mb-card" aria-labelledby="diagH"><h2 class="cm-h3" id="diagH">' + (allUsed ? "내 블로그 진단" : "무료 첫 진단") + "</h2>" +
         '<p class="cm-cap">내 블로그는 체험단 진단과 애드포스트 진단을 블로그당 한 번씩 무료로 받을 수 있어요. 결과는 저장돼서 언제든 다시 볼 수 있어요.</p>' +
         '<div class="mb-diags">' + item("exp") + item("adpost") + "</div>" +
-        '<p class="cm-cap">FREE에서는 점수와 떨어졌을 가능성 상위 2개까지 보여요. 할 일·추천 주제·재신청 날짜는 PRO에서 볼 수 있어요(준비 중). 진단에 실패하면 무료 횟수는 그대로 남아요.</p><div id="dmsg"></div></section>';
+        '<p class="cm-cap">' + (pro ? "PRO라서 결과를 가리지 않고 다 보여 드려요." : "FREE에서는 점수와 떨어졌을 가능성 상위 2개까지 보여요. 할 일·추천 주제·재신청 날짜는 PRO에서 볼 수 있어요(준비 중).") + " 진단에 실패하면 무료 횟수·진단 횟수·토큰은 그대로 남아요.</p><div id=\"dmsg\"></div></section>";
     }
     function listCard() {
       var a = (D.diags || []).filter(function (x) { return x.status !== "pending"; });
       if (!a.length) return "";
       return '<section class="cm-card mb-card" aria-labelledby="listH"><h2 class="cm-h3" id="listH">지난 진단 결과</h2><ul class="mb-list">' + a.map(function (x) {
-        return "<li><span>" + KIND[x.kind] + ' <span class="cm-cap">' + esc(x.blog) + " · " + ymd(x.at) + (x.paid === "free_first" ? " · 무료" : "") + "</span></span>" +
-          (x.status === "done" ? '<a href="analyze.html?saved=' + encodeURIComponent(x.id) + '">결과 보기</a>' : '<span class="cm-cap">실패 (무료 횟수는 그대로)</span>') + "</li>";
+        return "<li><span>" + KIND[x.kind] + ' <span class="cm-cap">' + esc(x.blog) + " · " + ymd(x.at) + ({ free_first: " · 무료", pro_daily: " · PRO", paid: " · 토큰" }[x.paid] || "") + "</span></span>" +
+          (x.status === "done" ? '<a href="analyze.html?saved=' + encodeURIComponent(x.id) + '">결과 보기</a>' : '<span class="cm-cap">실패 (횟수·토큰은 그대로)</span>') + "</li>";
       }).join("") + "</ul></section>";
     }
     function bindBlog() {
+      if ($("addBlog")) $("addBlog").addEventListener("click", function () { ADDING = true; D.claim = null; draw(); });
       $("refresh").addEventListener("click", function () {
         var b = this; busy(b, true, "네이버에서 읽는 중");
-        api("/me/blog", { act: "refresh" }).then(function (j) {
+        api("/me/blog", { act: "refresh", blog: D.blog.id }).then(function (j) {
           if (j.ok) { D = j; draw(); msg($("bmsg"), "숫자를 새로 읽었어요."); return; }
           busy(b, false); msg($("bmsg"), j.error, true);
         });
@@ -219,22 +266,25 @@
         box.innerHTML = '<div class="mb-ask"><p class="cm-cap"><b>내 블로그 등록을 해제할까요?</b> 다시 등록하려면 소개글 확인을 한 번 더 해야 해요. 이 블로그의 무료 진단을 이미 썼다면 다시 등록해도 다시 받을 수 없어요.</p>' +
           '<div class="mb-row"><button class="cm-btn" type="button" id="relYes">해제하기</button><button class="cm-btn ghost" type="button" id="relNo">취소</button></div></div>';
         $("relNo").addEventListener("click", function () { box.innerHTML = ""; t.setAttribute("aria-expanded", "false"); t.focus(); });
-        $("relYes").addEventListener("click", function () { var y = this; busy(y, true, "해제하는 중"); api("/me/blog", { act: "release" }).then(function () { load(); }); });
+        $("relYes").addEventListener("click", function () { var y = this; busy(y, true, "해제하는 중"); api("/me/blog", { act: "release", blog: D.blog.id }).then(function () { PICK = ""; load(); }); });
       });
       main.querySelectorAll("[data-k]").forEach(function (b) {
         b.addEventListener("click", function () {
-          var k = b.getAttribute("data-k"), ask = $("ask-" + k);
-          ask.innerHTML = '<p class="cm-cap"><b>무료 진단은 이 블로그에 한 번뿐이에요.</b> 지금 진단할까요?</p><div class="mb-row"><button class="cm-btn pri" type="button" id="go-' + k + '">진단 시작</button><button class="cm-btn ghost" type="button" id="no-' + k + '">취소</button></div>';
+          var k = b.getAttribute("data-k"), ask = $("ask-" + k), again = b.getAttribute("data-again");
+          var q = again ? (D.plan === "pro" && D.today.used < D.today.limit ? "오늘 PRO 진단 1번을 써요. 지금 진단할까요?" : "충전 토큰 " + D.tokens.cost + "개를 써요 (남은 토큰 " + num(D.tokens.balance) + "개). 지금 진단할까요?")
+            : "<b>무료 진단은 이 블로그에 한 번뿐이에요.</b> 지금 진단할까요?";
+          ask.innerHTML = '<p class="cm-cap">' + q + '</p><div class="mb-row"><button class="cm-btn pri" type="button" id="go-' + k + '">진단 시작</button><button class="cm-btn ghost" type="button" id="no-' + k + '">취소</button></div>';
           $("no-" + k).addEventListener("click", function () { draw(); });
-          $("go-" + k).addEventListener("click", function () { run(k, this); });
+          $("go-" + k).addEventListener("click", function () { run(k, this, !!again); });
         });
       });
     }
-    function run(k, btn) {
+    function run(k, btn, again) {
       if (BUSY) return; BUSY = true;
       main.querySelectorAll("[data-k], [id^=go-], [id^=no-]").forEach(function (x) { x.disabled = true; });
       busy(btn, true, "최근 글을 읽는 중… (10~20초)");
-      api("/me/diagnose", { kind: k, rk: rk() }).then(function (j) {
+      // 다시 진단할 때 토큰을 쓸 차례면 위에서 이미 물어봤으니 확인 표시를 같이 보냄
+      api("/me/diagnose", { kind: k, rk: rk(), blog: D.blog.id, confirm: again ? "tokens" : undefined }).then(function (j) {
         BUSY = false;
         if (j.ok && j.id) { location.href = "analyze.html?saved=" + encodeURIComponent(j.id); return; }
         load();

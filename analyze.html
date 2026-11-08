@@ -56,6 +56,10 @@
   .go:disabled { opacity: .5; cursor: wait; }
   .note { font-size: 12.5px; color: var(--sub); margin: 10px 0 0; }
   .err { color: var(--red); font-weight: 700; }
+  .mask { display: flex; flex-direction: column; gap: 8px; }
+  .mask .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mask button { font: inherit; font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card, transparent); color: inherit; cursor: pointer; }
+  .mask button.pri { background: var(--green); border-color: var(--green); color: #fff; }
   .demo { background: #fff7e6; color: #8a5a00; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; }
   @media (prefers-color-scheme: dark) { .demo { background: #3a2e14; color: #f5c66b; } }
   .total { display: flex; align-items: center; gap: 16px; }
@@ -255,7 +259,7 @@
       setMode(j.kind === "adpost" ? "adpost" : "exp");
       history.replaceState(null, "", "?saved=" + encodeURIComponent(id));
       const d = new Date(j.at);
-      SAVED = `<div class="saved">📌 ${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일에 저장한 내 블로그 진단이에요${(j.result.locked || []).length ? " (FREE)" : ""}. <a href="me.html">내 블로그로</a></div>`;
+      SAVED = `<div class="saved">📌 ${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일에 저장한 ${j.blog ? "<b>" + esc(j.blog) + "</b> " : ""}진단이에요${(j.result.locked || []).length ? " (FREE)" : ""}. <a href="me.html">내 블로그로</a></div>`;
       j.kind === "adpost" ? showAd(j.result, false) : show(j.result, false);
       SAVED = "";
       $("msg").textContent = "";
@@ -334,6 +338,7 @@
     const v = pickBlog($("blog").value) || pickBlog(onlyId($("blog").value)) || $("blog").value.trim();
     if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) peechu_ 또는 https://blog.naver.com/아이디</span>"; return; }
     if (!WORKER_URL) { MODE === "adpost" ? showAd(SAMPLE_AD, true) : show(SAMPLE, true); return; }
+    if (window.BLAuth && BLAuth.on() && BLAuth.token()) return runMember(v); // 로그인한 회원: 횟수·토큰 확인 뒤 진단하고 결과 저장
     // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
     const b = $("go");
     b.disabled = true;
@@ -351,6 +356,47 @@
       b.disabled = false;
       b.textContent = "블로그 분석 시작";
     }
+  }
+  // ---- 회원 진단: 무엇을 쓰는지 먼저 보여 주고 (무료 첫 진단 / 오늘 PRO n번 / 충전 토큰 100개) ----
+  function memberMsg(html) { $("msg").innerHTML = html; }
+  async function runMember(v) {
+    const A = window.BLAuth, b = $("go");
+    const label = MODE === "adpost" ? "애드포스트" : "체험단";
+    b.disabled = true;
+    b.innerHTML = "<span class='spin'></span>확인하는 중…";
+    let q;
+    try { q = await (await A.fetch("/me/diagnose?quote=1&kind=" + MODE + "&blog=" + encodeURIComponent(v))).json(); }
+    catch (e) { q = { ok: false, error: "인터넷 연결을 확인하고 다시 해 주세요." }; }
+    b.disabled = false; b.textContent = "블로그 분석 시작";
+    if (q.status === "need_login") { A.clear(); return run(); }
+    if (!q.pay) {
+      const tip = q.status === "need_pro" && !q.own ? " 내 블로그라면 먼저 <a href='me.html'>내 블로그</a>에 등록해 주세요." : q.status === "need_owner" ? " <a href='me.html'>내 블로그 등록하기</a>" : "";
+      memberMsg("<span class='err'>" + esc(q.error || "지금은 진단할 수 없어요.") + "</span>" + tip);
+      return;
+    }
+    const ask = q.pay === "free_first" ? "<b>" + esc(q.blog) + "</b>의 무료 첫 " + label + " 진단이에요. 블로그당 한 번뿐이에요."
+      : q.pay === "pro_daily" ? "오늘 PRO 진단 " + q.limit + "번 중 <b>" + q.left + "번</b> 남았어요. 1번을 써요."
+      : "오늘 진단 횟수를 다 써서 <b>충전 토큰 " + q.cost + "개</b>를 써요. (남은 토큰 " + Number(q.balance).toLocaleString("ko-KR") + "개)";
+    memberMsg("<div class='mask'><span>" + ask + " 진단할까요?</span><div class='row'><button class='pri' type='button' id='mYes'>진단 시작</button><button type='button' id='mNo'>취소</button></div></div>");
+    $("mNo").addEventListener("click", () => memberMsg(""));
+    $("mYes").addEventListener("click", () => doMember(q, crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12)));
+  }
+  async function doMember(q, key) {
+    const A = window.BLAuth, b = $("go");
+    b.disabled = true;
+    b.innerHTML = "<span class='spin'></span>최근 글을 읽는 중… (10~20초)";
+    memberMsg("");
+    let j;
+    try { j = await (await A.fetch("/me/diagnose", { method: "POST", body: JSON.stringify({ kind: MODE, blog: q.blog, rk: key, confirm: q.pay === "paid" ? "tokens" : undefined }) })).json(); }
+    catch (e) { j = { ok: false, error: "인터넷 연결을 확인하고 다시 해 주세요." }; }
+    b.disabled = false; b.textContent = "블로그 분석 시작";
+    if (!j.ok) { memberMsg("<span class='err'>" + esc(j.error || "진단에 실패했어요. 잠시 뒤 다시 해 주세요.") + "</span>"); return; }
+    history.replaceState(null, "", "?saved=" + encodeURIComponent(j.id));
+    SAVED = `<div class="saved">📌 결과를 저장했어요. <a href="me.html">내 블로그</a>의 지난 진단 결과에서 다시 볼 수 있어요.</div>`;
+    j.kind === "adpost" ? showAd(j.result, false) : show(j.result, false);
+    SAVED = "";
+    saveRecent(q.blog, (j.result.blog && j.result.blog.title) || q.blog);
+    memberMsg(q.pay === "pro_daily" ? "오늘 PRO 진단 " + (q.left - 1) + "번 남았어요." : q.pay === "paid" ? "충전 토큰 " + q.cost + "개를 썼어요." : "무료 첫 진단을 썼어요.");
   }
   $("go").addEventListener("click", run);
   $("blog").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });

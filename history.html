@@ -606,12 +606,38 @@
     return (when ? when + " " : "") + what;
   }
 
+  // ---- 📈 내 블로그 날짜별 성장 (로그인한 회원이 등록한 블로그만, 서버가 매일 기록한 숫자) ----
+  async function drawGrowth(id) {
+    const A = window.BLAuth, box = $("myGrowth");
+    if (!box || !A || !A.on() || !A.token()) return;
+    let j;
+    try { j = await (await A.fetch("/me/blog?blog=" + encodeURIComponent(id))).json(); } catch (e) { return; }
+    if (!j || !j.ok || !$("myGrowth") || (window.__H && window.__H.r.blog.id !== id)) return;
+    if (!j.blog || j.blog.id !== id) {
+      if (!(j.blogs || []).length || j.plan === "pro") box.innerHTML = `<div class="card"><h2>📈 날짜별 성장 기록</h2><p class="sub">내 블로그라면 등록해 두세요. 글 수·누적 방문자·이웃 수를 매일 기록해서, 네이버가 보여 주지 않는 날짜별 성장을 그래프로 보여 드려요.</p><p class="cap"><a href="me.html">내 블로그로 등록하기</a></p></div>`;
+      return;
+    }
+    const s = j.snaps || [], first = s[0], last = s[s.length - 1];
+    const md = (d) => +d.slice(5, 7) + "월 " + +d.slice(8) + "일";
+    const dd = (k) => (s.length > 1 && last[k] != null && first[k] != null ? last[k] - first[k] : null);
+    const sign = (v) => (v == null ? "-" : (v >= 0 ? "+" : "") + fmt(v));
+    let chart = `<p class="cap">기록이 ${s.length ? "하루치" : "아직 없어"}예요. 매일 한 번 자동으로 쌓이니, 내일부터 그래프가 그려져요.</p>`;
+    if (s.length > 1) {
+      const days = s.slice(1).map((x, i) => { const p = s[i]; const v = x.visitors != null && p.visitors != null ? Math.max(0, x.visitors - p.visitors) : 0; return { label: md(x.day), short: +x.day.slice(8) + "일", v, tip: md(x.day) + " · 방문자 +" + fmt(v) + "명 (전 기록 이후)" }; }).slice(-30);
+      chart = `<h3 class="sub" style="margin:14px 0 0">하루 방문자 (누적 방문자 차이)</h3>${vbars(days, { aria: "날짜별 방문자 증가", unit: "명", every: days.length > 14 ? 3 : 1 })}`;
+    }
+    box.innerHTML = `<div class="card"><h2>📈 등록 후 날짜별 성장</h2><p class="sub">${esc(md(first ? first.day : ""))}부터 블로랩이 매일 기록한 숫자예요.</p>
+      <div class="facts"><div><b>${sign(dd("posts"))}</b><span>글 (지금 ${fmt(last && last.posts)}개)</span></div><div><b>${sign(dd("visitors"))}</b><span>방문자 (누적 ${fmt(last && last.visitors)}명)</span></div><div><b>${sign(dd("neighbors"))}</b><span>이웃 (지금 ${fmt(last && last.neighbors)}명)</span></div></div>
+      ${chart}<p class="cap"><a href="me.html">내 블로그에서 날짜별 표 보기</a></p></div>`;
+  }
+
   function show(r) {
     const S = r.stats || {}, I = r.info || {}, E = r.engage || {}, C = r.content || {}, P = r.places || {}, B = r.blog || {};
     const since = S.firstDate ? kd(S.firstDate).getUTCFullYear() : "";
     const ach = achievements(r), got = ach.filter((a) => a.on);
     const ev = timeline(r);
     window.__H = { r, ach, ev, type: bloggerType(r) };
+    setTimeout(() => drawGrowth(B.id), 0); // 그림을 다 그린 뒤 내 블로그 기록을 붙임
     const hrs = S.hours || [];
     const topH = peak(hrs), topW = peak(S.weekdays);
     const year = S.year || {}, EY = E.year || null;
@@ -651,7 +677,7 @@
         ${E.from && E.from < S.total ? `<p class="cap" style="color:#cfe9d9">* 최근 글 ${fmt(E.from)}개 기준</p>` : ""}
       </div>
       <div class="acts"><button id="saveH" type="button">📸 히스토리 사진으로 저장</button><button id="saveW" class="alt" type="button">🎁 ${year.year || ""} 결산 사진</button><button id="copyL" class="alt" type="button">🔗 링크 복사</button></div>
-      <p class="cap" id="saveMsg"></p>` +
+      <p class="cap" id="saveMsg"></p><div id="myGrowth"></div>` +
       `<div class="card vsin" id="vsCard"><h2>🆚 친구 블로그와 대결</h2>
         <p class="sub">친구 블로그 주소, 글 주소, 아이디 중 하나를 넣으면 항목별로 누가 이기는지 비교해 드려요.</p>
         <div class="inrow"><input id="vsBlog" placeholder="친구 아이디, 블로그 이름 또는 주소" aria-label="친구 블로그 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="vsPaste" type="button">📋 붙여넣기</button></div>
