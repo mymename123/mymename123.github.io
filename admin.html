@@ -78,6 +78,7 @@
           '<section class="cm-card ad-card"><h2 class="cm-h3">한눈에 (' + esc(j.day) + ")</h2>" +
           '<div class="ad-nums"><div class="ad-num"><span>회원</span><b>' + num(c.users) + '</b></div><div class="ad-num"><span>PRO</span><b>' + num(c.pro) + '</b></div><div class="ad-num"><span>등록 블로그</span><b>' + num(c.blogs) + '</b></div><div class="ad-num"><span>완료 진단 (전체)</span><b>' + num(c.diagAll) + '</b></div><div class="ad-num"><span>남은 충전 토큰</span><b>' + num(c.tokens) + "</b></div></div>" +
           '<div class="ad-tbl"><table><thead><tr><th>오늘 진단</th><th>상태</th><th>건수</th></tr></thead><tbody>' + today + "</tbody></table></div>" +
+          (j.month ? '<p class="cm-cap">이번 달(' + esc(j.month.ym) + ") 완료한 진단 " + num(j.month.diag) + "건 · AI 비용 어림 약 " + num(j.month.cost) + "원 (1건 약 3원)</p>" : "") +
           (j.mismatch.length ? '<p class="ad-warn">지갑 잔액과 장부 합계가 다른 회원: ' + j.mismatch.map(function (x) { return esc(x.user) + " (지갑 " + num(x.wallet) + " / 장부 " + num(x.ledger) + ")"; }).join(", ") + "</p>" : '<p class="cm-cap">지갑 잔액 = 장부 합계 ✓</p>') +
           "</section>" +
           '<section class="cm-card ad-card"><h2 class="cm-h3">회원 (최근 100명)</h2><p class="cm-cap">결제를 붙이기 전이라 PRO와 토큰은 여기서 직접 줘요. 토큰을 뺄 때는 음수로 넣어요.</p><div id="amsg"></div>' +

@@ -47,6 +47,17 @@
   .lg-confirm p { margin: 0; }
   .lg-confirm ul { margin: 0; padding-left: 20px; color: var(--sub); font-size: 14px; }
   .lg-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  .lg-prov { display: flex; flex-direction: column; gap: 4px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .lg-prov h2 { margin: 0 0 4px; font-size: 15px; }
+  .lg-prov ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .lg-prov li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; border-bottom: 1px solid var(--line); }
+  .lg-prov li:last-child { border-bottom: 0; }
+  .lg-prov .on { color: var(--green); font-weight: 600; font-size: 13px; }
+  .lg-prov .st { display: flex; align-items: center; gap: 10px; }
+  .lg-mini { font: inherit; font-size: 13px; font-weight: 600; min-height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; }
+  .lg-mini:hover { border-color: var(--green); color: var(--green); }
+  .lg-mini:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .lg-mini:disabled { opacity: .6; cursor: default; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -114,7 +125,7 @@
         "</div>" +
         '<div class="lg-note"><p class="cm-cap"><b>만 14세 이상</b>만 가입할 수 있어요. 시작하기를 누르면 만 14세 이상임을 확인한 것으로 봐요.</p>' +
         '<p class="cm-cap">받는 정보는 <b>회원 번호와 닉네임</b>뿐이에요. 이메일, 전화번호, 프로필 사진은 받지 않아요.</p>' +
-        '<p class="cm-cap"><a href="privacy.html">개인정보처리방침</a></p></div>';
+        '<p class="cm-cap"><a href="terms.html">이용약관</a> · <a href="privacy.html">개인정보처리방침</a></p></div>';
       box.querySelectorAll("[data-p]").forEach(function (b) {
         b.addEventListener("click", function () {
           box.querySelectorAll("[data-p]").forEach(function (x) { x.disabled = true; });
@@ -132,7 +143,10 @@
         (since ? " · " + since.getFullYear() + "년 " + (since.getMonth() + 1) + "월 " + since.getDate() + "일 가입" : "") + "</span></div></div>" +
         '<p class="cm-cap">이 기기에서 로그인돼 있어요. 다른 기기에서는 따로 로그인해 주세요.</p>' +
         '<div class="lg-acts">' + (ret !== "/" ? '<a class="cm-btn pri" href="' + esc(ret.slice(1) || "index.html") + '">보던 페이지로</a><a class="cm-btn" href="me.html">내 블로그</a>' : '<a class="cm-btn pri" href="me.html">내 블로그</a><a class="cm-btn" href="index.html">첫 화면으로</a>') +
-        '<button class="cm-btn" type="button" id="out">로그아웃</button></div>';
+        '<button class="cm-btn" type="button" id="out">로그아웃</button></div>' +
+        '<section class="lg-prov" aria-labelledby="provH"><h2 id="provH">로그인 방법</h2><ul id="provs"><li><span class="cm-cap">불러오는 중…</span></li></ul>' +
+        '<p class="cm-cap">다른 로그인 방법을 추가하면 어느 것으로 로그인해도 같은 회원이에요.</p></section>';
+      provs(u.providers);
       // 탈퇴는 카드 밖 아래에 작은 글씨로 (동혁 결정: 눈에 덜 띄게, 빨간색 말고 검은색)
       after.innerHTML = '<button class="lg-quiet" type="button" id="bye" aria-expanded="false" aria-controls="byeBox">회원 탈퇴</button><div id="byeBox"></div>';
       document.getElementById("out").addEventListener("click", function () {
@@ -156,15 +170,62 @@
         });
       });
     }
-    function notice(t) {
+    // 로그인 방법 목록: 연결된 것은 끊기(하나는 꼭 남김), 아닌 것은 추가
+    var PN = { kakao: "카카오", naver: "네이버", google: "Google" };
+    function provs(list) {
+      var ul = document.getElementById("provs");
+      if (!ul) return;
+      if (!list) { // 서버가 목록을 안 주면(옛 서버·연결 실패) 칸을 숨겨요
+        A.me(true).then(function (j) { if (j && j.login && j.user.providers) provs(j.user.providers); else if (ul.parentNode) ul.parentNode.hidden = true; }).catch(function () { if (ul.parentNode) ul.parentNode.hidden = true; });
+        return;
+      }
+      ul.innerHTML = ["kakao", "naver", "google"].map(function (p) {
+        var on = list.indexOf(p) !== -1;
+        return "<li><span>" + PN[p] + '</span><span class="st">' + (on ? '<span class="on">연결됨</span>' + (list.length > 1 ? '<button class="lg-mini" type="button" data-un="' + p + '" aria-label="' + PN[p] + ' 연결 끊기">끊기</button>' : "")
+          : '<button class="lg-mini" type="button" data-ln="' + p + '" aria-label="' + PN[p] + ' 로그인 추가">추가</button>') + "</span></li>";
+      }).join("");
+      ul.querySelectorAll("[data-ln]").forEach(function (b) {
+        b.addEventListener("click", function () { ul.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); b.textContent = "여는 중…"; location.href = A.api + "/auth/" + b.getAttribute("data-ln") + "/start?link=1"; });
+      });
+      ul.querySelectorAll("[data-un]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var p = b.getAttribute("data-un");
+          if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "정말 끊기"; return; } // 한 번 더 눌러야 끊김
+          b.disabled = true;
+          A.fetch("/auth/unlink", { method: "POST", body: JSON.stringify({ p: p }) }).then(function (r) { return r.json(); }).then(function (j) {
+            if (j && j.ok) { provs(j.providers); notice(PN[p] + " 로그인 연결을 끊었어요."); }
+            else { b.disabled = false; notice((j && j.error) || "끊지 못했어요. 잠시 뒤 다시 해 주세요.", true); }
+          }).catch(function () { b.disabled = false; notice("인터넷 연결을 확인하고 다시 해 주세요.", true); });
+        });
+      });
+    }
+    function notice(t, bad) {
+      var old = box.querySelector(".cm-msg"); if (old) old.remove();
       var p = document.createElement("p");
-      p.className = "cm-msg"; p.setAttribute("role", "status"); p.textContent = t;
+      p.className = "cm-msg" + (bad ? " err" : ""); p.setAttribute("role", bad ? "alert" : "status"); p.textContent = t;
       box.insertBefore(p, box.children[1] || null);
     }
     function wait(t) { after.innerHTML = ""; box.innerHTML = '<div class="lg-wait"><span class="cm-spin" aria-hidden="true"></span>' + esc(t) + "</div>"; }
 
-    var code = hash.get("c"), err = hash.get("e");
-    if (code) {
+    var code = hash.get("c"), err = hash.get("e"), lk = hash.get("lk");
+    function showMe(note, bad) {
+      A.me(true).then(function (j) {
+        if (j && j.login) { account(j.user); if (note) notice(note, bad); }
+        else if (j && j.offline) choose("서버에 연결하지 못했어요. 잠시 뒤 다시 해 주세요.");
+        else choose(note && bad ? note : "");
+      });
+    }
+    if (lk) { // 로그인 방법 추가를 마치고 돌아옴 → 내 로그인 토큰과 함께 연결 요청
+      if (!A.token()) choose("로그인이 풀렸어요. 먼저 로그인한 뒤 로그인 방법을 추가해 주세요.");
+      else {
+        wait("로그인 방법을 연결하는 중이에요…");
+        A.fetch("/auth/link", { method: "POST", body: JSON.stringify({ code: lk }) }).then(function (r) { return r.json(); })
+          .then(function (j) { showMe(j && j.ok ? (PN[j.p] || "") + " 로그인을 연결했어요. 이제 어느 것으로 로그인해도 같은 회원이에요." : (j && j.error) || ERR.server, !(j && j.ok)); })
+          .catch(function () { showMe("인터넷 연결을 확인하고 다시 해 주세요.", true); });
+      }
+    } else if (err && A.token()) { // 로그인돼 있는 채로 추가하다가 취소·실패
+      showMe(ERR[err] || ERR.server, true);
+    } else if (code) {
       wait("로그인하는 중이에요…");
       fetch(A.api + "/auth/exchange", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code }) })
         .then(function (r) { return r.json(); })

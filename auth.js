@@ -6,7 +6,7 @@
 (function () {
   var API = "https://green-sunset-edd6.risingsk123.workers.dev";
   var LIVE = false; // 로그인 공개하는 날 true 로 (그날 개인정보처리방침도 같이 고침)
-  var TK = "bl-token", NK = "bl-nick", PV = "bl-login-preview";
+  var TK = "bl-token", NK = "bl-nick", PV = "bl-login-preview", PK = "bl-plan", BK = "bl-tokens";
   function get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
   function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
@@ -18,7 +18,8 @@
     token: function () { return get(TK); },
     nick: function () { return get(NK); },
     save: function (token, user) { put(TK, token); put(NK, user && user.nick); meP = null; paint(); },
-    clear: function () { put(TK, ""); put(NK, ""); meP = null; paint(); },
+    clear: function () { put(TK, ""); put(NK, ""); put(PK, ""); put(BK, ""); meP = null; paint(); },
+    live: LIVE,
     // 사이트 안 주소만 (다른 사이트로 돌아가지 않게)
     safeRet: function (r) { r = String(r || ""); return /^\/(?![\/\\])[A-Za-z0-9._~\/-]*(\?[A-Za-z0-9._~%=&+-]*)?$/.test(r) && r.length <= 200 ? r : "/"; },
     fetch: function (path, opt) {
@@ -35,7 +36,7 @@
       if (!meP || fresh) {
         meP = A.fetch("/auth/me").then(function (r) { return r.json(); }).then(function (j) {
           if (j && j.ok && !j.login) A.clear(); // 기간이 지났거나 다른 곳에서 로그아웃함
-          else if (j && j.login && j.user) put(NK, j.user.nick);
+          else if (j && j.login && j.user) { put(NK, j.user.nick); put(PK, j.user.plan === "pro" ? "pro" : ""); put(BK, j.user.tokens > 0 ? String(j.user.tokens) : ""); }
           return j;
         }).catch(function () { meP = null; return { ok: false, login: false, offline: true }; });
       }
@@ -65,7 +66,10 @@
       btn.className = "sh-acct in";
       btn.href = "login.html";
       btn.setAttribute("aria-label", nick + "님, 내 정보 보기");
-      btn.innerHTML = '<span class="av" aria-hidden="true">' + esc(Array.from(nick)[0]) + '</span><span class="nm">' + esc(nick) + "</span>";
+      var pro = get(PK) === "pro", tok = +get(BK) || 0;
+      btn.setAttribute("aria-label", nick + "님" + (pro ? ", PRO" : "") + (tok ? ", 충전 토큰 " + tok + "개" : "") + ", 내 정보 보기");
+      btn.innerHTML = '<span class="av' + (pro ? " pro" : "") + '" aria-hidden="true">' + esc(Array.from(nick)[0]) + '</span><span class="nm">' + esc(nick) + "</span>" +
+        (pro ? '<span class="tg" aria-hidden="true">PRO</span>' : "") + (tok ? '<span class="tk" aria-hidden="true">' + tok.toLocaleString("ko-KR") + "</span>" : "");
     } else {
       btn.className = "sh-acct";
       btn.href = "login.html?r=" + encodeURIComponent(A.safeRet(here()));

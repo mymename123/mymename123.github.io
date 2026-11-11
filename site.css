@@ -46,7 +46,12 @@ header.sh { background: var(--navy); border-bottom: 1px solid var(--navy-line); 
 .sh-acct.in { padding-left: 5px; }
 .sh-acct .av { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--mint); color: var(--navy); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
 .sh-acct .nm { overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 1100px) { .sh-acct.in { padding-right: 5px; } .sh-acct.in .nm { display: none; } }
+.sh-acct.in { max-width: 250px; }
+.sh-acct .av.pro { box-shadow: 0 0 0 2px var(--navy), 0 0 0 4px var(--mint); }
+.sh-acct .tg { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .4px; padding: 1px 7px; border-radius: 999px; background: var(--mint); color: var(--navy); }
+.sh-acct .tk { flex: none; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: #cfe9d9; }
+.sh-acct .tk::before { content: "토큰 "; font-weight: 500; }
+@media (max-width: 1100px) { .sh-acct.in { padding-right: 5px; } .sh-acct.in .nm, .sh-acct.in .tg, .sh-acct.in .tk { display: none; } }
 @media (max-width: 900px) { .sh-nav { display: none; } .sh .menu { display: block; } .sh-acct { margin-left: auto; } }
 @media (prefers-reduced-motion: reduce) { .sh .mbtn span { transition: none; } }
 
