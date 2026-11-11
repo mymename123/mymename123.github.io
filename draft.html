@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0e1a2b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>사진 초안 | 블로랩</title>
+<!-- 회원 페이지에는 광고·방문자 통계를 넣지 않아요 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .pd-main { padding-block: 28px 96px; display: flex; flex-direction: column; gap: 16px; max-width: 720px; margin: 0 auto; }
+  .pd-head { display: flex; flex-direction: column; gap: 6px; }
+  .pd-card { display: flex; flex-direction: column; gap: 14px; }
+  .pd-card > h2 { margin: 0; }
+  .pd-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pd-row > * { flex: 1 1 150px; min-width: 0; }
+  .pd-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pd-acts .grow { flex: 1 1 auto; }
+  select.cm-input { appearance: auto; }
+  textarea.cm-input { padding: 12px 14px; line-height: 1.7; min-height: 96px; resize: vertical; }
+  textarea.pd-body { min-height: 420px; font-size: 15px; }
+  .pd-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pd-ph { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; min-width: 0; }
+  .pd-ph img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .pd-ph .no { position: absolute; left: 6px; top: 6px; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 12px; background: rgba(14, 26, 43, .82); color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+  .pd-ph .bar { display: flex; }
+  .pd-ph .bar button { flex: 1; min-height: 36px; border: 0; border-top: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; }
+  .pd-ph .bar button:last-child { border-right: 0; color: #b42318; }
+  .pd-ph .bar button:disabled { opacity: .35; }
+  .pd-ph input { border: 0; border-top: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 14px; padding: 8px; min-width: 0; width: 100%; box-sizing: border-box; }
+  .pd-pick { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 120px; border: 2px dashed var(--line); border-radius: 12px; color: var(--sub); cursor: pointer; text-align: center; padding: 16px; }
+  .pd-pick b { color: var(--green); font-size: 16px; }
+  .pd-pick:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
+  .pd-pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .pd-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+  .pd-chk input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--green); }
+  details.pd-more { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  details.pd-more summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  details.pd-more[open] summary { margin-bottom: 10px; }
+  details.pd-more > div { display: flex; flex-direction: column; gap: 10px; }
+  .pd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .pd-list li { border-bottom: 1px solid var(--line); }
+  .pd-list li:last-child { border-bottom: 0; }
+  .pd-list button { width: 100%; text-align: left; background: none; border: 0; padding: 12px 0; font: inherit; color: var(--text); cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+  .pd-list b { font-size: 16px; overflow-wrap: anywhere; }
+  .pd-list span { font-size: 13px; color: var(--sub); }
+  .pd-list button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 6px; }
+  .pd-titles { display: flex; flex-direction: column; gap: 6px; }
+  .pd-titles button { text-align: left; white-space: normal; min-height: 44px; padding: 8px 14px; font-weight: 500; }
+  .pd-titles button[aria-pressed="true"] { border-color: var(--green); background: var(--chip); font-weight: 700; }
+  .pd-key { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pd-key code { flex: 1 1 200px; font: 600 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding: 10px 12px; border-radius: 10px; background: var(--chip); color: var(--green); overflow-wrap: anywhere; }
+  .pd-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  .pd-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--sub); }
+  .pd-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .pd-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
+  @media (min-width: 620px) { .pd-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap pd-main" id="main">
+  <div class="pd-head"><span class="cm-kicker">블로랩 회원 · 시험 중</span><h1 class="cm-h2">사진 초안</h1></div>
+  <div class="cm-card"><div class="pd-wait"><span class="cm-spin" aria-hidden="true"></span>잠시만요…</div></div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // 사진 초안: 폰에서 사진을 고르면 AI가 본문 초안을 써서 보관함에 둠 → PC 확장 프로그램이 불러와 네이버 글쓰기 화면에 넣음
+  // 사진은 이 기기에서 줄여서 보냄 (AI가 볼 작은 사진 + PC에서 쓸 큰 사진). 서버 보관은 7일
+  (function () {
+    var A = window.BLAuth, main = document.getElementById("main");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var $ = function (id) { return document.getElementById(id); };
+    var HEAD = '<div class="pd-head"><span class="cm-kicker">블로랩 회원 · 시험 중</span><h1 class="cm-h2">사진 초안</h1><p class="cm-cap">폰에서 사진을 고르면 AI가 본문 초안을 써 둬요. PC에서 확장 프로그램으로 불러와 네이버 글쓰기 화면에 넣어요.</p></div>';
+    var L = null;          // 서버 목록 (/draft/list)
+    var items = [];        // 새 초안에 고른 사진 { file, url, memo }
+    var form = load("bl-pd-form", { kind: 0, tone: "pro", len: "normal" });
+    var cur = null;        // 지금 보는 초안
+    var curFiles = null;   // 방금 만든 초안의 사진 (다시 쓰기·다시 올리기용, 페이지를 떠나면 사라짐)
+    var busyNow = false;
+    var BIG = 1600, MAXB64 = 1850000;
+
+    function load(k, d) { try { return Object.assign(d, JSON.parse(localStorage.getItem(k) || "{}")); } catch (e) { return d; } }
+    function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    function msg(el, text, err) { if (el) el.innerHTML = text ? '<p class="cm-msg' + (err ? " err" : "") + '" role="' + (err ? "alert" : "status") + '">' + esc(text) + "</p>" : ""; }
+    function when(ms) { var d = new Date(ms); return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+    function left(ms) { var h = Math.round((ms - Date.now()) / 3600000); return h <= 0 ? "곧 지워져요" : h < 24 ? h + "시간 뒤 지워져요" : Math.round(h / 24) + "일 뒤 지워져요"; }
+    function api(path, body, text) {
+      var opt = body ? { method: "POST", body: JSON.stringify(body) } : text != null ? { method: "POST", body: text, headers: { "Content-Type": "text/plain" } } : {};
+      return A.fetch(path, opt).then(function (r) { return r.json(); }).catch(function () { return { ok: false, offline: true, error: "인터넷 연결을 확인하고 다시 해 주세요." }; });
+    }
+    function gate(title, text, btn) { main.innerHTML = HEAD + '<div class="cm-card pd-card"><h2 class="cm-h3">' + esc(title) + '</h2><p class="cm-cap">' + text + "</p>" + (btn || "") + "</div>"; }
+    function top() { window.scrollTo(0, 0); }
+
+    // ---------- 첫 화면 ----------
+    function home() {
+      cur = null;
+      if (!A.on()) { gate("곧 열려요", "회원 기능은 준비 중이에요.", '<div><a class="cm-btn" href="index.html">첫 화면으로</a></div>'); return; }
+      if (!A.token()) { gate("로그인이 필요해요", "사진 초안은 로그인한 회원만 쓸 수 있어요. 초안과 사진은 내 계정에만 보관돼요.", '<div><a class="cm-btn pri" href="login.html?r=' + encodeURIComponent("/draft.html") + '">로그인하기</a></div>'); return; }
+      api("/draft/list").then(function (j) {
+        if (j && j.status === "need_login") { A.clear(); home(); return; }
+        if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
+        L = j; drawHome();
+      });
+    }
+    function drawHome() {
+      var lim = L.limit, rest = Math.max(0, lim.daily - lim.used);
+      var list = L.drafts.map(function (d) {
+        var st = d.status === "done" ? (d.pc ? "PC로 가져감" : "PC에서 불러올 수 있어요") : d.status === "writing" ? "AI가 쓰는 중…" : d.status === "failed" ? "실패 · 다시 만들어 주세요" : "아직 글이 없어요";
+        return '<li><button type="button" data-open="' + esc(d.id) + '"><b>' + esc(d.title || d.shop || "제목 없는 초안") + "</b><span>" + when(d.created) + " · 사진 " + d.photos + "장 · " + st + " · " + left(d.expires) + "</span></button></li>";
+      }).join("");
+      main.innerHTML = HEAD +
+        '<div class="cm-card pd-card"><h2 class="cm-h3">새 초안 만들기</h2>' +
+        '<p class="cm-cap">오늘 ' + rest + "개 더 만들 수 있어요 (하루 " + lim.daily + "개" + (L.plan === "pro" ? ", PRO" : "") + "). 사진은 한 번에 " + lim.maxPhotos + "장까지예요.</p>" +
+        newForm() + "</div>" +
+        '<div class="cm-card pd-card"><h2 class="cm-h3">보관함</h2>' +
+        (list ? '<ul class="pd-list">' + list + "</ul>" : '<p class="cm-cap">아직 만든 초안이 없어요.</p>') +
+        '<p class="cm-cap">초안과 사진은 만든 날부터 ' + lim.keepDays + "일 동안만 보관하고 자동으로 지워요.</p></div>" +
+        keyCard();
+      bindNew(); bindKey();
+      main.querySelectorAll("[data-open]").forEach(function (b) { b.addEventListener("click", function () { openDraft(b.dataset.open); }); });
+      drawGrid();
+    }
+
+    // ---------- 새 초안 ----------
+    function newForm() {
+      var kinds = L.kinds.map(function (k, i) { return '<option value="' + i + '"' + (+form.kind === i ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + '<option value="-1"' + (+form.kind === -1 ? " selected" : "") + ">자유 형식 (틀 없이)</option>";
+      var sel = function (id, map, v) { return '<select class="cm-input" id="' + id + '">' + Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (v === k ? " selected" : "") + ">" + map[k] + "</option>"; }).join("") + "</select>"; };
+      return '<label class="pd-pick"><input type="file" id="files" accept="image/*" multiple><b>📷 사진 고르기</b><span class="cm-cap">갤러리에서 글에 넣을 사진을 순서대로 골라 주세요</span></label>' +
+        '<div class="pd-grid" id="grid"></div><p class="cm-cap" id="gcap" hidden></p>' +
+        '<div class="pd-row"><label class="cm-field"><span>글 종류</span><select class="cm-input" id="f-kind">' + kinds + "</select></label>" +
+        '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
+        '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
+        '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
+        '<label class="cm-field"><span>한 줄 메모 (직접 느낀 점을 적을수록 정확해요)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 플레인이 제일 맛있음, 주차는 건물 뒤"></textarea></label>' +
+        '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
+        '<label class="cm-field"><span>제목 초안 (선택)</span><input class="cm-input" id="f-td" maxlength="100" placeholder="예) 성수동 소금빵 후기" autocomplete="off"></label></div>' +
+        '<label class="pd-chk"><input type="checkbox" id="f-visit" checked><span>방문일 넣기 <span class="cm-cap" id="visit"></span></span></label>' +
+        '<details class="pd-more"><summary>가게 정보 직접 적기 (아는 것만)</summary><div>' +
+        '<input class="cm-input" id="f-addr" maxlength="120" placeholder="📌 주소" autocomplete="off"><input class="cm-input" id="f-phone" maxlength="30" placeholder="📞 전화" autocomplete="off">' +
+        '<input class="cm-input" id="f-hours" maxlength="120" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
+        '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
+        '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글 (뼈대만 만들기)</summary><div>' +
+        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 다 써 주지 않고, 꼭 들어갈 키워드·내용만 짧은 멘트로 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
+        '<textarea class="cm-input" id="f-mission" maxlength="3000" placeholder="캠페인 안내문(리뷰어 미션, 필수 키워드, 꼭 쓸 내용)을 붙여 넣어 주세요"></textarea></div></details>' +
+        '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
+        '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
+        '<p class="cm-cap">이 기기에만 저장되고, 초안을 만들 때 AI에게 같이 보내요.</p></div></details>' +
+        '<div id="nmsg"></div>' +
+        '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="go">✨ 초안 만들기</button></div>';
+    }
+    function keepForm() {
+      if (!$("f-kind")) return;
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.persona = $("f-persona").value.trim();
+      save("bl-pd-form", form);
+    }
+    function bindNew() {
+      $("files").addEventListener("change", function (e) { addFiles(e.target.files); e.target.value = ""; });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-persona"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      $("go").addEventListener("click", make);
+      $("grid").addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-a]"); if (!b) return;
+        var i = +b.dataset.i, a = b.dataset.a;
+        syncMemos();
+        if (a === "x") { URL.revokeObjectURL(items[i].url); items.splice(i, 1); }
+        else { var k = a === "l" ? i - 1 : i + 1; if (k < 0 || k >= items.length) return; var t = items[i]; items[i] = items[k]; items[k] = t; }
+        drawGrid();
+      });
+    }
+    function syncMemos() { main.querySelectorAll("#grid input[data-m]").forEach(function (x) { if (items[+x.dataset.m]) items[+x.dataset.m].memo = x.value; }); }
+    function addFiles(list) {
+      var fs = Array.prototype.filter.call(list || [], function (f) { return /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name); });
+      if (!fs.length) return;
+      syncMemos();
+      // 찍은 순서: 파일 시각 → 이름 순
+      fs.sort(function (a, b) { return (a.lastModified || 0) - (b.lastModified || 0) || a.name.localeCompare(b.name, undefined, { numeric: true }); });
+      var room = L.limit.maxPhotos - items.length;
+      fs.slice(0, Math.max(0, room)).forEach(function (f) { items.push({ file: f, url: URL.createObjectURL(f), memo: "" }); });
+      drawGrid();
+      msg($("nmsg"), fs.length > room ? "사진은 " + L.limit.maxPhotos + "장까지라 앞의 " + Math.max(0, room) + "장만 넣었어요." : "", fs.length > room);
+    }
+    function fileDay(f) {
+      var m = /(?:^|\D)(20\d\d)[-_.]?(\d\d)[-_.]?(\d\d)(?:\D|$)/.exec(f.name || "");
+      if (m) { var d = new Date(+m[1], +m[2] - 1, +m[3]); if (d.getDate() === +m[3] && d <= new Date()) return d; }
+      return f.lastModified ? new Date(f.lastModified) : null;
+    }
+    function visitText() {
+      var ds = items.map(function (x) { return fileDay(x.file); }).filter(Boolean).sort(function (a, b) { return a - b; });
+      if (!ds.length) return "";
+      var f = function (d) { return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일"; };
+      var a = f(ds[0]), b = f(ds[ds.length - 1]);
+      return a === b ? a : a + " ~ " + b;
+    }
+    function drawGrid() {
+      var g = $("grid"); if (!g) return;
+      g.innerHTML = items.map(function (x, i) {
+        return '<div class="pd-ph"><span class="no">' + (i + 1) + '</span><img src="' + x.url + '" alt="사진 ' + (i + 1) + '" loading="lazy">' +
+          '<input type="text" data-m="' + i + '" maxlength="80" placeholder="메모(선택)" value="' + esc(x.memo) + '" aria-label="사진 ' + (i + 1) + ' 메모">' +
+          '<div class="bar"><button type="button" data-a="l" data-i="' + i + '" aria-label="사진 ' + (i + 1) + ' 앞으로"' + (i === 0 ? " disabled" : "") + '>◀</button><button type="button" data-a="r" data-i="' + i + '" aria-label="사진 ' + (i + 1) + ' 뒤로"' + (i === items.length - 1 ? " disabled" : "") + '>▶</button><button type="button" data-a="x" data-i="' + i + '" aria-label="사진 ' + (i + 1) + ' 빼기">✕</button></div></div>';
+      }).join("");
+      var c = $("gcap"); c.hidden = !items.length; c.textContent = "사진 " + items.length + "장 · 번호 순서대로 글에 들어가요. ◀ ▶ 로 순서를 바꿀 수 있어요.";
+      var v = visitText(); $("visit").textContent = v ? "(" + v + ", 사진 날짜 기준)" : "(사진을 고르면 날짜를 찾아요)";
+    }
+
+    // ---------- 사진 줄이기 ----------
+    function bitmap(file) {
+      if (window.createImageBitmap) return createImageBitmap(file, { imageOrientation: "from-image" }).catch(function () { return viaImg(file); });
+      return viaImg(file);
+    }
+    function viaImg(file) {
+      return new Promise(function (res, rej) {
+        var u = URL.createObjectURL(file), im = new Image();
+        im.onload = function () { URL.revokeObjectURL(u); res(im); };
+        im.onerror = function () { URL.revokeObjectURL(u); rej(new Error("이 사진 형식은 열 수 없어요")); };
+        im.src = u;
+      });
+    }
+    function shrink(bmp, maxSide, q) {
+      var w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, k = Math.min(1, maxSide / Math.max(w, h));
+      var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+      var b = c.toDataURL("image/jpeg", q).split(",")[1] || "";
+      c.width = c.height = 1;
+      return b;
+    }
+    function bigOf(bmp) { // PC에서 글에 넣을 사진 (서버 한도 안에 들 때까지 조금씩 줄임)
+      var side = BIG, q = 0.84, b = shrink(bmp, side, q);
+      while (b.length > MAXB64 && side > 800) { side = Math.round(side * 0.85); q = Math.max(0.6, q - 0.06); b = shrink(bmp, side, q); }
+      return b;
+    }
+    function metaNow() {
+      return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
+        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, mission: $("f-mission").value,
+        shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
+        pmemos: items.map(function (x) { return x.memo; }) };
+    }
+
+    // ---------- 만들기 ----------
+    async function make() {
+      if (busyNow) return;
+      syncMemos(); keepForm();
+      var say = function (t, err) { msg($("nmsg"), t, err); };
+      if (!items.length) { say("먼저 사진을 골라 주세요.", true); return; }
+      busyNow = true;
+      var go = $("go"); go.disabled = true; go.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 만드는 중…';
+      var meta = metaNow(), files = items.map(function (x) { return x.file; }), n = files.length, side = n > 20 ? 768 : 1024;
+      var done = function () { busyNow = false; var g = $("go"); if (g) { g.disabled = false; g.textContent = "✨ 초안 만들기"; } };
+      try {
+        var thumbs = [];
+        for (var i = 0; i < n; i++) {
+          say("사진 준비 중… " + (i + 1) + "/" + n);
+          var bmp;
+          try { bmp = await bitmap(files[i]); } catch (e) { say("사진 " + (i + 1) + "번을 열 수 없어요. 이 사진을 빼고 다시 해 주세요. (JPG·PNG 사진만 돼요)", true); done(); return; }
+          thumbs.push(shrink(bmp, side, 0.72));
+          if (bmp.close) bmp.close();
+        }
+        say("초안 칸을 만드는 중…");
+        var j = await api("/draft/new", Object.assign({ count: n }, meta));
+        if (!j.ok) { say(j.error || "만들지 못했어요.", true); done(); return; }
+        var id = j.id;
+        curFiles = { id: id, files: files, meta: meta };
+        say("AI가 글을 쓰는 중… (보통 20~40초) 화면을 켜 둔 채로 기다려 주세요. 그동안 사진도 같이 올려요.");
+        var writing = api("/draft/write", null, JSON.stringify(Object.assign({ id: id }, meta)) + "\n" + thumbs.join("\n"));
+        thumbs = null;
+        var up = uploadAll(id, files, function (k) { say("AI가 글을 쓰는 중… 사진 올리기 " + k + "/" + n); });
+        var w = await writing;
+        if (!w.ok && w.offline) w = await waitDraft(id); // 연결이 끊겨도 서버는 끝까지 씀 → 결과를 다시 물어봄
+        var miss = await up;
+        done();
+        if (!w.ok && !(w.draft && w.draft.status === "done")) {
+          say((w.error || "AI가 글을 쓰지 못했어요.") + " 사진은 보관함에 올라가 있어요. 보관함에서 열어 ‘다시 쓰기’를 눌러 주세요.", true);
+          api("/draft/list").then(function (x) { if (x && x.ok) L = x; });
+          return;
+        }
+        items.forEach(function (x) { URL.revokeObjectURL(x.url); }); items = [];
+        showDraft(w.draft, miss, w.cut);
+      } catch (e) {
+        done(); say("오류가 났어요: " + String((e && e.message) || e), true);
+      }
+    }
+    // 큰 사진 올리기 (2장씩 같이, 실패하면 2번 더 해 봄). 못 올린 번호를 돌려줌
+    async function uploadAll(id, files, tick, only) {
+      var list = (only || files.map(function (_, i) { return i + 1; })).slice(), miss = [], doneN = 0;
+      async function one() {
+        while (list.length) {
+          var n = list.shift(), ok = false;
+          for (var t = 0; t < 3 && !ok; t++) {
+            try {
+              var bmp = await bitmap(files[n - 1]);
+              var b = bigOf(bmp); if (bmp.close) bmp.close();
+              var r = await api("/draft/photo?d=" + encodeURIComponent(id) + "&n=" + n, null, b);
+              ok = !!(r && r.ok);
+            } catch (e) {}
+            if (!ok) await new Promise(function (r) { setTimeout(r, 1500 * (t + 1)); });
+          }
+          if (!ok) miss.push(n);
+          doneN++; if (tick) tick(doneN);
+        }
+      }
+      await Promise.all([one(), one()]);
+      return miss.sort(function (a, b) { return a - b; });
+    }
+    async function waitDraft(id) {
+      for (var i = 0; i < 30; i++) {
+        await new Promise(function (r) { setTimeout(r, 4000); });
+        var g = await api("/draft/get?id=" + encodeURIComponent(id));
+        if (g.ok && g.draft.status === "done") return { ok: true, draft: g.draft };
+        if (g.ok && g.draft.status === "failed") return { ok: false, error: g.draft.err || "AI가 글을 쓰지 못했어요." };
+      }
+      return { ok: false, error: "시간이 너무 오래 걸려요." };
+    }
+
+    // ---------- 초안 보기·고치기 ----------
+    function openDraft(id) {
+      main.innerHTML = HEAD + '<div class="cm-card"><div class="pd-wait"><span class="cm-spin" aria-hidden="true"></span>초안을 여는 중…</div></div>';
+      api("/draft/get?id=" + encodeURIComponent(id)).then(function (g) {
+        if (!g.ok) { gate("열지 못했어요", esc(g.error || ""), '<div><button class="cm-btn" type="button" id="back">보관함으로</button></div>'); $("back").addEventListener("click", home); return; }
+        var miss = []; for (var n = 1; n <= g.draft.photos; n++) if (g.have.indexOf(n) < 0) miss.push(n);
+        showDraft(g.draft, miss);
+      });
+    }
+    function showDraft(d, miss, cut) {
+      cur = d; miss = miss || [];
+      var mine = curFiles && curFiles.id === d.id ? curFiles : null;
+      var need = (d.body.match(/확인 필요|직접 느낀 점 입력|✍/g) || []).length;
+      var titles = (d.titles || []).map(function (t) { return '<button class="cm-btn" type="button" data-t="' + esc(t) + '" aria-pressed="' + (t === d.title ? "true" : "false") + '">' + esc(t) + "</button>"; }).join("");
+      var note = d.status !== "done" ? (d.status === "writing" ? "AI가 아직 쓰는 중이에요. 잠시 뒤 다시 열어 주세요." : d.err || "아직 글이 없어요. ‘다시 쓰기’를 눌러 주세요.") : "";
+      main.innerHTML = HEAD +
+        '<div class="cm-card pd-card"><div class="pd-acts"><button class="cm-btn" type="button" id="back">← 보관함</button></div>' +
+        (note ? '<p class="cm-msg err" role="alert">' + esc(note) + "</p>" : "") +
+        (miss.length ? '<p class="cm-msg err" role="alert">사진 ' + d.photos + "장 중 " + miss.length + "장(" + miss.join(", ") + "번)이 아직 안 올라갔어요." + (mine ? "" : " 이 초안을 지우고 다시 만들어 주세요.") + "</p>" + (mine ? '<div class="pd-acts"><button class="cm-btn" type="button" id="reup">사진 다시 올리기</button></div>' : "") : "") +
+        (cut ? '<p class="cm-msg">글이 길어 끝이 잘렸을 수 있어요. 분량을 줄여 다시 만들어 보세요.</p>' : "") +
+        (need ? '<p class="cm-msg">“(확인 필요)”·“(직접 느낀 점 입력)”·✍ 표시가 ' + need + "곳 있어요. 여기서 고치거나 PC에서 넣은 뒤 채워 주세요.</p>" : "") +
+        (titles ? '<div class="cm-field"><span>제목 후보 (누르면 골라져요)</span><div class="pd-titles">' + titles + "</div></div>" : "") +
+        '<label class="cm-field"><span>제목</span><input class="cm-input" id="d-title" maxlength="100" value="' + esc(d.title || "") + '" autocomplete="off"></label>' +
+        '<label class="cm-field"><span>본문 (“📷 사진 N” 줄 아래 글이 그 사진 밑에 들어가요. 이 줄은 지우지 마세요)</span><textarea class="cm-input pd-body" id="d-body" maxlength="20000">' + esc(d.body || "") + "</textarea></label>" +
+        '<label class="cm-field"><span>태그</span><textarea class="cm-input" id="d-tags" maxlength="600" style="min-height:64px">' + esc(d.tags || "") + "</textarea></label>" +
+        '<div id="dmsg"></div>' +
+        '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="d-save">💾 고친 글 저장</button><button class="cm-btn" type="button" id="d-copy">📋 글 복사</button></div>' +
+        '<div class="pd-acts">' + (mine ? '<button class="cm-btn" type="button" id="d-again">🔁 다시 쓰기 (오늘 횟수 1번)</button>' : "") + '<button class="cm-btn danger" type="button" id="d-del">지우기</button></div>' +
+        '<p class="cm-cap">' + when(d.created) + " 만듦 · 사진 " + d.photos + "장 · " + left(d.expires) + (d.pc ? " · PC로 가져감 (" + when(d.pc) + ")" : "") + "</p></div>" +
+        '<div class="cm-card pd-card"><h2 class="cm-h3">PC에서 불러오기</h2><ol class="pd-steps"><li>PC 크롬에서 네이버 블로그 글쓰기 화면을 열어요.</li><li>📸 본문 작성 창에서 “📱 폰 초안”을 눌러 이 초안을 골라요.</li><li>사진과 글이 순서대로 들어가면 확인하고 예약 발행해요.</li></ol>' +
+        '<p class="cm-cap">확장 프로그램이 없으면 “📋 글 복사”로 글만 가져가고 사진은 직접 올려 주세요.</p></div>';
+      top();
+      $("back").addEventListener("click", home);
+      main.querySelectorAll("[data-t]").forEach(function (b) { b.addEventListener("click", function () {
+        $("d-title").value = b.dataset.t;
+        main.querySelectorAll("[data-t]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      }); });
+      var dm = $("dmsg");
+      $("d-save").addEventListener("click", function () {
+        api("/draft/save", { id: d.id, title: $("d-title").value, body: $("d-body").value, tags: $("d-tags").value }).then(function (j) {
+          if (j.ok) cur = j.draft;
+          msg(dm, j.ok ? "저장했어요. PC에서 불러오면 고친 글이 들어가요." : j.error || "저장하지 못했어요.", !j.ok);
+        });
+      });
+      $("d-copy").addEventListener("click", function () {
+        var body = $("d-body").value.split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n").replace(/\n{3,}/g, "\n\n");
+        var t = [$("d-title").value.trim(), body.trim(), $("d-tags").value.trim()].filter(Boolean).join("\n\n");
+        copy(t).then(function (ok) { msg(dm, ok ? "제목·본문·태그를 복사했어요. (사진 표시 줄은 뺐어요)" : "복사하지 못했어요. 글을 길게 눌러 직접 복사해 주세요.", !ok); });
+      });
+      $("d-del").addEventListener("click", function () {
+        var b = $("d-del");
+        if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "정말 지울까요? 한 번 더 누르면 지워요"; return; }
+        api("/draft/delete", { id: d.id }).then(function (j) { if (j.ok) home(); else msg(dm, j.error || "지우지 못했어요.", true); });
+      });
+      if ($("reup")) $("reup").addEventListener("click", async function () {
+        $("reup").disabled = true;
+        var m2 = await uploadAll(d.id, mine.files, function (k) { msg(dm, "사진 다시 올리는 중… " + k + "/" + miss.length); }, miss);
+        showDraft(cur, m2);
+      });
+      if ($("d-again")) $("d-again").addEventListener("click", async function () {
+        if (busyNow) return; busyNow = true;
+        var b = $("d-again"); b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 다시 쓰는 중…';
+        try {
+          var n = mine.files.length, side = n > 20 ? 768 : 1024, th = [];
+          for (var i = 0; i < n; i++) { var bmp = await bitmap(mine.files[i]); th.push(shrink(bmp, side, 0.72)); if (bmp.close) bmp.close(); }
+          msg(dm, "AI가 다시 쓰는 중… (보통 20~40초)");
+          var w = await api("/draft/write", null, JSON.stringify(Object.assign({ id: d.id }, mine.meta)) + "\n" + th.join("\n"));
+          if (!w.ok && w.offline) w = await waitDraft(d.id);
+          busyNow = false;
+          if (w.ok) showDraft(w.draft, miss, w.cut); else { msg(dm, w.error || "다시 쓰지 못했어요.", true); b.disabled = false; b.textContent = "🔁 다시 쓰기 (오늘 횟수 1번)"; }
+        } catch (e) { busyNow = false; msg(dm, "오류가 났어요: " + String((e && e.message) || e), true); b.disabled = false; b.textContent = "🔁 다시 쓰기 (오늘 횟수 1번)"; }
+      });
+    }
+    function copy(t) {
+      if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return false; });
+      return Promise.resolve(false);
+    }
+
+    // ---------- PC 연결 키 ----------
+    function keyCard() {
+      var k = L.pcKey;
+      return '<div class="cm-card pd-card"><h2 class="cm-h3">PC 연결 키</h2>' +
+        '<p class="cm-cap">PC 확장 프로그램이 내 초안을 읽을 때 쓰는 열쇠예요. 확장 프로그램의 “📱 폰 초안” 칸에 한 번만 넣으면 돼요. 이 키로는 초안을 읽기만 할 수 있어요.</p>' +
+        (k ? '<p class="cm-cap">' + when(k.made) + "에 만든 키가 있어요" + (k.used ? " · 마지막 사용 " + when(k.used) : " · 아직 쓴 적 없음") + ".</p>" : "") +
+        '<div id="kbox"></div><div class="pd-acts"><button class="cm-btn" type="button" id="k-new">' + (k ? "새 키 만들기 (옛 키는 못 쓰게 돼요)" : "PC 연결 키 만들기") + "</button>" + (k ? '<button class="pd-quiet" type="button" id="k-off">키 없애기</button>' : "") + "</div></div>";
+    }
+    function bindKey() {
+      $("k-new").addEventListener("click", function () {
+        api("/draft/key", { act: "new" }).then(function (j) {
+          if (!j.ok) { msg($("kbox"), j.error || "만들지 못했어요.", true); return; }
+          $("kbox").innerHTML = '<div class="pd-key"><code id="kval">' + esc(j.key) + '</code><button class="cm-btn pri" type="button" id="k-copy">복사</button></div><p class="cm-cap">이 키는 지금 한 번만 보여 드려요. 복사해서 PC로 보내(카톡 나에게 보내기 등) 확장 프로그램에 붙여 넣어 주세요.</p>';
+          $("k-copy").addEventListener("click", function () { copy(j.key).then(function (ok) { $("k-copy").textContent = ok ? "복사했어요" : "길게 눌러 복사해 주세요"; }); });
+        });
+      });
+      if ($("k-off")) $("k-off").addEventListener("click", function () { api("/draft/key", { act: "off" }).then(home); });
+    }
+
+    window.addEventListener("beforeunload", function (e) { if (busyNow) { e.preventDefault(); e.returnValue = ""; } });
+    home();
+  })();
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>
