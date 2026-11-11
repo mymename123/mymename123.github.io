@@ -5,7 +5,7 @@
 // 로그인을 모두에게 열기 전에는 login.html?preview=1 로 한 번 연 브라우저에만 버튼이 보임
 (function () {
   var API = "https://green-sunset-edd6.risingsk123.workers.dev";
-  var LIVE = false; // 로그인 공개하는 날 true 로 (그날 개인정보처리방침도 같이 고침)
+  var LIVE = true; // 로그인 공개함
   var TK = "bl-token", NK = "bl-nick", PV = "bl-login-preview", PK = "bl-plan", BK = "bl-tokens";
   function get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
   function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
