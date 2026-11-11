@@ -144,7 +144,7 @@
     <p class="sub" id="lead">블로그 주소만 넣으면 최근 글 10개를 읽고, 체험단 선정에 불리할 수 있는 부분과 개선 방법을 알려 드려요.</p>
     <label for="blog">네이버 블로그 주소</label>
     <div class="inrow"><input id="blog" placeholder="아이디, 블로그 이름 또는 주소" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"><button class="paste" id="paste" type="button">📋 붙여넣기</button></div>
-    <p class="hint">아이디(예: peechu_)나 <b>블로그 이름·별명</b>을 치면 칸 아래에 블로그가 떠요. <b>글 주소</b>를 넣어도 알아서 찾아요. 네이버 블로그 앱에서 <b>공유 → 링크 복사</b>한 뒤 📋를 누르면 바로 분석해요.</p>
+    <p class="hint">아이디(예: myblog123)나 <b>블로그 이름·별명</b>을 치면 칸 아래에 블로그가 떠요. <b>글 주소</b>를 넣어도 알아서 찾아요. 네이버 블로그 앱에서 <b>공유 → 링크 복사</b>한 뒤 📋를 누르면 바로 분석해요.</p>
     <div class="quick" id="quick">📱 <b>폰에서 더 빠르게</b>
       <ol id="qsteps">
         <li><b>안드로이드</b>: 브라우저 메뉴(⋮)에서 <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 눌러 주세요. 그다음부터는 네이버 블로그 앱에서 <b>공유 → 블로랩</b>만 누르면 바로 분석돼요.</li>
@@ -336,7 +336,7 @@
   async function run() {
     if (window.BlogSuggest && BlogSuggest.ask($("blog"))) return; // 블로그 이름을 쳤으면 목록에서 고르게
     const v = pickBlog($("blog").value) || pickBlog(onlyId($("blog").value)) || $("blog").value.trim();
-    if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) peechu_ 또는 https://blog.naver.com/아이디</span>"; return; }
+    if (!pickBlog(v)) { $("msg").innerHTML = "<span class='err'>네이버 블로그 주소나 아이디를 넣어 주세요. 예) myblog123 또는 https://blog.naver.com/아이디</span>"; return; }
     if (!WORKER_URL) { MODE === "adpost" ? showAd(SAMPLE_AD, true) : show(SAMPLE, true); return; }
     if (window.BLAuth && BLAuth.on() && BLAuth.token()) return runMember(v); // 로그인한 회원: 횟수·토큰 확인 뒤 진단하고 결과 저장
     // 애드센스 승인 뒤: 여기서 리워드 광고(Offerwall)를 보여 준 다음 분석을 시작하도록 연결
