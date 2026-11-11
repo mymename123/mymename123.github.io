@@ -60,6 +60,25 @@
   .pd-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--sub); }
   .pd-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .pd-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
+  .th-stage { background: #2b2d31; border-radius: 12px; padding: 8px; display: flex; justify-content: center; }
+  .th-stage canvas { display: block; width: 100%; max-width: 460px; height: auto; aspect-ratio: 1; touch-action: none; border-radius: 6px; -webkit-user-select: none; user-select: none; }
+  .th-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+  .th-ph { position: relative; flex: none; width: 84px; height: 84px; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg); color: var(--sub); font: inherit; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .th-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .th-ph i { position: absolute; left: 4px; top: 4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: rgba(14, 26, 43, .82); color: #fff; font-size: 12px; font-style: normal; font-weight: 700; line-height: 20px; }
+  .th-ph.more { border-style: dashed; padding: 6px; }
+  .th-ph input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .th-ph:focus-visible, .th-ph:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
+  .th-r { display: flex; align-items: center; gap: 12px; font-size: 14px; min-height: 44px; }
+  .th-r span { flex: none; width: 84px; color: var(--sub); }
+  .th-r input { flex: 1; min-width: 0; accent-color: var(--green); }
+  .th-sel { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--chip); }
+  .th-sel[hidden], #th-tx[hidden] { display: none; }
+  #th-tx { display: flex; flex-direction: column; gap: 12px; }
+  .th-sws { display: flex; flex-wrap: wrap; gap: 10px; }
+  .th-sw { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); padding: 0; cursor: pointer; }
+  .th-sw.on { box-shadow: 0 0 0 3px var(--green); border-color: var(--card); }
+  img.th-now { width: 100%; max-width: 280px; aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); display: block; }
   @media (min-width: 620px) { .pd-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,7 +141,7 @@
       var lim = L.limit, rest = Math.max(0, lim.daily - lim.used);
       var list = L.drafts.map(function (d) {
         var st = d.status === "done" ? (d.pc ? "PC로 가져감" : "PC에서 불러올 수 있어요") : d.status === "writing" ? "AI가 쓰는 중…" : d.status === "failed" ? "실패 · 다시 만들어 주세요" : "아직 글이 없어요";
-        return '<li><button type="button" data-open="' + esc(d.id) + '"><b>' + esc(d.title || d.shop || "제목 없는 초안") + "</b><span>" + when(d.created) + " · 사진 " + d.photos + "장 · " + st + " · " + left(d.expires) + "</span></button></li>";
+        return '<li><button type="button" data-open="' + esc(d.id) + '"><b>' + esc(d.title || d.shop || "제목 없는 초안") + "</b><span>" + when(d.created) + " · 사진 " + d.photos + "장" + (d.thumb ? " · 🖼 썸네일" : "") + " · " + st + " · " + left(d.expires) + "</span></button></li>";
       }).join("");
       main.innerHTML = HEAD +
         '<div class="cm-card pd-card"><h2 class="cm-h3">새 초안 만들기</h2>' +
@@ -354,7 +373,8 @@
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="d-save">💾 고친 글 저장</button><button class="cm-btn" type="button" id="d-copy">📋 글 복사</button></div>' +
         '<div class="pd-acts">' + (mine ? '<button class="cm-btn" type="button" id="d-again">🔁 다시 쓰기 (오늘 횟수 1번)</button>' : "") + '<button class="cm-btn danger" type="button" id="d-del">지우기</button></div>' +
         '<p class="cm-cap">' + when(d.created) + " 만듦 · 사진 " + d.photos + "장 · " + left(d.expires) + (d.pc ? " · PC로 가져감 (" + when(d.pc) + ")" : "") + "</p></div>" +
-        '<div class="cm-card pd-card"><h2 class="cm-h3">PC에서 불러오기</h2><ol class="pd-steps"><li>PC 크롬에서 네이버 블로그 글쓰기 화면을 열어요.</li><li>📸 본문 작성 창에서 “📱 폰 초안”을 눌러 이 초안을 골라요.</li><li>사진과 글이 순서대로 들어가면 확인하고 예약 발행해요.</li></ol>' +
+        (d.status === "done" ? thumbCard(d) : "") +
+        '<div class="cm-card pd-card"><h2 class="cm-h3">PC에서 불러오기</h2><ol class="pd-steps"><li>PC 크롬에서 네이버 블로그 글쓰기 화면을 열어요.</li><li>📸 본문 작성 창에서 “📱 폰 초안”을 눌러 이 초안을 골라요.</li><li>사진과 글이 순서대로 들어가면 확인하고 예약 발행해요. 썸네일을 만들어 뒀으면 글 맨 앞에 같이 들어가요.</li></ol>' +
         '<p class="cm-cap">확장 프로그램이 없으면 “📋 글 복사”로 글만 가져가고 사진은 직접 올려 주세요.</p></div>';
       top();
       $("back").addEventListener("click", home);
@@ -363,6 +383,7 @@
         main.querySelectorAll("[data-t]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
       }); });
       var dm = $("dmsg");
+      if ($("th-open")) bindThumb(d, miss);
       $("d-save").addEventListener("click", function () {
         api("/draft/save", { id: d.id, title: $("d-title").value, body: $("d-body").value, tags: $("d-tags").value }).then(function (j) {
           if (j.ok) cur = j.draft;
@@ -398,6 +419,284 @@
         } catch (e) { busyNow = false; msg(dm, "오류가 났어요: " + String((e && e.message) || e), true); b.disabled = false; b.textContent = "🔁 다시 쓰기 (오늘 횟수 1번)"; }
       });
     }
+    // ---------- 🖼 썸네일 만들기 (폰) ----------
+    // 정사각형 1080 사진: 배경 사진 1장 + 제목 글자(테두리) + ✨❤⭐. 저장하면 초안의 0번 사진으로 올라가고 PC에서 불러올 때 글 맨 앞에 들어감
+    var TSZ = 1080, thKeep = null; // thKeep: 만들던 것 (이 페이지를 떠나기 전까지)
+    var TFONT = { jua: ["Jua", "주아 (둥글둥글)"], bhs: ["Black Han Sans", "검은고딕 (굵게)"], gaegu: ["Gaegu", "개구 (손글씨)"], basic: [null, "기본 글씨"] };
+    var TFILL = ["#ffffff", "#ffd60a", "#ff3b30", "#ff8a00", "#03c75a", "#0a84ff", "#ff2d92", "#3b1d0e"];
+    var TLINE = ["#3b1d0e", "#111111", "#1e3a8a", "#ffffff"];
+    var TBASE = '"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif';
+    function tFont(L, fs) { var f = TFONT[L.font] || TFONT.basic; return f[0] ? (L.font === "gaegu" ? "700 " : "") + fs + 'px "' + f[0] + '", ' + TBASE : "900 " + fs + "px " + TBASE; }
+    function tBox(ctx, L) {
+      ctx.font = tFont(L, L.fs);
+      var lines = L.text.split("\n").filter(function (s) { return s.trim(); });
+      if (!lines.length) lines = [" "];
+      var w = 10; lines.forEach(function (s) { w = Math.max(w, ctx.measureText(s).width); });
+      var lh = L.fs * 1.12;
+      return { w: w + L.fs * 0.5, h: lines.length * lh + L.fs * 0.3, lines: lines, lh: lh };
+    }
+    function tSize(ctx, L) { return L.type === "text" ? tBox(ctx, L) : { w: L.s, h: L.s }; }
+    function tDraw(ctx, L) {
+      ctx.save(); ctx.translate(L.x, L.y); ctx.rotate((L.rot || 0) * Math.PI / 180);
+      if (L.type === "text") {
+        var b = tBox(ctx, L);
+        ctx.font = tFont(L, L.fs); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+        var light = /^#(ffffff|ffd60a)$/i.test(L.fill);
+        b.lines.forEach(function (s, i) {
+          var y = -b.h / 2 + L.fs * 0.15 + b.lh * (i + 0.5);
+          if (light || L.line === "#ffffff") { ctx.strokeStyle = L.line === "#ffffff" ? "#3b1d0e" : L.line; ctx.lineWidth = L.fs * 0.22; ctx.strokeText(s, 0, y); }
+          else { ctx.strokeStyle = L.line; ctx.lineWidth = L.fs * 0.32; ctx.strokeText(s, 0, y); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = L.fs * 0.15; ctx.strokeText(s, 0, y); }
+          ctx.fillStyle = L.fill; ctx.fillText(s, 0, y);
+        });
+      } else if (L.kind === "spark") {
+        ctx.lineCap = "round";
+        var seg = [[-0.42, -0.05, -0.14, 0.07], [-0.1, -0.45, 0.0, -0.12], [0.3, -0.38, 0.12, -0.08]];
+        [[0.2, "#3b1d0e"], [0.11, L.color]].forEach(function (p) {
+          ctx.strokeStyle = p[1]; ctx.lineWidth = L.s * p[0];
+          seg.forEach(function (g) { ctx.beginPath(); ctx.moveTo(g[0] * L.s, g[1] * L.s + L.s * 0.2); ctx.lineTo(g[2] * L.s, g[3] * L.s + L.s * 0.2); ctx.stroke(); });
+        });
+      } else {
+        var r = L.s / 2;
+        ctx.beginPath();
+        if (L.kind === "heart") { ctx.moveTo(0, r * 0.75); ctx.bezierCurveTo(-r * 1.1, 0, -r * 0.9, -r * 0.95, 0, -r * 0.4); ctx.bezierCurveTo(r * 0.9, -r * 0.95, r * 1.1, 0, 0, r * 0.75); }
+        else for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; ctx[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr); }
+        ctx.closePath(); ctx.lineJoin = "round"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = L.s * 0.12; ctx.stroke(); ctx.fillStyle = L.color; ctx.fill();
+      }
+      ctx.restore();
+    }
+    function tRender(ctx, T, sel) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "#f3ece2"; ctx.fillRect(0, 0, TSZ, TSZ);
+      if (T.bg) {
+        var b = T.bg, k = Math.max(TSZ / b.c.width, TSZ / b.c.height) * b.zoom, w = b.c.width * k, h = b.c.height * k;
+        ctx.drawImage(b.c, TSZ / 2 - w / 2 + b.ox, TSZ / 2 - h / 2 + b.oy, w, h);
+        if (b.dim > 0) { ctx.fillStyle = "rgba(0,0,0," + b.dim + ")"; ctx.fillRect(0, 0, TSZ, TSZ); }
+      }
+      T.layers.forEach(function (L) { tDraw(ctx, L); });
+      if (sel) {
+        var z = tSize(ctx, sel);
+        ctx.save(); ctx.translate(sel.x, sel.y); ctx.rotate((sel.rot || 0) * Math.PI / 180);
+        ctx.setLineDash([14, 10]); ctx.lineWidth = 4; ctx.strokeStyle = "#03c75a"; ctx.strokeRect(-z.w / 2 - 6, -z.h / 2 - 6, z.w + 12, z.h + 12);
+        ctx.restore();
+      }
+    }
+    // 제목을 1~3줄로 나누고, 가로에 맞는 글자 크기를 정함
+    function tLines(t) {
+      t = String(t || "").replace(/\s+/g, " ").trim();
+      var n = t.length <= 9 ? 1 : t.length <= 22 ? 2 : 3, words = t.split(" "), out = [], cur = "", per = t.length / n;
+      if (words.length < n) { for (var i = 0; i < n; i++) out.push(t.slice(Math.round(i * per), Math.round((i + 1) * per))); return out.join("\n"); }
+      words.forEach(function (w) {
+        if (cur && out.length < n - 1 && Math.abs(cur.length - per) <= Math.abs((cur + " " + w).length - per)) { out.push(cur); cur = w; } else cur = cur ? cur + " " + w : w;
+      });
+      if (cur) out.push(cur);
+      return out.join("\n");
+    }
+    function tFit(ctx, L, maxW) { L.fs = 170; var b = tBox(ctx, L); if (b.w > maxW) L.fs = Math.max(48, Math.floor(L.fs * maxW / b.w)); }
+    function tCanvasOf(src) { // 사진 → 긴 쪽 1600 캔버스
+      var w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, 1600 / Math.max(w, h));
+      var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+      c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+      return c;
+    }
+    function tImg(url) { return new Promise(function (res, rej) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { rej(new Error("사진을 열 수 없어요")); }; im.src = url; }); }
+    function tMime(b) { return b.slice(0, 5) === "iVBOR" ? "image/png" : "image/jpeg"; }
+    function photoText(id, n) { return A.fetch("/draft/photo?d=" + encodeURIComponent(id) + "&n=" + n).then(function (r) { return r.ok ? r.text() : ""; }).catch(function () { return ""; }); }
+
+    function thumbEditor(d, miss) {
+      var mine = curFiles && curFiles.id === d.id ? curFiles : null;
+      var T = thKeep && thKeep.id === d.id ? thKeep.T : { bg: null, layers: [], sel: null };
+      thKeep = { id: d.id, T: T };
+      var have = []; for (var n = 1; n <= d.photos; n++) if (miss.indexOf(n) < 0) have.push(n);
+      var shown = 0, STEP = mine ? 30 : 6, extra = []; // extra: 갤러리에서 따로 고른 사진
+      var sw = function (list, attr) { return list.map(function (c) { return '<button type="button" class="th-sw" ' + attr + '="' + c + '" style="background:' + c + '" aria-label="색 ' + c + '"></button>'; }).join(""); };
+      var chips = (d.titles || []).concat(d.title && (d.titles || []).indexOf(d.title) < 0 ? [d.title] : []).map(function (t) { return '<button class="cm-btn" type="button" data-tt="' + esc(t) + '">' + esc(t) + "</button>"; }).join("");
+      main.innerHTML = HEAD +
+        '<div class="cm-card pd-card"><div class="pd-acts"><button class="cm-btn" type="button" id="th-back">← 초안으로</button></div>' +
+        '<h2 class="cm-h3">🖼 썸네일 만들기</h2>' +
+        '<div class="th-stage"><canvas id="th-cv" width="' + TSZ + '" height="' + TSZ + '" aria-label="썸네일 미리 보기"></canvas></div>' +
+        '<p class="cm-cap">글자·꾸미기는 손가락으로 끌어 옮겨요. 빈 곳을 끌면 배경 사진이 움직이고, 두 손가락을 벌리면 커져요.</p>' +
+        '<div class="cm-field"><span>배경 사진 고르기</span><div class="th-strip" id="th-strip"></div></div>' +
+        '<label class="th-r"><span>배경 확대</span><input type="range" id="th-zoom" min="1" max="3" step="0.02" value="1"></label>' +
+        '<label class="th-r"><span>배경 어둡게</span><input type="range" id="th-dim" min="0" max="0.6" step="0.02" value="0"></label>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" data-add="text">＋ 글자</button><button class="cm-btn" type="button" data-add="spark">✨ 강조선</button><button class="cm-btn" type="button" data-add="heart">❤ 하트</button><button class="cm-btn" type="button" data-add="star">⭐ 별</button></div>' +
+        '<div class="th-sel" id="th-sel" hidden>' +
+          '<div id="th-tx"><label class="cm-field"><span>글자 (줄을 바꾸면 여러 줄)</span><textarea class="cm-input" id="th-text" style="min-height:72px" maxlength="80"></textarea></label>' +
+          (chips ? '<div class="cm-field"><span>제목 후보로 채우기</span><div class="pd-titles">' + chips + "</div></div>" : "") +
+          '<label class="cm-field"><span>글씨체</span><select class="cm-input" id="th-font">' + Object.keys(TFONT).map(function (k) { return '<option value="' + k + '">' + TFONT[k][1] + "</option>"; }).join("") + "</select></label>" +
+          '<div class="cm-field"><span>테두리 색</span><div class="th-sws">' + sw(TLINE, "data-line") + "</div></div></div>" +
+          '<div class="cm-field"><span>색</span><div class="th-sws">' + sw(TFILL, "data-fill") + "</div></div>" +
+          '<label class="th-r"><span>크기</span><input type="range" id="th-size" min="40" max="420" step="2"></label>' +
+          '<label class="th-r"><span>기울기</span><input type="range" id="th-rot" min="-30" max="30" step="1"></label>' +
+          '<div class="pd-acts"><button class="cm-btn danger" type="button" id="th-rm">이것 지우기</button></div>' +
+        "</div>" +
+        '<div id="th-msg"></div>' +
+        '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="th-save">💾 썸네일 저장</button><button class="cm-btn" type="button" id="th-dl">📥 폰에 사진으로 저장</button></div>' +
+        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 물건만 오려 붙이는 누끼 스티커는 아직 PC 확장 프로그램의 🖼 썸네일에서만 돼요.</p></div>';
+      top();
+      var cv = $("th-cv"), ctx = cv.getContext("2d"), tm = $("th-msg"), raf = 0;
+      function draw() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; if ($("th-cv") === cv) tRender(ctx, T, T.sel); }); }
+      function font(L) { if (L.type === "text" && TFONT[L.font][0] && document.fonts && document.fonts.load) document.fonts.load(tFont(L, 40), L.text).then(draw, draw); }
+      function sync() {
+        var L = T.sel, box = $("th-sel");
+        box.hidden = !L;
+        if (T.bg) { $("th-zoom").value = T.bg.zoom; $("th-dim").value = T.bg.dim; }
+        if (!L) return;
+        $("th-tx").hidden = L.type !== "text";
+        var sz = $("th-size");
+        if (L.type === "text") { sz.min = 40; sz.max = 320; sz.value = L.fs; $("th-text").value = L.text; $("th-font").value = L.font; }
+        else { sz.min = 60; sz.max = 700; sz.value = L.s; }
+        $("th-rot").value = L.rot || 0;
+        var col = L.type === "text" ? L.fill : L.color;
+        main.querySelectorAll("[data-fill]").forEach(function (b) { b.classList.toggle("on", b.dataset.fill === col); });
+        main.querySelectorAll("[data-line]").forEach(function (b) { b.classList.toggle("on", b.dataset.line === L.line); });
+      }
+      function select(L) { T.sel = L; sync(); draw(); }
+      function addText(t) {
+        var L = { type: "text", text: tLines(t || d.title || (d.titles || [])[0] || "제목을 써 주세요"), font: "jua", fill: "#ffffff", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: TSZ * 0.74, rot: 0 };
+        tFit(ctx, L, TSZ - 90); T.layers.push(L); font(L); select(L);
+      }
+      // 사진 줄
+      function strip() {
+        var el = $("th-strip"); if (!el) return;
+        var cells = extra.map(function (x, i) { return '<button type="button" class="th-ph" data-x="' + i + '"><img alt="고른 사진" src="' + x.url + '"></button>'; });
+        have.slice(0, shown).forEach(function (n) { cells.push('<button type="button" class="th-ph" data-n="' + n + '"><img alt="사진 ' + n + '" id="th-p' + n + '"' + (pv[n] ? ' src="' + pv[n] + '"' : "") + '><i>' + n + "</i></button>"); });
+        if (shown < have.length) cells.push('<button type="button" class="th-ph more" id="th-more">사진 더 보기</button>');
+        cells.push('<label class="th-ph more"><input type="file" id="th-file" accept="image/*">📁 다른 사진</label>');
+        el.innerHTML = cells.join("");
+        $("th-file").addEventListener("change", function (e) {
+          var f = e.target.files && e.target.files[0]; if (!f) return;
+          extra.unshift({ file: f, url: URL.createObjectURL(f) }); strip(); setBg(function () { return bitmap(f); });
+        });
+        if ($("th-more")) $("th-more").addEventListener("click", more);
+      }
+      var pv = {}, pb = {}; // 미리 보기 주소, 서버에서 받은 사진 글자
+      async function more() {
+        var from = shown; shown = Math.min(have.length, shown + STEP); strip();
+        for (var i = from; i < shown; i++) {
+          var n = have[i];
+          if (pv[n]) continue;
+          if (mine && mine.files[n - 1]) pv[n] = URL.createObjectURL(mine.files[n - 1]);
+          else { var b = await photoText(d.id, n); if (!b) continue; pb[n] = b; pv[n] = "data:" + tMime(b) + ";base64," + b; }
+          var im = $("th-p" + n); if (im) im.src = pv[n]; else if ($("th-cv") !== cv) return;
+          if (!T.bg && i === 0) pickN(n);
+        }
+      }
+      function srcOf(n) { return mine && mine.files[n - 1] ? bitmap(mine.files[n - 1]) : pv[n] ? tImg(pv[n]) : Promise.reject(new Error("사진이 아직 안 왔어요")); }
+      function pickN(n) { return setBg(function () { return srcOf(n); }); }
+      async function setBg(get) {
+        msg(tm, "배경 사진을 불러오는 중…");
+        try {
+          var src = await get(), c = tCanvasOf(src); if (src.close) src.close();
+          T.bg = { c: c, zoom: 1, ox: 0, oy: 0, dim: T.bg ? T.bg.dim : 0.12 };
+          msg(tm, ""); sync(); draw();
+        } catch (e) { msg(tm, "사진을 못 불러왔어요: " + String((e && e.message) || e), true); }
+      }
+      $("th-strip").addEventListener("click", function (e) {
+        var b = e.target.closest("button.th-ph"); if (!b) return;
+        if (b.dataset.n) pickN(+b.dataset.n);
+        else if (b.dataset.x) { var x = extra[+b.dataset.x]; if (x) setBg(function () { return bitmap(x.file); }); }
+      });
+      // 손가락
+      var pts = {}, grab = null;
+      function pos(e) { var r = cv.getBoundingClientRect(), k = TSZ / r.width; return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k }; }
+      function hit(p) {
+        for (var i = T.layers.length - 1; i >= 0; i--) {
+          var L = T.layers[i], z = tSize(ctx, L), a = -(L.rot || 0) * Math.PI / 180, dx = p.x - L.x, dy = p.y - L.y;
+          var lx = dx * Math.cos(a) - dy * Math.sin(a), ly = dx * Math.sin(a) + dy * Math.cos(a);
+          if (Math.abs(lx) <= z.w / 2 + 24 && Math.abs(ly) <= z.h / 2 + 24) return L;
+        }
+        return null;
+      }
+      function two() { var k = Object.keys(pts); if (k.length < 2) return 0; var a = pts[k[0]], b = pts[k[1]]; return Math.hypot(a.x - b.x, a.y - b.y); }
+      cv.addEventListener("pointerdown", function (e) {
+        e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+        var p = pos(e); pts[e.pointerId] = p;
+        if (Object.keys(pts).length === 1) {
+          var L = hit(p);
+          if (L !== T.sel) select(L);
+          grab = L ? { L: L, dx: p.x - L.x, dy: p.y - L.y } : T.bg ? { bg: true, sx: p.x, sy: p.y, ox: T.bg.ox, oy: T.bg.oy } : null;
+        } else {
+          var t = T.sel;
+          grab = { pinch: two(), base: t ? (t.type === "text" ? t.fs : t.s) : T.bg ? T.bg.zoom : 1, L: t };
+        }
+      });
+      cv.addEventListener("pointermove", function (e) {
+        if (!pts[e.pointerId] || !grab) return;
+        var p = pos(e); pts[e.pointerId] = p;
+        if (grab.pinch) {
+          var k = two() / grab.pinch, L = grab.L; if (!isFinite(k) || k <= 0) return;
+          if (L && L.type === "text") L.fs = Math.max(40, Math.min(320, grab.base * k));
+          else if (L) L.s = Math.max(60, Math.min(700, grab.base * k));
+          else if (T.bg) T.bg.zoom = Math.max(1, Math.min(3, grab.base * k));
+          sync();
+        } else if (grab.L) { grab.L.x = Math.max(0, Math.min(TSZ, p.x - grab.dx)); grab.L.y = Math.max(0, Math.min(TSZ, p.y - grab.dy)); }
+        else if (grab.bg) { T.bg.ox = grab.ox + p.x - grab.sx; T.bg.oy = grab.oy + p.y - grab.sy; }
+        draw();
+      });
+      var up = function (e) { delete pts[e.pointerId]; grab = null; };
+      cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+      // 조절
+      $("th-zoom").addEventListener("input", function (e) { if (T.bg) { T.bg.zoom = +e.target.value; draw(); } });
+      $("th-dim").addEventListener("input", function (e) { if (T.bg) { T.bg.dim = +e.target.value; draw(); } });
+      $("th-size").addEventListener("input", function (e) { var L = T.sel; if (!L) return; if (L.type === "text") L.fs = +e.target.value; else L.s = +e.target.value; draw(); });
+      $("th-rot").addEventListener("input", function (e) { if (T.sel) { T.sel.rot = +e.target.value; draw(); } });
+      $("th-text").addEventListener("input", function (e) { var L = T.sel; if (L && L.type === "text") { L.text = e.target.value; font(L); draw(); } });
+      $("th-font").addEventListener("change", function (e) { var L = T.sel; if (L && L.type === "text") { L.font = e.target.value; font(L); draw(); } });
+      $("th-rm").addEventListener("click", function () { T.layers = T.layers.filter(function (x) { return x !== T.sel; }); select(null); });
+      main.querySelectorAll("[data-fill]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (!L) return; if (L.type === "text") L.fill = b.dataset.fill; else L.color = b.dataset.fill; sync(); draw(); }); });
+      main.querySelectorAll("[data-line]").forEach(function (b) { b.addEventListener("click", function () { if (T.sel && T.sel.type === "text") { T.sel.line = b.dataset.line; sync(); draw(); } }); });
+      main.querySelectorAll("[data-tt]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (L && L.type === "text") { L.text = tLines(b.dataset.tt); tFit(ctx, L, TSZ - 90); font(L); sync(); draw(); } }); });
+      main.querySelectorAll("[data-add]").forEach(function (b) { b.addEventListener("click", function () {
+        var k = b.dataset.add;
+        if (k === "text") return addText(T.layers.some(function (x) { return x.type === "text"; }) ? "글자" : "");
+        var L = { type: "deco", kind: k, color: k === "heart" ? "#ff3b30" : "#ffd60a", s: k === "spark" ? 260 : 170, x: TSZ * 0.5, y: TSZ * 0.3, rot: 0 };
+        T.layers.push(L); select(L);
+      }); });
+      function back(note) { showDraft(cur, miss); if (note) msg($("dmsg"), note); }
+      $("th-back").addEventListener("click", function () { back(); });
+      function flat() {
+        var c = document.createElement("canvas"); c.width = c.height = TSZ; tRender(c.getContext("2d"), T, null);
+        var q = 0.9, b = c.toDataURL("image/jpeg", q).split(",")[1] || "";
+        while (b.length > MAXB64 && q > 0.5) { q -= 0.1; b = c.toDataURL("image/jpeg", q).split(",")[1] || ""; }
+        return b;
+      }
+      $("th-save").addEventListener("click", async function () {
+        if (!T.bg && !T.layers.length) return msg(tm, "배경 사진을 고르거나 글자를 넣어 주세요.", true);
+        var bt = $("th-save"); bt.disabled = true; msg(tm, "썸네일을 저장하는 중…");
+        var r = await api("/draft/photo?d=" + encodeURIComponent(d.id) + "&n=0", null, flat());
+        if (r && r.ok) { cur.thumb = true; back("썸네일을 저장했어요. PC에서 불러오면 글 맨 앞에 들어가요."); }
+        else { bt.disabled = false; msg(tm, (r && r.error) || "저장하지 못했어요. 다시 눌러 주세요.", true); }
+      });
+      $("th-dl").addEventListener("click", function () {
+        if (!T.bg && !T.layers.length) return msg(tm, "배경 사진을 고르거나 글자를 넣어 주세요.", true);
+        var a = document.createElement("a"); a.href = "data:image/jpeg;base64," + flat(); a.download = "썸네일-" + new Date().toISOString().slice(0, 10) + ".jpg";
+        document.body.appendChild(a); a.click(); a.remove();
+        msg(tm, "사진으로 내려받았어요. 안 보이면 위 미리 보기를 길게 눌러 저장해 주세요.");
+      });
+      // 시작
+      if (!document.getElementById("th-fonts")) { var lk = document.createElement("link"); lk.id = "th-fonts"; lk.rel = "stylesheet"; lk.href = "https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&family=Gaegu:wght@700&display=swap"; document.head.appendChild(lk); }
+      T.layers.forEach(font);
+      if (!T.layers.length) addText(""); else { sync(); draw(); }
+      if (!have.length) msg(tm, "이 초안의 사진이 서버에 없어요. ‘📁 다른 사진’으로 갤러리에서 골라 주세요.");
+      strip(); more();
+    }
+    // 초안 화면의 썸네일 칸
+    function thumbCard(d) {
+      return '<div class="cm-card pd-card"><h2 class="cm-h3">🖼 썸네일</h2><div id="th-now"></div>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="th-open">' + (d.thumb ? "썸네일 다시 만들기" : "썸네일 만들기") + "</button>" + (d.thumb ? '<button class="pd-quiet" type="button" id="th-del">썸네일 지우기</button>' : "") + "</div>" +
+        '<p class="cm-cap">' + (d.thumb ? "PC에서 이 초안을 불러오면 글 맨 앞에 같이 들어가요." : "사진 한 장에 제목 글자를 올려 정사각형 썸네일을 만들어요. PC에서 불러올 때 글 맨 앞에 같이 들어가요.") + "</p></div>";
+    }
+    function bindThumb(d, miss) {
+      $("th-open").addEventListener("click", function () {
+        cur.title = $("d-title").value; cur.body = $("d-body").value; cur.tags = $("d-tags").value; // 고치던 글이 화면에서 사라지지 않게
+        thumbEditor(cur, miss);
+      });
+      if ($("th-del")) $("th-del").addEventListener("click", function () {
+        api("/draft/photo?d=" + encodeURIComponent(d.id) + "&n=0", null, "del").then(function (j) { if (j.ok) { cur.thumb = false; cur.title = $("d-title").value; cur.body = $("d-body").value; cur.tags = $("d-tags").value; showDraft(cur, miss); } });
+      });
+      if (d.thumb) photoText(d.id, 0).then(function (b) { var el = $("th-now"); if (el && b && cur && cur.id === d.id) el.innerHTML = '<img class="th-now" alt="저장한 썸네일" src="data:' + tMime(b) + ";base64," + b + '">'; });
+    }
+
     function copy(t) {
       if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return false; });
       return Promise.resolve(false);
