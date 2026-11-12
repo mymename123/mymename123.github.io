@@ -61,6 +61,9 @@
   .pd-re { position: relative; }
   .pd-re input { position: absolute; width: 1px; height: 1px; opacity: 0; }
   .pd-re:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
+  .pd-qa { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--chip); }
+  .pd-qa > div { display: flex; flex-direction: column; gap: 10px; }
+  .pd-qa p { margin: 0; }
   .pd-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .pd-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
   .th-stage { background: #2b2d31; border-radius: 12px; padding: 8px; display: flex; justify-content: center; }
@@ -165,16 +168,33 @@
     }
 
     // ---------- 새 초안 ----------
+    // 빠른 질문: 직접 겪은 것을 한두 마디로 답하면 AI가 그걸 살려 씀 (사진만으로는 맛·느낌을 알 수 없어서)
+    var QS = {
+      "0": ["누구와, 어떻게 가게 됐나요?", "뭘 주문했고 맛은 어땠나요?", "특히 좋았던 점은?", "아쉬운 점이나 알려줄 팁은?", "다시 갈 건가요? 누구에게 추천?"],
+      "1": ["누구와, 왜 여기로 갔나요?", "가장 좋았던 곳·순간은?", "비용·걸린 시간은?", "아쉬운 점이나 알려줄 팁은?", "누구에게 추천하나요?"],
+      "2": ["이 숙소를 고른 이유는?", "객실·청결은 어땠나요?", "특히 좋았던 점은?", "아쉬운 점은?", "다시 묵을 건가요?"],
+      "3": ["왜 샀나요?", "써 보니 어땠나요?", "좋은 점은?", "아쉬운 점은?", "누구에게 추천하나요?"],
+      "4": ["어디서 봤나요?", "눈에 띈 점은?", "누구에게 좋을까요?"],
+      "5": ["오늘 뭘 했나요?", "기억에 남는 것은?", "느낀 점은?"],
+      "-1": ["무슨 내용의 글인가요?", "꼭 넣고 싶은 말은?"]
+    };
+    var qaKeep = {}; // 질문 → 적던 답 (글 종류를 바꿔도 안 지워지게)
+    function qaHtml() {
+      return (QS[String(+form.kind)] || QS["-1"]).map(function (q, i) { return '<label class="cm-field"><span>' + esc(q) + '</span><input class="cm-input" data-q="' + esc(q) + '" maxlength="200" autocomplete="off" value="' + esc(qaKeep[q] || "") + '"' + (i === 1 ? ' placeholder="예) 순대국 특, 국물이 진하고 순대가 푸짐했음"' : "") + "></label>"; }).join("");
+    }
+    function qaRead() { main.querySelectorAll("[data-q]").forEach(function (x) { qaKeep[x.dataset.q] = x.value; }); }
+    function qaNow() { qaRead(); return (QS[String(+form.kind)] || QS["-1"]).map(function (q) { return { q: q, a: (qaKeep[q] || "").trim() }; }).filter(function (x) { return x.a; }); }
     function newForm() {
       var kinds = L.kinds.map(function (k, i) { return '<option value="' + i + '"' + (+form.kind === i ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + '<option value="-1"' + (+form.kind === -1 ? " selected" : "") + ">자유 형식 (틀 없이)</option>";
       var sel = function (id, map, v) { return '<select class="cm-input" id="' + id + '">' + Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (v === k ? " selected" : "") + ">" + map[k] + "</option>"; }).join("") + "</select>"; };
-      return '<label class="pd-pick"><input type="file" id="files" accept="image/*" multiple><b>📷 사진 고르기</b><span class="cm-cap">갤러리에서 글에 넣을 사진을 순서대로 골라 주세요</span></label>' +
+      return '<label class="pd-pick"><input type="file" id="files" accept="image/*" multiple><b>📷 사진 고르기</b><span class="cm-cap">갤러리에서 글에 넣을 순서대로 골라 주세요. 고른 순서대로 번호가 붙어요</span></label>' +
         '<div class="pd-grid" id="grid"></div><p class="cm-cap" id="gcap" hidden></p>' +
         '<div class="pd-row"><label class="cm-field"><span>글 종류</span><select class="cm-input" id="f-kind">' + kinds + "</select></label>" +
         '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
         '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
-        '<label class="cm-field"><span>한 줄 메모 (직접 느낀 점을 적을수록 정확해요)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 플레인이 제일 맛있음, 주차는 건물 뒤"></textarea></label>' +
+        '<div class="pd-qa"><b>빠른 질문 (한두 마디만 답해도 글이 훨씬 좋아져요)</b><p class="cm-cap">맛·느낌은 사진만으로 알 수 없어요. 답한 내용은 AI가 그대로 살려서 써요. 비워 둔 칸은 건너뛰어요.</p><div id="qa">' + qaHtml() + "</div></div>" +
+        '<label class="cm-field"><span>그 밖의 메모 (선택)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 주차는 건물 뒤, 포장도 됨"></textarea></label>' +
         '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
         '<label class="cm-field"><span>제목 초안 (선택)</span><input class="cm-input" id="f-td" maxlength="100" placeholder="예) 성수동 소금빵 후기" autocomplete="off"></label></div>' +
         '<label class="pd-chk"><input type="checkbox" id="f-visit" checked><span>방문일 넣기 <span class="cm-cap" id="visit"></span></span></label>' +
@@ -187,18 +207,20 @@
         '<textarea class="cm-input" id="f-mission" maxlength="3000" placeholder="캠페인 안내문(리뷰어 미션, 필수 키워드, 꼭 쓸 내용)을 붙여 넣어 주세요"></textarea></div></details>' +
         '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
         '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
-        '<p class="cm-cap">이 기기에만 저장되고, 초안을 만들 때 AI에게 같이 보내요.</p></div></details>' +
+        '<textarea class="cm-input" id="f-sample" maxlength="1200" style="min-height:140px" placeholder="내가 직접 쓴 블로그 글 일부를 붙여 넣으면 그 말투를 따라 써요 (선택, 1200자까지)">' + esc(form.sample || "") + "</textarea>" +
+        '<p class="cm-cap">이 기기에만 저장되고, 초안을 만들 때 AI에게 같이 보내요. 글 예시는 말투만 따라 하고 내용은 가져오지 않아요.</p></div></details>' +
         '<div id="nmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="go">✨ 초안 만들기</button></div>';
     }
     function keepForm() {
       if (!$("f-kind")) return;
-      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.persona = $("f-persona").value.trim();
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
       save("bl-pd-form", form);
     }
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
-      ["f-kind", "f-tone", "f-len", "f-spon", "f-persona"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      $("f-kind").addEventListener("change", function () { qaRead(); form.kind = +$("f-kind").value; $("qa").innerHTML = qaHtml(); });
       $("go").addEventListener("click", make);
       $("grid").addEventListener("click", function (e) {
         var b = e.target.closest("button[data-a]"); if (!b) return;
@@ -212,8 +234,7 @@
     function syncMemos() { main.querySelectorAll("#grid input[data-m]").forEach(function (x) { if (items[+x.dataset.m]) items[+x.dataset.m].memo = x.value; }); }
     function pickSort(list) {
       var fs = Array.prototype.filter.call(list || [], function (f) { return /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name); });
-      // 찍은 순서: 파일 시각 → 이름 순
-      return fs.sort(function (a, b) { return (a.lastModified || 0) - (b.lastModified || 0) || a.name.localeCompare(b.name, undefined, { numeric: true }); });
+      return fs; // (2026-11-12 동혁) 고른 순서 그대로. 순서는 ◀ ▶ 로 바꿈
     }
     // 사진 1장을 읽어 큰 사진(PC용)과 작은 미리 보기로 줄임. 못 읽으면 한 번 더 해 봄
     async function prep(f) {
@@ -295,7 +316,7 @@
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
         visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
-        pmemos: items.map(function (x) { return x.memo; }) };
+        pmemos: items.map(function (x) { return x.memo; }), qa: qaNow(), sample: $("f-sample").value };
     }
 
     // ---------- 만들기 ----------
@@ -333,7 +354,7 @@
           api("/draft/list").then(function (x) { if (x && x.ok) L = x; });
           return;
         }
-        items = [];
+        items = []; qaKeep = {};
         showDraft(w.draft, miss, w.cut, upErr);
       } catch (e) {
         done(); say("오류가 났어요: " + String((e && e.message) || e), true);
@@ -389,7 +410,7 @@
         (note ? '<p class="cm-msg err" role="alert">' + esc(note) + "</p>" : "") +
         (miss.length ? '<p class="cm-msg err" role="alert">사진 ' + d.photos + "장 중 " + miss.length + "장(" + miss.join(", ") + "번)이 아직 안 올라갔어요." + (why ? " (이유: " + esc(why) + ")" : "") + "</p>" +
           '<div class="pd-acts">' + (mine ? '<button class="cm-btn" type="button" id="reup">사진 다시 올리기</button>' : "") + '<label class="cm-btn pd-re"><input type="file" id="repick" accept="image/*" multiple>빠진 사진 ' + miss.length + "장 다시 고르기</label></div>" +
-          '<p class="cm-cap">다시 고를 때는 빠진 사진 ' + miss.length + "장만 골라 주세요. 찍은 순서대로 " + miss.join(", ") + "번 자리에 들어가요.</p>" : "") +
+          '<p class="cm-cap">다시 고를 때는 빠진 사진 ' + miss.length + "장만 골라 주세요. 고른 순서대로 " + miss.join(", ") + "번 자리에 들어가요.</p>" : "") +
         (cut ? '<p class="cm-msg">글이 길어 끝이 잘렸을 수 있어요. 분량을 줄여 다시 만들어 보세요.</p>' : "") +
         (need ? '<p class="cm-msg">“(확인 필요)”·“(직접 느낀 점 입력)”·✍ 표시가 ' + need + "곳 있어요. 여기서 고치거나 PC에서 넣은 뒤 채워 주세요.</p>" : "") +
         (titles ? '<div class="cm-field"><span>제목 후보 (누르면 골라져요)</span><div class="pd-titles">' + titles + "</div></div>" : "") +
