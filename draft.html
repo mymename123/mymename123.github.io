@@ -64,6 +64,8 @@
   .pd-qa { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--chip); }
   .pd-qa > div { display: flex; flex-direction: column; gap: 10px; }
   .pd-qa p { margin: 0; }
+  .pd-place { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .pd-place p { margin: 0; overflow-wrap: anywhere; }
   .pd-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .pd-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
   .th-stage { background: #2b2d31; border-radius: 12px; padding: 8px; display: flex; justify-content: center; }
@@ -85,6 +87,11 @@
   .th-font { flex: none; min-height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font-size: 22px; cursor: pointer; white-space: nowrap; }
   .th-font.on { border-color: var(--green); box-shadow: 0 0 0 2px var(--green); }
   .th-font:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .th-mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .th-mode .cm-btn[aria-pressed="true"] { border-color: var(--green); background: var(--chip); box-shadow: 0 0 0 2px var(--green); }
+  #th-stk { display: flex; flex-direction: column; gap: 12px; }
+  #th-stk[hidden], #th-colf[hidden] { display: none; }
+  #th-stk p { margin: 0; }
   .th-sws { display: flex; flex-wrap: wrap; gap: 10px; }
   .th-sw { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); padding: 0; cursor: pointer; }
   .th-sw.on { box-shadow: 0 0 0 3px var(--green); border-color: var(--card); }
@@ -193,6 +200,7 @@
         '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
         '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="pbox"></div>' +
         '<div class="pd-qa"><b>빠른 질문 (한두 마디만 답해도 글이 훨씬 좋아져요)</b><p class="cm-cap">맛·느낌은 사진만으로 알 수 없어요. 답한 내용은 AI가 그대로 살려서 써요. 비워 둔 칸은 건너뛰어요.</p><div id="qa">' + qaHtml() + "</div></div>" +
         '<label class="cm-field"><span>그 밖의 메모 (선택)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 주차는 건물 뒤, 포장도 됨"></textarea></label>' +
         '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
@@ -200,7 +208,7 @@
         '<label class="pd-chk"><input type="checkbox" id="f-visit" checked><span>방문일 넣기 <span class="cm-cap" id="visit"></span></span></label>' +
         '<details class="pd-more"><summary>가게 정보 직접 적기 (아는 것만)</summary><div>' +
         '<input class="cm-input" id="f-addr" maxlength="120" placeholder="📌 주소" autocomplete="off"><input class="cm-input" id="f-phone" maxlength="30" placeholder="📞 전화" autocomplete="off">' +
-        '<input class="cm-input" id="f-hours" maxlength="120" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
+        '<input class="cm-input" id="f-hours" maxlength="300" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
         '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
         '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글 (뼈대만 만들기)</summary><div>' +
         '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 다 써 주지 않고, 꼭 들어갈 키워드·내용만 짧은 멘트로 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
@@ -212,6 +220,36 @@
         '<div id="nmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="go">✨ 초안 만들기</button></div>';
     }
+    // 네이버 지도에서 가게 정보·메뉴 가져오기 (서버 /draft/place). place = { q: 찾은 이름, p: 가게 정보 }
+    var place = null;
+    function placeBox() {
+      var el = $("pbox"); if (!el) return;
+      if (!place) { el.innerHTML = ""; return; }
+      var p = place.p, ms = p.menus || [];
+      el.innerHTML = '<div class="pd-place"><b>✅ ' + esc(p.name) + "</b>" + (p.category ? ' <span class="cm-cap">' + esc(p.category) + "</span>" : "") +
+        '<p class="cm-cap">' + [p.addr && "📌 " + esc(p.addr), p.hours && "🕐 " + esc(p.hours), p.parking && "🚗 " + esc(p.parking), p.phone && "📞 " + esc(p.phone)].filter(Boolean).join("<br>") + "</p>" +
+        (ms.length ? '<label class="pd-chk"><input type="checkbox" id="f-menus" checked><span>지도에 등록된 메뉴·가격 ' + ms.length + "개를 글에 쓰기</span></label>" +
+          '<p class="cm-cap">' + ms.slice(0, 8).map(function (m) { return "· " + esc(m.name) + " " + esc(m.price); }).join("<br>") + (ms.length > 8 ? "<br>외 " + (ms.length - 8) + "개" : "") + "</p>" : '<p class="cm-cap">지도에 등록된 메뉴는 찾지 못했어요.</p>') +
+        '<p class="cm-cap">다른 가게가 나왔으면 이름 앞에 지역을 붙여 다시 찾아 주세요. 아래 “가게 정보 직접 적기”에서 고칠 수 있어요.</p></div>';
+    }
+    async function findPlace(quiet) {
+      var q = $("f-shop").value.trim(), say = function (t, e) { msg($("nmsg"), t, e); };
+      if (!q) { if (!quiet) say("가게·상품 이름을 먼저 적어 주세요. 지역을 같이 적으면 더 잘 찾아요. (예: 의정부 ○○국밥)", true); return false; }
+      var bt = $("f-find"); if (bt) { bt.disabled = true; bt.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 지도에서 찾는 중…'; }
+      var j = await api("/draft/place", { q: q });
+      if (bt) { bt.disabled = false; bt.textContent = "🔍 네이버 지도에서 가게 정보 찾기"; }
+      if (!$("f-shop")) return false;
+      if (!j || !j.ok || !j.place) {
+        place = { q: q, p: null }; placeBox2();
+        if (!quiet) say(((j && j.error) || "지도에서 찾지 못했어요.") + (j && j.log ? " [" + j.log.join(" / ") + "]" : ""), true);
+        return false;
+      }
+      place = { q: q, p: j.place }; placeBox();
+      [["f-addr", j.place.addr], ["f-phone", j.place.phone], ["f-hours", j.place.hours], ["f-park", j.place.parking]].forEach(function (x) { if (x[1] && $(x[0])) $(x[0]).value = x[1]; });
+      if (!quiet) say("지도에서 가게 정보를 가져왔어요. 맞는 가게인지 확인해 주세요.");
+      return true;
+    }
+    function placeBox2() { var el = $("pbox"); if (el) el.innerHTML = ""; }
     function keepForm() {
       if (!$("f-kind")) return;
       form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
@@ -222,6 +260,9 @@
       ["f-kind", "f-tone", "f-len", "f-spon", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
       $("f-kind").addEventListener("change", function () { qaRead(); form.kind = +$("f-kind").value; $("qa").innerHTML = qaHtml(); });
       $("go").addEventListener("click", make);
+      $("f-find").addEventListener("click", function () { findPlace(false); });
+      $("f-shop").addEventListener("input", function () { if (place && place.q !== $("f-shop").value.trim()) { place = null; placeBox2(); } });
+      if (place && place.p) placeBox();
       $("grid").addEventListener("click", function (e) {
         var b = e.target.closest("button[data-a]"); if (!b) return;
         var i = +b.dataset.i, a = b.dataset.a;
@@ -316,7 +357,8 @@
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
         visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
-        pmemos: items.map(function (x) { return x.memo; }), qa: qaNow(), sample: $("f-sample").value };
+        pmemos: items.map(function (x) { return x.memo; }), qa: qaNow(), sample: $("f-sample").value,
+        menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
     }
 
     // ---------- 만들기 ----------
@@ -328,6 +370,8 @@
       if (!items.length) { say("먼저 사진을 골라 주세요.", true); return; }
       busyNow = true;
       var go = $("go"); go.disabled = true; go.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 만드는 중…';
+      // 가게 이름을 적었는데 아직 지도에서 안 찾았으면 먼저 찾아서 주소·영업시간·메뉴를 채움 (못 찾아도 그대로 진행)
+      if ($("f-shop").value.trim() && !(place && place.q === $("f-shop").value.trim())) { say("네이버 지도에서 가게 정보를 찾는 중…"); try { await findPlace(true); } catch (e) {} }
       var meta = metaNow(), b64s = items.map(function (x) { return x.b64; }), prev = items.map(function (x) { return x.url; }), n = b64s.length, side = n > 20 ? 768 : 1024;
       var done = function () { busyNow = false; var g = $("go"); if (g) { g.disabled = false; g.textContent = "✨ 초안 만들기"; } };
       try {
@@ -354,7 +398,7 @@
           api("/draft/list").then(function (x) { if (x && x.ok) L = x; });
           return;
         }
-        items = []; qaKeep = {};
+        items = []; qaKeep = {}; place = null;
         showDraft(w.draft, miss, w.cut, upErr);
       } catch (e) {
         done(); say("오류가 났어요: " + String((e && e.message) || e), true);
@@ -512,10 +556,14 @@
       var lh = L.fs * 1.12;
       return { w: w + L.fs * 0.5, h: lines.length * lh + L.fs * 0.3, lines: lines, lh: lh };
     }
-    function tSize(ctx, L) { return L.type === "text" ? tBox(ctx, L) : { w: L.s, h: L.s }; }
+    function tSize(ctx, L) { return L.type === "text" ? tBox(ctx, L) : L.type === "sticker" ? { w: L.s, h: L.s * L.c.height / L.c.width } : { w: L.s, h: L.s }; }
     function tDraw(ctx, L) {
       ctx.save(); ctx.translate(L.x, L.y); ctx.rotate((L.rot || 0) * Math.PI / 180);
-      if (L.type === "text") {
+      if (L.type === "sticker") {
+        var z = tSize(ctx, L);
+        ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
+        ctx.drawImage(L.c, -z.w / 2, -z.h / 2, z.w, z.h);
+      } else if (L.type === "text") {
         var b = tBox(ctx, L);
         ctx.font = tFont(L, L.fs); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
         var light = /^#(ffffff|ffd60a)$/i.test(L.fill);
@@ -569,8 +617,8 @@
       return out.join("\n");
     }
     function tFit(ctx, L, maxW) { L.fs = 170; var b = tBox(ctx, L); if (b.w > maxW) L.fs = Math.max(48, Math.floor(L.fs * maxW / b.w)); }
-    function tCanvasOf(src) { // 사진 → 긴 쪽 1600 캔버스
-      var w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, 1600 / Math.max(w, h));
+    function tCanvasOf(src, max) { // 사진 → 긴 쪽 1600(또는 max) 캔버스
+      var w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, (max || 1600) / Math.max(w, h));
       var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
       c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
       return c;
@@ -579,6 +627,46 @@
     function tMime(b) { return b.slice(0, 5) === "iVBOR" ? "image/png" : "image/jpeg"; }
     function photoText(id, n) { return A.fetch("/draft/photo?d=" + encodeURIComponent(id) + "&n=" + n).then(function (r) { return r.ok ? r.text() : ""; }).catch(function () { return ""; }); }
 
+    // ✂ 누끼 스티커: seg.js(색으로 물건 영역 찾기, AI 아님)를 쓸 때만 불러옴
+    var segP = null;
+    function segLoad() {
+      if (window.BLSeg) return Promise.resolve();
+      return segP || (segP = new Promise(function (res, rej) { var sc = document.createElement("script"); sc.src = "seg.js?v=1"; sc.onload = function () { res(); }; sc.onerror = function () { segP = null; rej(new Error("누끼 기능을 불러오지 못했어요")); }; document.head.appendChild(sc); }));
+    }
+    function tMk(w, h) { var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; }
+    function tDilate(M, r) { // 영역을 r 만큼 부풀림 (테두리용)
+      var c = tMk(M.width, M.height), x = c.getContext("2d");
+      [r, r * 0.7, r * 0.4].forEach(function (rad) { for (var k = 0; k < 28; k++) { var a = k / 28 * Math.PI * 2; x.drawImage(M, Math.cos(a) * rad, Math.sin(a) * rad); } });
+      x.drawImage(M, 0, 0);
+      return c;
+    }
+    // 스티커 그림 만들기: L.pc(사진), L.im(작은 사진 점), L.score(물건 점수), L.adj(범위), L.shape(cut|round)
+    function tSticker(L) {
+      var S = window.BLSeg, im = L.im, w = im.w, h = im.h, m = null, info = null;
+      if (L.shape !== "round") { m = S.maskFromScore(im, L.score, L.adj || 0); info = S.maskInfo(m, w, h); if (!info.n || info.n < w * h * 0.03) m = null; }
+      if (!m) { // 동그라미 (누끼가 안 잡힐 때도 이쪽으로)
+        m = new Uint8Array(w * h);
+        var r = Math.min(w, h) * (0.4 + (L.adj || 0) * 0.008), cx = w / 2, cy = h / 2;
+        for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r) m[y * w + x] = 1;
+        info = S.maskInfo(m, w, h);
+      }
+      var mc = tMk(w, h), mx = mc.getContext("2d"), id = mx.createImageData(w, h);
+      for (var i = 0; i < w * h; i++) if (m[i]) id.data[i * 4 + 3] = 255;
+      mx.putImageData(id, 0, 0);
+      var W = L.pc.width, H = L.pc.height, k = W / w, U = tMk(W, H), ux = U.getContext("2d");
+      ux.imageSmoothingEnabled = true; ux.imageSmoothingQuality = "high"; ux.drawImage(mc, 0, 0, W, H);
+      var b = info.box, size = Math.min(b.x1 - b.x0, b.y1 - b.y0) * k, t1 = Math.max(6, size * 0.035), pad = Math.ceil(t1 + 6);
+      var out = tMk(W, H), o = out.getContext("2d"), ring = tDilate(U, t1), rx = ring.getContext("2d");
+      rx.globalCompositeOperation = "source-in"; rx.fillStyle = "#ffffff"; rx.fillRect(0, 0, W, H);
+      o.drawImage(ring, 0, 0);
+      var ph = tMk(W, H), px = ph.getContext("2d");
+      px.drawImage(L.pc, 0, 0); px.globalCompositeOperation = "destination-in"; px.drawImage(U, 0, 0);
+      o.drawImage(ph, 0, 0);
+      var x0 = Math.max(0, Math.floor(b.x0 * k - pad)), y0 = Math.max(0, Math.floor(b.y0 * k - pad)), x1 = Math.min(W, Math.ceil(b.x1 * k + pad)), y1 = Math.min(H, Math.ceil(b.y1 * k + pad));
+      var c = tMk(x1 - x0, y1 - y0); c.getContext("2d").drawImage(out, -x0, -y0);
+      L.c = c; L.v = (L.v || 0) + 1;
+      return L;
+    }
     function thumbEditor(d, miss) {
       var mine = curFiles && curFiles.id === d.id ? curFiles : null;
       if (!(thKeep && thKeep.id === d.id)) thKeep = { id: d.id, T: { bg: null, layers: [], sel: null }, H: { list: [], i: -1 }, seq: 0 };
@@ -594,9 +682,9 @@
         '<div class="cm-card pd-card"><div class="pd-acts"><button class="cm-btn" type="button" id="th-back">← 초안으로</button></div>' +
         '<h2 class="cm-h3">🖼 썸네일 만들기</h2>' +
         '<div class="th-stage"><canvas id="th-cv" width="' + TSZ + '" height="' + TSZ + '" aria-label="썸네일 미리 보기"></canvas></div>' +
-        '<div class="pd-acts"><button class="cm-btn" type="button" id="th-undo" disabled>↩ 되돌리기</button><button class="cm-btn" type="button" id="th-redo" disabled>↪ 다시 하기</button></div>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="th-undo" disabled>↩ 되돌리기</button><button class="cm-btn" type="button" id="th-redo" disabled>↪ 다시 하기</button><button class="cm-btn" type="button" id="th-auto">✨ 자동으로 만들기</button></div>' +
         '<p class="cm-cap">글자·꾸미기는 손가락으로 끌어 옮겨요. 빈 곳을 끌면 배경 사진이 움직이고, 두 손가락을 벌리면 커져요.</p>' +
-        '<div class="cm-field"><span>배경 사진 고르기</span><div class="th-strip" id="th-strip"></div></div>' +
+        '<div class="cm-field"><span>사진을 누르면</span><div class="th-mode"><button type="button" class="cm-btn" data-mode="bg" aria-pressed="true">배경으로</button><button type="button" class="cm-btn" data-mode="stk" aria-pressed="false">✂ 누끼 스티커로</button></div><div class="th-strip" id="th-strip"></div></div>' +
         '<label class="th-r"><span>배경 확대</span><input type="range" id="th-zoom" min="1" max="3" step="0.02" value="1"></label>' +
         '<label class="th-r"><span>배경 어둡게</span><input type="range" id="th-dim" min="0" max="0.6" step="0.02" value="0"></label>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" data-add="text">＋ 글자</button><button class="cm-btn" type="button" data-add="spark">✨ 강조선</button><button class="cm-btn" type="button" data-add="heart">❤ 하트</button><button class="cm-btn" type="button" data-add="star">⭐ 별</button></div>' +
@@ -605,27 +693,31 @@
           (chips ? '<div class="cm-field"><span>문구 고르기 (누르면 글자가 바뀌어요)</span><div class="pd-titles">' + chips + "</div></div>" : "") +
           '<div class="cm-field"><span>글씨체 (옆으로 밀어 더 보기)</span><div class="th-fonts">' + fonts + "</div></div>" +
           '<div class="cm-field"><span>테두리 색</span><div class="th-sws">' + sw(TLINE, "data-line") + "</div></div></div>" +
-          '<div class="cm-field"><span>색</span><div class="th-sws">' + sw(TFILL, "data-fill") + "</div></div>" +
+          '<div class="cm-field" id="th-colf"><span>색</span><div class="th-sws">' + sw(TFILL, "data-fill") + "</div></div>" +
+          '<div id="th-stk"><div class="cm-field"><span>모양</span><div class="th-mode"><button type="button" class="cm-btn" data-shape="cut">✂ 누끼</button><button type="button" class="cm-btn" data-shape="round">⚪ 동그라미</button></div></div>' +
+          '<label class="th-r"><span>오릴 범위</span><input type="range" id="th-adj" min="-10" max="10" step="1"></label><p class="cm-cap">누끼가 덜 잡히면 범위를 넓히고, 배경까지 잡히면 좁혀 주세요. 잘 안 되는 사진은 동그라미가 깔끔해요.</p></div>' +
           '<label class="th-r"><span>크기</span><input type="range" id="th-size" min="40" max="420" step="2"></label>' +
           '<label class="th-r"><span>기울기</span><input type="range" id="th-rot" min="-30" max="30" step="1"></label>' +
           '<div class="pd-acts"><button class="cm-btn danger" type="button" id="th-rm">이것 지우기</button></div>' +
         "</div>" +
         '<div id="th-msg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="th-save">💾 썸네일 저장</button><button class="cm-btn" type="button" id="th-dl">📥 폰에 사진으로 저장</button></div>' +
-        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 물건만 오려 붙이는 누끼 스티커는 아직 PC 확장 프로그램의 🖼 썸네일에서만 돼요.</p></div>';
+        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 누끼는 AI가 아니라 색으로 찾는 방식이라, 음식과 배경 색이 비슷하면 덜 깔끔할 수 있어요.</p></div>';
       top();
       var cv = $("th-cv"), ctx = cv.getContext("2d"), tm = $("th-msg"), raf = 0;
       function draw() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; if ($("th-cv") === cv) tRender(ctx, T, T.sel); }); }
-      function font(L) { if (L.type === "text" && TFONT[L.font][0] && document.fonts && document.fonts.load) document.fonts.load(tFont(L, 40), L.text).then(draw, draw); }
+      function font(L) { if (L.type === "text" && TFONT[L.font] && TFONT[L.font][0] && document.fonts && document.fonts.load) document.fonts.load(tFont(L, 40), L.text).then(draw, draw); }
       function sync() {
         var L = T.sel, box = $("th-sel");
         box.hidden = !L;
         if (T.bg) { $("th-zoom").value = T.bg.zoom; $("th-dim").value = T.bg.dim; }
         if (!L) return;
         $("th-tx").hidden = L.type !== "text";
+        $("th-stk").hidden = L.type !== "sticker"; $("th-colf").hidden = L.type === "sticker";
+        if (L.type === "sticker") { $("th-adj").value = L.adj || 0; main.querySelectorAll("[data-shape]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.shape === (L.shape || "cut") ? "true" : "false"); }); }
         var sz = $("th-size");
         if (L.type === "text") { sz.min = 40; sz.max = 320; sz.value = L.fs; if ($("th-text").value !== L.text) $("th-text").value = L.text; main.querySelectorAll("[data-font]").forEach(function (b) { b.classList.toggle("on", b.dataset.font === L.font); }); }
-        else { sz.min = 60; sz.max = 700; sz.value = L.s; }
+        else { sz.min = 60; sz.max = L.type === "sticker" ? 1080 : 700; sz.value = L.s; }
         $("th-rot").value = L.rot || 0;
         var col = L.type === "text" ? L.fill : L.color;
         main.querySelectorAll("[data-fill]").forEach(function (b) { b.classList.toggle("on", b.dataset.fill === col); });
@@ -637,7 +729,7 @@
       function hbtn() { if ($("th-undo")) { $("th-undo").disabled = H.i <= 0; $("th-redo").disabled = H.i >= H.list.length - 1; } }
       function mark() {
         var s = { layers: T.layers.map(copyL), bg: T.bg ? Object.assign({}, T.bg) : null, sel: T.layers.indexOf(T.sel) };
-        s.k = JSON.stringify([s.layers, s.bg ? [s.bg.id, s.bg.zoom, s.bg.ox, s.bg.oy, s.bg.dim] : 0]);
+        s.k = JSON.stringify([s.layers, s.bg ? [s.bg.id, s.bg.zoom, s.bg.ox, s.bg.oy, s.bg.dim] : 0], function (k, v) { return k === "c" || k === "pc" || k === "im" || k === "score" ? undefined : v; }); // 그림 자체는 빼고 비교
         if (H.i >= 0 && H.list[H.i].k === s.k) return;
         H.list = H.list.slice(0, H.i + 1); H.list.push(s);
         if (H.list.length > 60) H.list.shift();
@@ -647,7 +739,8 @@
         var s = H.list[H.i + dir]; if (!s) return;
         H.i += dir;
         T.layers = s.layers.map(copyL); T.bg = s.bg ? Object.assign({}, s.bg) : null; T.sel = T.layers[s.sel] || null;
-        T.layers.forEach(font); sync(); draw(); hbtn();
+        T.layers.forEach(font); // 스티커 그림(c)은 그때 것을 그대로 들고 있어 다시 만들 필요 없음
+        sync(); draw(); hbtn();
       }
       var markT = 0;
       function markSoon() { clearTimeout(markT); markT = setTimeout(mark, 600); }
@@ -665,11 +758,11 @@
         el.innerHTML = cells.join("");
         $("th-file").addEventListener("change", function (e) {
           var f = e.target.files && e.target.files[0]; if (!f) return;
-          prep(f).then(function (it) { extra.unshift(it); strip(); setBg(function () { return tImg("data:image/jpeg;base64," + it.b64); }); }, function () { msg(tm, "이 사진은 열 수 없어요. 다른 사진을 골라 주세요.", true); });
+          prep(f).then(function (it) { extra.unshift(it); strip(); var gx = function () { return tImg("data:image/jpeg;base64," + it.b64); }; if (pickMode === "stk") addSticker(gx); else setBg(gx); }, function () { msg(tm, "이 사진은 열 수 없어요. 다른 사진을 골라 주세요.", true); });
         });
         if ($("th-more")) $("th-more").addEventListener("click", more);
       }
-      var pv = {}, pb = {}; // 미리 보기 주소, 서버에서 받은 사진 글자
+      var pv = {}, pb = {}, autoStart = false; // 미리 보기 주소, 서버에서 받은 사진 글자, 처음 열 때 자동으로 만드는 중인지
       async function more() {
         var from = shown; shown = Math.min(have.length, shown + STEP); strip();
         for (var i = from; i < shown; i++) {
@@ -678,11 +771,33 @@
           if (mine && mine.prev[n - 1]) pv[n] = mine.prev[n - 1];
           else { var b = await photoText(d.id, n); if (!b) continue; pb[n] = b; pv[n] = "data:" + tMime(b) + ";base64," + b; }
           var im = $("th-p" + n); if (im) im.src = pv[n]; else if ($("th-cv") !== cv) return;
-          if (!T.bg && i === 0) pickN(n);
+          if (!T.bg && i === 0 && !autoStart) setBg((function (k) { return function () { return srcOf(k); }; })(n));
         }
       }
-      function srcOf(n) { return mine && mine.b64s[n - 1] ? tImg("data:image/jpeg;base64," + mine.b64s[n - 1]) : pv[n] ? tImg(pv[n]) : Promise.reject(new Error("사진이 아직 안 왔어요")); }
-      function pickN(n) { return setBg(function () { return srcOf(n); }); }
+      async function srcOf(n) {
+        if (mine && mine.b64s[n - 1]) return tImg("data:image/jpeg;base64," + mine.b64s[n - 1]);
+        if (!pv[n]) { var b = await photoText(d.id, n); if (!b) throw new Error("사진 " + n + "번을 받지 못했어요"); pb[n] = b; pv[n] = "data:" + tMime(b) + ";base64," + b; }
+        return tImg(pv[n]);
+      }
+      var pickMode = "bg";
+      function pickN(n) { var get = function () { return srcOf(n); }; return pickMode === "stk" ? addSticker(get) : setBg(get); }
+      // 사진에서 가운데 물건을 오려 스티커로 올림
+      async function addSticker(get, at, quiet) {
+        if (!quiet) msg(tm, "✂ 누끼 따는 중… (몇 초 걸려요)");
+        try {
+          await segLoad();
+          var src = await get(), pc = tCanvasOf(src, 900); if (src.close) src.close();
+          var k = Math.min(1, 360 / Math.max(pc.width, pc.height)), wc = tMk(pc.width * k, pc.height * k), wx = wc.getContext("2d");
+          wx.drawImage(pc, 0, 0, wc.width, wc.height);
+          var im = { w: wc.width, h: wc.height, data: wx.getImageData(0, 0, wc.width, wc.height).data };
+          await new Promise(function (r) { setTimeout(r, 30); }); // 안내 글이 먼저 보이게
+          var score = window.BLSeg.rectScore(im, { x0: im.w * 0.07, y0: im.h * 0.07, x1: im.w * 0.93, y1: im.h * 0.93 });
+          var L = tSticker(Object.assign({ type: "sticker", pc: pc, im: im, score: score, adj: 0, shape: "cut", s: 560, x: TSZ / 2, y: TSZ * 0.62, rot: 0 }, at || {}));
+          T.layers.push(L);
+          if (!quiet) { msg(tm, ""); select(L); mark(); }
+          return L;
+        } catch (e) { if (!quiet) msg(tm, "누끼를 못 땄어요: " + String((e && e.message) || e), true); return null; }
+      }
       async function setBg(get) {
         msg(tm, "배경 사진을 불러오는 중…");
         try {
@@ -694,8 +809,16 @@
       $("th-strip").addEventListener("click", function (e) {
         var b = e.target.closest("button.th-ph"); if (!b) return;
         if (b.dataset.n) pickN(+b.dataset.n);
-        else if (b.dataset.x) { var x = extra[+b.dataset.x]; if (x) setBg(function () { return tImg("data:image/jpeg;base64," + x.b64); }); }
+        else if (b.dataset.x) { var x = extra[+b.dataset.x]; if (x) { var gx = function () { return tImg("data:image/jpeg;base64," + x.b64); }; if (pickMode === "stk") addSticker(gx); else setBg(gx); } }
       });
+      main.querySelectorAll("[data-mode]").forEach(function (b) { b.addEventListener("click", function () {
+        pickMode = b.dataset.mode;
+        main.querySelectorAll("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      }); });
+      var restick = function () { var L = T.sel; if (L && L.type === "sticker") { try { tSticker(L); } catch (e) {} draw(); } };
+      $("th-adj").addEventListener("input", function (e) { if (T.sel && T.sel.type === "sticker") T.sel.adj = +e.target.value; });
+      $("th-adj").addEventListener("change", function () { restick(); mark(); });
+      main.querySelectorAll("[data-shape]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (L && L.type === "sticker") { L.shape = b.dataset.shape; restick(); sync(); mark(); } }); });
       // 손가락
       var pts = {}, grab = null;
       function pos(e) { var r = cv.getBoundingClientRect(), k = TSZ / r.width; return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k }; }
@@ -726,7 +849,7 @@
         if (grab.pinch) {
           var k = two() / grab.pinch, L = grab.L; if (!isFinite(k) || k <= 0) return;
           if (L && L.type === "text") L.fs = Math.max(40, Math.min(320, grab.base * k));
-          else if (L) L.s = Math.max(60, Math.min(700, grab.base * k));
+          else if (L) L.s = Math.max(60, Math.min(L.type === "sticker" ? 1080 : 700, grab.base * k));
           else if (T.bg) T.bg.zoom = Math.max(1, Math.min(3, grab.base * k));
           sync();
         } else if (grab.L) { grab.L.x = Math.max(0, Math.min(TSZ, p.x - grab.dx)); grab.L.y = Math.max(0, Math.min(TSZ, p.y - grab.dy)); }
@@ -756,6 +879,28 @@
         var L = { type: "deco", kind: k, color: k === "heart" ? "#ff3b30" : "#ffd60a", s: k === "spark" ? 260 : 170, x: TSZ * 0.5, y: TSZ * 0.3, rot: 0 };
         T.layers.push(L); select(L); mark();
       }); });
+      // ✨ 자동: 배경 사진 + 음식 누끼 스티커 + 짧은 문구. 어떤 사진을 쓸지는 AI가 글을 쓸 때 골라 둔 것(meta.th), 없으면 어림으로
+      async function autoMake() {
+        var bt = $("th-auto"); if (!have.length || bt.disabled) return;
+        bt.disabled = true; msg(tm, "✨ 썸네일을 만드는 중… (사진을 받아 누끼를 따요)");
+        var th = (d.meta && d.meta.th) || {}, ok = function (n) { return have.indexOf(n) >= 0; };
+        var bgN = ok(th.bg) ? th.bg : have[0];
+        var foods = (th.food || []).filter(ok).slice(0, 2);
+        if (!foods.length) { var g = have[Math.min(have.length - 1, Math.floor(have.length * 0.6))]; if (g !== bgN || have.length === 1) foods = [g]; }
+        try {
+          T.layers = []; T.sel = null;
+          await setBg(function () { return srcOf(bgN); });
+          if (T.bg) T.bg.dim = 0.28;
+          var spots = foods.length > 1 ? [{ x: 330, y: 740, s: 540, rot: -5 }, { x: 765, y: 700, s: 540, rot: 5 }] : [{ x: TSZ / 2, y: 700, s: 700 }];
+          for (var i = 0; i < foods.length; i++) { await addSticker((function (n) { return function () { return srcOf(n); }; })(foods[i]), spots[i], true); if ($("th-cv") !== cv) return; }
+          var L = { type: "text", text: tLines(th.text || tShort(d) || "글자를 써 주세요"), font: "jua", fill: "#ffffff", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: foods.length ? 215 : TSZ * 0.74, rot: 0 };
+          tFit(ctx, L, TSZ - 110); L.fs = Math.min(L.fs, 150); T.layers.push(L); font(L);
+          msg(tm, "자동으로 만들었어요. 마음에 안 드는 곳은 눌러서 고치거나, 사진을 눌러 배경·스티커를 바꿔 주세요.");
+          select(L); mark();
+        } catch (e) { msg(tm, "자동으로 만들지 못했어요: " + String((e && e.message) || e), true); }
+        bt.disabled = false;
+      }
+      $("th-auto").addEventListener("click", autoMake);
       function back(note) { showDraft(cur, miss); if (note) msg($("dmsg"), note); }
       $("th-back").addEventListener("click", function () { back(); });
       function flat() {
@@ -780,10 +925,11 @@
       // 시작
       if (!document.getElementById("th-fonts")) { var lk = document.createElement("link"); lk.id = "th-fonts"; lk.rel = "stylesheet"; lk.href = "https://fonts.googleapis.com/css2?" + Object.keys(TFONT).filter(function (k) { return TFONT[k][0]; }).map(function (k) { return "family=" + TFONT[k][0].replace(/ /g, "+") + (TFONT[k][3] || ""); }).join("&") + "&display=swap"; document.head.appendChild(lk); }
       T.layers.forEach(font);
-      if (!T.layers.length && H.i < 0) addText(""); else { sync(); draw(); }
-      hbtn();
-      if (!have.length) msg(tm, "이 초안의 사진이 서버에 없어요. ‘📁 다른 사진’으로 갤러리에서 골라 주세요.");
-      strip(); more();
+      var first = !T.layers.length && H.i < 0;
+      sync(); draw(); hbtn();
+      if (!have.length) { msg(tm, "이 초안의 사진이 서버에 없어요. ‘📁 다른 사진’으로 갤러리에서 골라 주세요."); if (first) addText(""); }
+      strip();
+      if (first && have.length) { autoStart = true; more(); autoMake(); } else more();
     }
     // 초안 화면의 썸네일 칸
     function thumbCard(d) {
