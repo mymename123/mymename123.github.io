@@ -61,6 +61,17 @@
   .pd-re { position: relative; }
   .pd-re input { position: absolute; width: 1px; height: 1px; opacity: 0; }
   .pd-re:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
+  .pd-ask { position: fixed; inset: 0; z-index: 60; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .pd-ask-in { max-width: 640px; margin: 0 auto; padding: 20px 16px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .pd-ask h2 { margin: 0; font-size: 20px; outline: none; }
+  .pd-ask-q { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0; display: flex; flex-direction: column; gap: 10px; background: var(--card); min-width: 0; }
+  .pd-ask-q legend { font-weight: 700; padding: 0 4px; }
+  .pd-ask-o { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pd-opt { min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--text); font: inherit; font-size: 15px; cursor: pointer; }
+  .pd-opt[aria-pressed="true"] { border-color: var(--green); background: var(--green); color: #fff; font-weight: 700; }
+  .pd-opt:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .pd-ask-b { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding: 10px 0; }
+  .pd-ask-b .cm-btn { flex: 1 1 160px; min-height: 48px; }
   .pd-qa { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--chip); }
   .pd-qa > div { display: flex; flex-direction: column; gap: 10px; }
   .pd-qa p { margin: 0; }
@@ -185,12 +196,36 @@
       "5": ["오늘 뭘 했나요?", "기억에 남는 것은?", "느낀 점은?"],
       "-1": ["무슨 내용의 글인가요?", "꼭 넣고 싶은 말은?"]
     };
-    var qaKeep = {}; // 질문 → 적던 답 (글 종류를 바꿔도 안 지워지게)
-    function qaHtml() {
-      return (QS[String(+form.kind)] || QS["-1"]).map(function (q, i) { return '<label class="cm-field"><span>' + esc(q) + '</span><input class="cm-input" data-q="' + esc(q) + '" maxlength="200" autocomplete="off" value="' + esc(qaKeep[q] || "") + '"' + (i === 1 ? ' placeholder="예) 순대국 특, 국물이 진하고 순대가 푸짐했음"' : "") + "></label>"; }).join("");
+    // 보완 질문 화면: AI가 사진·가게 정보를 보고 만든 질문(qs)을 보여 주고 답을 받음. qs 가 없으면 기본 질문을 글로 답함. 돌려주는 값 = [{q, a}]
+    function askSheet(qs, kind) {
+      var basic = !(qs && qs.length);
+      if (basic) qs = (QS[String(kind)] || QS["-1"]).map(function (q) { return { q: q, opts: [] }; });
+      return new Promise(function (done) {
+        var el = document.createElement("div"); el.className = "pd-ask"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "글을 보완하는 질문");
+        el.innerHTML = '<div class="pd-ask-in"><h2>' + (basic ? "몇 가지만 알려 주세요" : "사진을 보고 궁금한 점이에요") + '</h2>' +
+          '<p class="cm-cap">' + (basic ? "AI가 질문을 만들지 못해 기본 질문을 보여 드려요. " : "") + "맛·느낌처럼 사진만으로는 알 수 없는 것들이에요. 답한 내용은 글에 그대로 살려요. 여러 개 골라도 되고, 모르는 건 그냥 넘어가도 돼요.</p>" +
+          qs.map(function (x, i) {
+            return '<fieldset class="pd-ask-q" data-i="' + i + '"><legend>' + (i + 1) + ". " + esc(x.q) + "</legend>" +
+              (x.opts.length ? '<div class="pd-ask-o">' + x.opts.map(function (o) { return '<button type="button" class="pd-opt" aria-pressed="false">' + esc(o) + "</button>"; }).join("") + "</div>" : "") +
+              '<input class="cm-input" maxlength="120" autocomplete="off" placeholder="' + (x.opts.length ? "직접 쓰기 (안 써도 돼요)" : "한두 마디로") + '" aria-label="' + esc(x.q) + ' 직접 쓰기"></fieldset>';
+          }).join("") +
+          '<div class="pd-ask-b"><button class="cm-btn pri" type="button" data-go="1">✍ 이 답으로 글 쓰기</button><button class="cm-btn" type="button" data-go="0">질문 건너뛰기</button></div></div>';
+        document.body.appendChild(el);
+        el.addEventListener("click", function (e) {
+          var o = e.target.closest(".pd-opt");
+          if (o) { o.setAttribute("aria-pressed", o.getAttribute("aria-pressed") === "true" ? "false" : "true"); return; }
+          var g = e.target.closest("[data-go]"); if (!g) return;
+          var out = [];
+          if (g.dataset.go === "1") el.querySelectorAll(".pd-ask-q").forEach(function (f) {
+            var a = [].map.call(f.querySelectorAll('.pd-opt[aria-pressed="true"]'), function (b) { return b.textContent; });
+            var t = f.querySelector("input").value.trim(); if (t) a.push(t);
+            if (a.length) out.push({ q: qs[+f.dataset.i].q, a: a.join(", ").slice(0, 200) });
+          });
+          el.remove(); done(out);
+        });
+        var h = el.querySelector("h2"); h.tabIndex = -1; h.focus();
+      });
     }
-    function qaRead() { main.querySelectorAll("[data-q]").forEach(function (x) { qaKeep[x.dataset.q] = x.value; }); }
-    function qaNow() { qaRead(); return (QS[String(+form.kind)] || QS["-1"]).map(function (q) { return { q: q, a: (qaKeep[q] || "").trim() }; }).filter(function (x) { return x.a; }); }
     function newForm() {
       var kinds = L.kinds.map(function (k, i) { return '<option value="' + i + '"' + (+form.kind === i ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + '<option value="-1"' + (+form.kind === -1 ? " selected" : "") + ">자유 형식 (틀 없이)</option>";
       var sel = function (id, map, v) { return '<select class="cm-input" id="' + id + '">' + Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (v === k ? " selected" : "") + ">" + map[k] + "</option>"; }).join("") + "</select>"; };
@@ -201,7 +236,7 @@
         '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="pbox"></div>' +
-        '<div class="pd-qa"><b>빠른 질문 (한두 마디만 답해도 글이 훨씬 좋아져요)</b><p class="cm-cap">맛·느낌은 사진만으로 알 수 없어요. 답한 내용은 AI가 그대로 살려서 써요. 비워 둔 칸은 건너뛰어요.</p><div id="qa">' + qaHtml() + "</div></div>" +
+        '<p class="cm-cap">💬 ‘초안 만들기’를 누르면 AI가 사진과 가게 정보를 먼저 보고, 글에 필요한 것을 몇 가지 물어봐요. 고르기만 하면 그 답을 살려서 글을 써요.</p>' +
         '<label class="cm-field"><span>그 밖의 메모 (선택)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 주차는 건물 뒤, 포장도 됨"></textarea></label>' +
         '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
         '<label class="cm-field"><span>제목 초안 (선택)</span><input class="cm-input" id="f-td" maxlength="100" placeholder="예) 성수동 소금빵 후기" autocomplete="off"></label></div>' +
@@ -244,6 +279,11 @@
         if (!quiet) say(((j && j.error) || "지도에서 찾지 못했어요.") + (j && j.log ? " [" + j.log.join(" / ") + "]" : ""), true);
         return false;
       }
+      if (j.miss && j.miss.length) { // 찾는 말의 낱말(보통 지역)이 찾은 가게 이름·주소에 없음 = 다른 지점일 수 있어 넣지 않음
+        place = { q: q, p: null }; placeBox2();
+        say("지도에서 ‘" + j.place.name + "’(" + (j.place.addr || "주소 모름") + ")이(가) 나왔는데, 적어 주신 ‘" + j.miss.join(", ") + "’이(가) 이름·주소에 없어서 넣지 않았어요. 다른 지점일 수 있어요. 이름을 더 정확히 적거나 가게 정보를 직접 적어 주세요.", true);
+        return false;
+      }
       place = { q: q, p: j.place }; placeBox();
       [["f-addr", j.place.addr], ["f-phone", j.place.phone], ["f-hours", j.place.hours], ["f-park", j.place.parking]].forEach(function (x) { if (x[1] && $(x[0])) $(x[0]).value = x[1]; });
       if (!quiet) say("지도에서 가게 정보를 가져왔어요. 맞는 가게인지 확인해 주세요.");
@@ -258,7 +298,7 @@
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
       ["f-kind", "f-tone", "f-len", "f-spon", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
-      $("f-kind").addEventListener("change", function () { qaRead(); form.kind = +$("f-kind").value; $("qa").innerHTML = qaHtml(); });
+      $("f-kind").addEventListener("change", function () { form.kind = +$("f-kind").value; });
       $("go").addEventListener("click", make);
       $("f-find").addEventListener("click", function () { findPlace(false); });
       $("f-shop").addEventListener("input", function () { if (place && place.q !== $("f-shop").value.trim()) { place = null; placeBox2(); } });
@@ -357,7 +397,7 @@
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
         visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
-        pmemos: items.map(function (x) { return x.memo; }), qa: qaNow(), sample: $("f-sample").value,
+        pmemos: items.map(function (x) { return x.memo; }), qa: [], sample: $("f-sample").value,
         menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
     }
 
@@ -372,13 +412,19 @@
       var go = $("go"); go.disabled = true; go.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 만드는 중…';
       // 가게 이름을 적었는데 아직 지도에서 안 찾았으면 먼저 찾아서 주소·영업시간·메뉴를 채움 (못 찾아도 그대로 진행)
       if ($("f-shop").value.trim() && !(place && place.q === $("f-shop").value.trim())) { say("네이버 지도에서 가게 정보를 찾는 중…"); try { await findPlace(true); } catch (e) {} }
-      var meta = metaNow(), b64s = items.map(function (x) { return x.b64; }), prev = items.map(function (x) { return x.url; }), n = b64s.length, side = n > 20 ? 768 : 1024;
+      var meta = metaNow(), b64s = items.map(function (x) { return x.b64; }), prev = items.map(function (x) { return x.url; }), n = b64s.length, side = n > 35 ? 640 : n > 20 ? 768 : 1024;
       var done = function () { busyNow = false; var g = $("go"); if (g) { g.disabled = false; g.textContent = "✨ 초안 만들기"; } };
       try {
         var thumbs = [];
         for (var i = 0; i < n; i++) {
           say("사진 준비 중… " + (i + 1) + "/" + n);
           thumbs.push(shrink(await tImg("data:image/jpeg;base64," + b64s[i]), side, 0.72));
+        }
+        if (!meta.sponsor) { // 협찬 글은 뼈대만 만들므로 묻지 않음
+          say("AI가 사진과 가게 정보를 보고 질문을 만드는 중… (10~20초)");
+          var aq = null;
+          try { aq = await api("/draft/ask", null, JSON.stringify(meta) + "\n" + thumbs.join("\n")); } catch (e) {}
+          meta.qa = await askSheet(aq && aq.ok ? aq.qs : null, meta.kind);
         }
         say("초안 칸을 만드는 중…");
         var j = await api("/draft/new", Object.assign({ count: n }, meta));
@@ -398,7 +444,7 @@
           api("/draft/list").then(function (x) { if (x && x.ok) L = x; });
           return;
         }
-        items = []; qaKeep = {}; place = null;
+        items = []; place = null;
         showDraft(w.draft, miss, w.cut, upErr);
       } catch (e) {
         done(); say("오류가 났어요: " + String((e && e.message) || e), true);
