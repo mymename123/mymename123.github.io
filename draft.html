@@ -245,13 +245,20 @@
         '<input class="cm-input" id="f-addr" maxlength="120" placeholder="📌 주소" autocomplete="off"><input class="cm-input" id="f-phone" maxlength="30" placeholder="📞 전화" autocomplete="off">' +
         '<input class="cm-input" id="f-hours" maxlength="300" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
         '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
-        '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글 (뼈대만 만들기)</summary><div>' +
-        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 다 써 주지 않고, 꼭 들어갈 키워드·내용만 짧은 멘트로 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
+        '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글</summary><div>' +
+        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 안내문의 필수 키워드·내용을 빠짐없이 넣어 본문을 끝까지 써요</span></label>" +
+        '<label class="pd-chk"><input type="checkbox" id="f-skel"' + (form.skel ? " checked" : "") + "><span>뼈대만 만들기 (AI 작성 금지 캠페인용): 꼭 들어갈 멘트만 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
         '<textarea class="cm-input" id="f-mission" maxlength="3000" placeholder="캠페인 안내문(리뷰어 미션, 필수 키워드, 꼭 쓸 내용)을 붙여 넣어 주세요"></textarea></div></details>' +
         '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
         '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
-        '<textarea class="cm-input" id="f-sample" maxlength="1200" style="min-height:140px" placeholder="내가 직접 쓴 블로그 글 일부를 붙여 넣으면 그 말투를 따라 써요 (선택, 1200자까지)">' + esc(form.sample || "") + "</textarea>" +
+        '<textarea class="cm-input" id="f-sample" maxlength="3000" style="min-height:140px" placeholder="내가 직접 쓴 블로그 글을 붙여 넣으면 그 말투를 따라 써요 (선택, 3000자까지)">' + esc(form.sample || "") + "</textarea>" +
         '<p class="cm-cap">이 기기에만 저장되고, 초안을 만들 때 AI에게 같이 보내요. 글 예시는 말투만 따라 하고 내용은 가져오지 않아요.</p></div></details>' +
+        '<details class="pd-more" id="st-box"><summary>📚 내 글 학습 <span id="st-on" class="cm-cap"></span></summary><div>' +
+        '<p class="cm-cap">내가 쓴 글 여러 편을 AI가 읽고 말투, 글 구성, 자주 쓰는 표현을 정리해 둬요. 그 뒤로는 초안을 만들 때마다 내 글처럼 써요. 한 번만 해 두면 계정에 저장돼요.</p>' +
+        '<div id="st-now"></div>' +
+        '<textarea class="cm-input" id="st-urls" style="min-height:110px" placeholder="내 블로그 글 주소를 한 줄에 하나씩 (10개까지)&#10;https://blog.naver.com/아이디/글번호" autocomplete="off"></textarea>' +
+        '<textarea class="cm-input" id="st-text" maxlength="12000" style="min-height:90px" placeholder="비공개 글이면 글 내용을 여기에 붙여넣어 주세요 (선택)"></textarea>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="st-go">📚 학습하기</button><button class="cm-btn danger" type="button" id="st-off" hidden>학습 지우기</button></div><div id="st-msg"></div></div></details>' +
         '<div id="nmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="go">✨ 초안 만들기</button></div>';
     }
@@ -289,17 +296,47 @@
       if (!quiet) say("지도에서 가게 정보를 가져왔어요. 맞는 가게인지 확인해 주세요.");
       return true;
     }
+    // ---------- 내 글 학습 ----------
+    var styleNow; // undefined = 아직 안 물어봄, null = 없음
+    function styleDraw() {
+      if (!$("st-now")) return;
+      var st = styleNow;
+      $("st-on").textContent = st ? "· 학습됨 (글 " + st.n + "편)" : "";
+      $("st-off").hidden = !st;
+      $("st-go").textContent = st ? "📚 다시 학습하기 (새 글로 바꿈)" : "📚 학습하기";
+      $("st-now").innerHTML = st ? '<div class="pd-place"><b>✅ 글 ' + st.n + "편을 학습했어요</b>" + (st.titles && st.titles.length ? '<p class="cm-cap">' + st.titles.map(function (t) { return "· " + esc(t); }).join("<br>") + "</p>" : "") +
+        '<details><summary class="cm-cap">AI가 정리한 내 글쓰기 습관 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.guide) + "</p></details></div>" : "";
+    }
+    function styleBind() {
+      if (styleNow === undefined) api("/draft/style").then(function (j) { if (j && j.ok) { styleNow = j.style || null; styleDraw(); } }); else styleDraw();
+      $("st-go").addEventListener("click", async function () {
+        var b = $("st-go"), m = $("st-msg");
+        var urls = $("st-urls").value.split(/\s+/).filter(Boolean), text = $("st-text").value.trim();
+        if (!urls.length && text.length < 300) { msg(m, "글 주소를 붙여넣거나 글 내용을 300자 넘게 붙여넣어 주세요.", true); return; }
+        b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 글을 읽고 정리하는 중… (20~40초)';
+        var j = await api("/draft/style", { urls: urls, text: text });
+        b.disabled = false;
+        if (!$("st-go")) return;
+        if (j && j.ok) { styleNow = j.style; $("st-urls").value = ""; $("st-text").value = ""; styleDraw(); msg(m, "학습했어요. 이제부터 초안을 내 글처럼 써요." + (j.failed ? " 읽지 못한 글 " + j.failed.length + "편은 뺐어요 (비공개 글은 내용을 붙여넣어 주세요)." : "")); }
+        else { styleDraw(); msg(m, ((j && j.error) || "학습하지 못했어요.") + (j && j.why ? " (" + j.why + ")" : ""), true); }
+      });
+      $("st-off").addEventListener("click", async function () {
+        var j = await api("/draft/style", { act: "off" });
+        if (j && j.ok) { styleNow = null; styleDraw(); msg($("st-msg"), "학습한 내용을 지웠어요."); }
+      });
+    }
     function placeBox2() { var el = $("pbox"); if (el) el.innerHTML = ""; }
     function keepForm() {
       if (!$("f-kind")) return;
-      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.skel = $("f-skel").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
       save("bl-pd-form", form);
     }
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
-      ["f-kind", "f-tone", "f-len", "f-spon", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-skel", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
       $("f-kind").addEventListener("change", function () { form.kind = +$("f-kind").value; });
       $("go").addEventListener("click", make);
+      styleBind();
       $("f-find").addEventListener("click", function () { findPlace(false); });
       $("f-shop").addEventListener("input", function () { if (place && place.q !== $("f-shop").value.trim()) { place = null; placeBox2(); } });
       if (place && place.p) placeBox();
@@ -395,7 +432,7 @@
     }
     function metaNow() {
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
-        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, mission: $("f-mission").value,
+        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-skel").checked, mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
         pmemos: items.map(function (x) { return x.memo; }), qa: [], sample: $("f-sample").value,
         menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
@@ -420,7 +457,7 @@
           say("사진 준비 중… " + (i + 1) + "/" + n);
           thumbs.push(shrink(await tImg("data:image/jpeg;base64," + b64s[i]), side, 0.72));
         }
-        if (!meta.sponsor) { // 협찬 글은 뼈대만 만들므로 묻지 않음
+        if (!(meta.sponsor && meta.skel)) { // 뼈대만 만드는 협찬 글은 묻지 않음
           say("AI가 사진과 가게 정보를 보고 질문을 만드는 중… (10~20초)");
           var aq = null;
           try { aq = await api("/draft/ask", null, JSON.stringify(meta) + "\n" + thumbs.join("\n")); } catch (e) {}
