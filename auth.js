@@ -6,7 +6,8 @@
 (function () {
   var API = "https://green-sunset-edd6.risingsk123.workers.dev";
   var LIVE = false; // 로그인 공개하는 날 true 로 (그날 개인정보처리방침도 같이 고침)
-  var TK = "bl-token", NK = "bl-nick", PV = "bl-login-preview", PK = "bl-plan", BK = "bl-tokens";
+  var TK = "bl-token", NK = "bl-nick", PV = "bl-login-preview", PK = "bl-plan", BK = "bl-tokens", VK = "bl-login-v";
+  function b64u(a) { var t = ""; for (var i = 0; i < a.length; i++) t += String.fromCharCode(a[i]); return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
   function get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
   function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
@@ -42,7 +43,18 @@
       }
       return meP;
     },
-    login: function (p, ret) { location.href = API + "/auth/" + p + "/start?r=" + encodeURIComponent(A.safeRet(ret)); },
+    // 로그인·로그인 방법 추가 시작. 이 브라우저만 아는 비밀값을 만들어 두고 그 해시만 서버에 보냄
+    // → 돌아올 때 받는 1회용 코드는 이 비밀값이 있어야 쓸 수 있어서, 남이 만든 코드가 든 주소를 눌러도 로그인·연결이 안 됨
+    start: function (p, ret, link) {
+      var a = new Uint8Array(32); crypto.getRandomValues(a);
+      var v = b64u(a); put(VK, v);
+      crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)).then(function (d) {
+        location.href = API + "/auth/" + p + "/start?" + (link ? "link=1" : "r=" + encodeURIComponent(A.safeRet(ret))) + "&v=" + b64u(new Uint8Array(d));
+      });
+    },
+    verifier: function () { return get(VK); },
+    verifierDone: function () { put(VK, ""); },
+    login: function (p, ret) { A.start(p, ret, false); },
     logout: function () {
       var t = get(TK);
       A.clear();
