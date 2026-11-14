@@ -38,6 +38,16 @@
   .pd-pick b { color: var(--green); font-size: 16px; }
   .pd-pick:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
   .pd-pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .pd-blanks .pd-blank { border-top: 1px solid var(--line); padding: 10px 0; }
+  .pd-blank .pd-bh { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pd-blank .pd-ctx { margin: 4px 0 8px; }
+  .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pd-chips .cm-btn { white-space: normal; text-align: left; }
+  .pd-own { display: flex; gap: 6px; margin-top: 6px; } .pd-own .cm-input { flex: 1; min-width: 0; }
+  .cm-link { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; font-size: 13px; cursor: pointer; }
+  .pd-mc { margin: 6px 0; padding-left: 4px; list-style: none; } .pd-mc li { margin: 3px 0; }
+  .pd-rv { list-style: none; margin: 8px 0; padding: 0; } .pd-rv li { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; border-top: 1px solid var(--line); padding: 8px 0; }
+  .pd-rv li span { display: block; font-size: 13px; opacity: .8; } .pd-rv .bad { color: #d92d20; }
   .pd-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
   .pd-chk input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--green); }
   details.pd-more { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
@@ -146,6 +156,30 @@
     function load(k, d) { try { return Object.assign(d, JSON.parse(localStorage.getItem(k) || "{}")); } catch (e) { return d; } }
     function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
     function msg(el, text, err) { if (el) el.innerHTML = text ? '<p class="cm-msg' + (err ? " err" : "") + '" role="' + (err ? "alert" : "status") + '">' + esc(text) + "</p>" : ""; }
+    // (2026-11-14 동혁) 가게 정보는 띄어서: 항목마다 빈 줄, 영업시간·주차는 제목 줄 아래 한 줄씩, (라스트오더 …)·(… 무료)는 다음 줄, 요일 하나는 "토요일" (확장 프로그램 spreadInfo 와 같은 모양)
+    function spreadInfo(body) {
+      var L = String(body || "").split("\n"), ti = -1;
+      for (var i = 0; i < L.length; i++) if (/^\s*[^\s가-힣]*\s*(가게|숙소|상품)\s*정보/.test(L[i]) || /^\s*📍\s*여행 정보/.test(L[i])) { ti = i; break; }
+      if (ti < 0) return body;
+      var end = ti + 1; while (end < L.length && L[end].trim()) end++;
+      if (end - ti < 2) return body;
+      var out = [L[ti]];
+      L.slice(ti + 1, end).forEach(function (l) {
+        out.push("");
+        var m = l.match(/^([^가-힣A-Za-z0-9]*)(영업\s*시간|주차)\s*:\s*(.*)$/);
+        if (!m || !m[3].trim()) { out.push(l); return; }
+        var isHour = /영업/.test(m[2]);
+        out.push(m[1] + m[2].replace(/\s+/g, ""));
+        var v = isHour ? m[3].replace(/다음\s*날\s*/g, "").replace(/([월화수목금토일](?:요일)?)\s*[·ㆍ.]\s*(?=[월화수목금토일])/g, "$1, ") : m[3];
+        v.split(/\s+\/\s+/).forEach(function (x) {
+          x = x.trim(); if (!x) return;
+          if (isHour) x = x.replace(/^([월화수목금토일])(?=\s)/, "$1요일");
+          var pm = x.match(/^(.*\S)\s*(\([^()]*\))$/);
+          if (pm) out.push(pm[1], pm[2]); else out.push(x);
+        });
+      });
+      return L.slice(0, ti).concat(out, L.slice(end)).join("\n");
+    }
     function when(ms) { var d = new Date(ms); return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
     function left(ms) { var h = Math.round((ms - Date.now()) / 3600000); return h <= 0 ? "곧 지워져요" : h < 24 ? h + "시간 뒤 지워져요" : Math.round(h / 24) + "일 뒤 지워져요"; }
     function api(path, body, text) {
@@ -179,10 +213,91 @@
         '<div class="cm-card pd-card"><h2 class="cm-h3">보관함</h2>' +
         (list ? '<ul class="pd-list">' + list + "</ul>" : '<p class="cm-cap">아직 만든 초안이 없어요.</p>') +
         '<p class="cm-cap">초안과 사진은 만든 날부터 ' + lim.keepDays + "일 동안만 보관하고 자동으로 지워요.</p></div>" +
-        keyCard();
-      bindNew(); bindKey();
+        rvCard() + keyCard();
+      bindNew(); bindKey(); bindRv();
       main.querySelectorAll("[data-open]").forEach(function (b) { b.addEventListener("click", function () { openDraft(b.dataset.open); }); });
       drawGrid();
+    }
+
+    // ---------- ⏰ 예약 발행 알림 (2026-11-15): 블로그 아이디별 마지막 예약 글 날짜를 보고, 다 떨어지면 폰 알림 ----------
+    function rvCard() {
+      return '<div class="cm-card pd-card" id="rv"><h2 class="cm-h3">⏰ 예약 발행 알림</h2>' +
+        '<p class="cm-cap">블로그마다 마지막 예약 글이 언제 나가는지 보여 주고, 예약 글이 다 떨어지면 알림을 보내요. 날짜는 PC 확장 프로그램이 보내 주거나 여기서 직접 적어요.</p>' +
+        '<div id="rv-list"><p class="cm-cap">불러오는 중…</p></div>' +
+        '<details class="pd-more"><summary>블로그 추가·날짜 고치기</summary><div>' +
+        '<input class="cm-input" id="rv-blog" maxlength="80" placeholder="블로그 아이디 (예: myblog)" autocomplete="off" autocapitalize="off">' +
+        '<label class="cm-field"><span>마지막 예약 글이 나가는 때</span><input class="cm-input" id="rv-when" type="datetime-local"></label>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="rv-save">저장</button></div></div></details>' +
+        '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="rv-push">🔔 이 기기에서 알림 켜기</button><button class="cm-btn" type="button" id="rv-test" hidden>시험 알림</button></div>' +
+        '<div id="rv-msg"></div></div>';
+    }
+    function rvLocal(ms) { var d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); }
+    function rvDraw(j) {
+      var el = $("rv-list"); if (!el) return;
+      var now = Date.now();
+      el.innerHTML = j.rows.length ? '<ul class="pd-rv">' + j.rows.map(function (r) {
+        var d = r.last - now, st = !r.last ? '<b class="bad">예약 글 없음</b>' : d <= 0 ? '<b class="bad">다 떨어졌어요</b> · 마지막 ' + when(r.last) : "마지막 예약 " + when(r.last) + " · <b" + (d < 2 * 86400000 ? ' class="bad"' : "") + ">" + (d < 86400000 ? Math.max(1, Math.round(d / 3600000)) + "시간" : Math.floor(d / 86400000) + "일") + " 남음</b>";
+        return "<li><div><b>" + esc(r.blog) + "</b><span>" + st + (r.count != null ? " · 예약 " + r.count + "편" : "") + "</span><span>" + (r.src === "pc" ? "PC에서 " : "직접 ") + when(r.updated) + " 받음</span></div>" +
+          '<div><button class="cm-link" type="button" data-rve="' + esc(r.blog) + '" data-last="' + (r.last || 0) + '">고치기</button> <button class="cm-link" type="button" data-rvd="' + esc(r.blog) + '">지우기</button></div></li>';
+      }).join("") + "</ul>" : '<p class="cm-cap">아직 등록한 블로그가 없어요. 아래에서 추가해 주세요. (' + j.max + "개까지)</p>";
+      el.querySelectorAll("[data-rve]").forEach(function (b) { b.addEventListener("click", function () {
+        $("rv-blog").value = b.dataset.rve; $("rv-when").value = +b.dataset.last ? rvLocal(+b.dataset.last) : ""; $("rv-blog").closest("details").open = true; $("rv-when").focus();
+      }); });
+      el.querySelectorAll("[data-rvd]").forEach(function (b) { b.addEventListener("click", function () {
+        if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "한 번 더 누르면 지워요"; return; }
+        api("/draft/reserve", { blog: b.dataset.rvd, act: "del" }).then(function (x) { if (x.ok) rvDraw(x); else msg($("rv-msg"), x.error || "지우지 못했어요.", true); });
+      }); });
+    }
+    function rvKey(t) { var s = atob(t.replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+    function rvCan() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+    async function rvSub() { var reg = await navigator.serviceWorker.getRegistration("/"); return reg ? reg.pushManager.getSubscription() : null; }
+    async function rvState() {
+      var b = $("rv-push"), t = $("rv-test"); if (!b) return;
+      var on = false; try { on = rvCan() && Notification.permission === "granted" && !!(await rvSub()); } catch (e) {}
+      if (!$("rv-push")) return;
+      b.dataset.on = on ? "1" : ""; b.textContent = on ? "🔕 이 기기 알림 끄기" : "🔔 이 기기에서 알림 켜기"; b.classList.toggle("pri", !on); t.hidden = !on;
+    }
+    function bindRv() {
+      var m = $("rv-msg");
+      api("/draft/reserve").then(function (j) { if (j && j.ok) rvDraw(j); else if ($("rv-list")) $("rv-list").innerHTML = '<p class="cm-cap">' + esc((j && j.error) || "불러오지 못했어요.") + "</p>"; });
+      rvState();
+      $("rv-save").addEventListener("click", function () {
+        var blog = $("rv-blog").value.trim().replace(/^https?:\/\/(m\.)?blog\.naver\.com\//, "").split(/[/?]/)[0], w = $("rv-when").value;
+        if (!blog) { msg(m, "블로그 아이디를 적어 주세요.", true); return; }
+        api("/draft/reserve", { blog: blog, last: w ? new Date(w).getTime() : 0 }).then(function (j) {
+          if (j.ok) { rvDraw(j); $("rv-blog").value = ""; $("rv-when").value = ""; msg(m, w ? "저장했어요." : "저장했어요. 날짜를 비워서 ‘예약 글 없음’으로 적었어요."); } else msg(m, j.error || "저장하지 못했어요.", true);
+        });
+      });
+      $("rv-push").addEventListener("click", async function () {
+        var b = $("rv-push");
+        try {
+          if (b.dataset.on === "1") {
+            var s0 = await rvSub();
+            if (s0) { await api("/draft/push", { act: "off", endpoint: s0.endpoint }); await s0.unsubscribe(); }
+            msg(m, "이 기기의 알림을 껐어요."); return rvState();
+          }
+          if (!rvCan()) {
+            var ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            msg(m, ios ? "아이폰은 홈 화면에 추가한 뒤에만 알림을 받을 수 있어요. 사파리 아래 공유 버튼 → ‘홈 화면에 추가’ 후, 홈 화면의 블로랩 아이콘으로 열어서 다시 눌러 주세요." : "이 브라우저는 알림을 받을 수 없어요. 크롬이나 삼성 인터넷으로 열어 주세요.", true); return;
+          }
+          b.disabled = true;
+          var perm = await Notification.requestPermission();
+          if (perm !== "granted") { b.disabled = false; msg(m, "알림이 막혀 있어요. 브라우저 주소창 옆 자물쇠(사이트 설정)에서 알림을 ‘허용’으로 바꾼 뒤 다시 눌러 주세요.", true); return; }
+          var k = await api("/draft/push");
+          if (!k || !k.ok) { b.disabled = false; msg(m, (k && k.error) || "알림을 켜지 못했어요.", true); return; }
+          await navigator.serviceWorker.register("/sw.js");
+          var reg = await navigator.serviceWorker.ready, old = await reg.pushManager.getSubscription();
+          if (old) { try { await old.unsubscribe(); } catch (e) {} } // 서버 열쇠가 바뀌었을 수 있어 새로 받음
+          var sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: rvKey(k.key) });
+          var j = await api("/draft/push", { sub: sub.toJSON() });
+          b.disabled = false;
+          if (j.ok) msg(m, "알림을 켰어요. ‘시험 알림’을 눌러 잘 오는지 확인해 보세요."); else { try { await sub.unsubscribe(); } catch (e) {} msg(m, j.error || "알림을 켜지 못했어요.", true); }
+          rvState();
+        } catch (e) { b.disabled = false; msg(m, "알림을 켜지 못했어요. (" + String((e && e.message) || e).slice(0, 80) + ")", true); }
+      });
+      $("rv-test").addEventListener("click", function () {
+        api("/draft/push", { act: "test" }).then(function (j) { msg(m, j.ok ? "시험 알림을 보냈어요. 몇 초 안에 와요." : j.error || "보내지 못했어요.", !j.ok); });
+      });
     }
 
     // ---------- 새 초안 ----------
@@ -246,8 +361,10 @@
         '<input class="cm-input" id="f-hours" maxlength="300" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
         '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
         '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글</summary><div>' +
-        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 안내문의 필수 키워드·내용을 빠짐없이 넣어 본문을 끝까지 써요</span></label>" +
-        '<label class="pd-chk"><input type="checkbox" id="f-skel"' + (form.skel ? " checked" : "") + "><span>뼈대만 만들기 (AI 작성 금지 캠페인용): 꼭 들어갈 멘트만 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
+        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 안내문의 필수 키워드·내용을 빠짐없이 넣어요</span></label>" +
+        '<label class="cm-field"><span>쓰는 방식</span><select class="cm-input" id="f-smode">' +
+        [["blank", "빈칸 뼈대 (추천): 정보·키워드는 다 쓰고, 맛·느낌 자리만 빈칸. 폰에서 눌러 골라 채워요"], ["full", "본문 끝까지: AI가 감상까지 다 써요"], ["skel", "뼈대만 (AI 작성 금지 캠페인용): 멘트만 깔고 ✍ 칸으로 비워 둬요"]]
+          .map(function (o) { return '<option value="' + o[0] + '"' + (smodeOf() === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" +
         '<textarea class="cm-input" id="f-mission" maxlength="3000" placeholder="캠페인 안내문(리뷰어 미션, 필수 키워드, 꼭 쓸 내용)을 붙여 넣어 주세요"></textarea></div></details>' +
         '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
         '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
@@ -328,14 +445,16 @@
       });
     }
     function placeBox2() { var el = $("pbox"); if (el) el.innerHTML = ""; }
+    // 협찬 쓰는 방식: 예전에 '뼈대만'을 켜 뒀으면 그대로, 아니면 빈칸 뼈대
+    function smodeOf() { return form.smode || (form.skel ? "skel" : "blank"); }
     function keepForm() {
       if (!$("f-kind")) return;
-      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.skel = $("f-skel").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.smode = $("f-smode").value; form.skel = form.smode === "skel"; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
       save("bl-pd-form", form);
     }
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
-      ["f-kind", "f-tone", "f-len", "f-spon", "f-skel", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-smode", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
       $("f-kind").addEventListener("change", function () { form.kind = +$("f-kind").value; });
       $("go").addEventListener("click", make);
       styleBind();
@@ -434,7 +553,7 @@
     }
     function metaNow() {
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
-        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-skel").checked, mission: $("f-mission").value,
+        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-smode").value === "skel", blank: $("f-smode").value === "blank", mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
         pmemos: items.map(function (x) { return x.memo; }), qa: [], sample: $("f-sample").value,
         menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
@@ -528,6 +647,74 @@
         showDraft(g.draft, miss);
       });
     }
+    // ---------- 빈칸 뼈대: [[✍ 힌트 | 선택지1 / 선택지2]] 를 눌러 골라 채움 ----------
+    var BLANK_RE = /\[\[\s*✍\s*([^|\]]*?)\s*(?:\|([^\]]*))?\]\]/g;
+    function blankList(t) {
+      var out = [], m; BLANK_RE.lastIndex = 0;
+      while ((m = BLANK_RE.exec(t))) out.push({ at: m.index, len: m[0].length, hint: (m[1] || "직접").trim(), opts: (m[2] || "").split("/").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 5) });
+      return out;
+    }
+    function blankOut(t) { return String(t || "").replace(BLANK_RE, function (m, h) { return "___ (✍ " + (h || "직접").trim() + ")"; }); }
+    function bodyPlain(t) { return blankOut(t).split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n"); }
+    function countIn(t, k) { var n = 0, i = 0, a = t.replace(/\s+/g, " "), b = k.replace(/\s+/g, " "); if (!b) return 0; while ((i = a.indexOf(b, i)) >= 0) { n++; i += b.length; } return n; }
+    function bindBlanks(d) {
+      var ta = $("d-body"), box = $("blanks"), mbox = $("mcheck"), mc = d.meta && d.meta.mc, ek = "bl-pd-mc-" + d.id;
+      var etcDone = load(ek, {});
+      function around(t, b) { // 빈칸 앞뒤 글 조금 (어디인지 알게)
+        var a = t.slice(Math.max(0, b.at - 22), b.at).split("\n").pop(), z = t.slice(b.at + b.len, b.at + b.len + 16).split("\n")[0];
+        return (a ? "…" + a : "") + " ___ " + (z ? z + "…" : "");
+      }
+      function fill(i, v) {
+        v = String(v || "").trim(); if (!v) return;
+        var t = ta.value, b = blankList(t)[i]; if (!b) return;
+        ta.value = t.slice(0, b.at) + v + t.slice(b.at + b.len);
+        draw(); drawM();
+        msg($("dmsg"), "넣었어요. 다 채운 뒤 💾 고친 글 저장을 눌러 주세요.");
+      }
+      function draw() {
+        var t = ta.value, bs = blankList(t);
+        if (!bs.length) { box.innerHTML = /\[\[\s*✍/.test(d.body || "") ? '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기</h2><p class="cm-msg">빈칸을 다 채웠어요. 💾 고친 글 저장을 눌러 주세요.</p></div>' : ""; return; }
+        box.innerHTML = '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기 <span class="cm-cap">' + bs.length + "곳 남음</span></h2>" +
+          '<p class="cm-cap">직접 먹어 보고 느낀 자리예요. 맞는 걸 누르거나, 내 말로 적고 ‘넣기’를 눌러요. 고르면 본문에 바로 들어가요.</p>' +
+          bs.map(function (b, i) {
+            return '<div class="pd-blank" data-i="' + i + '"><div class="pd-bh"><b>' + esc(b.hint) + '</b> <button class="cm-link" type="button" data-see="' + i + '">본문에서 보기</button></div>' +
+              '<p class="cm-cap pd-ctx">' + esc(around(t, b)) + "</p>" +
+              '<div class="pd-chips">' + b.opts.map(function (o) { return '<button class="cm-btn" type="button" data-o="' + esc(o) + '">' + esc(o) + "</button>"; }).join("") + "</div>" +
+              '<div class="pd-own"><input class="cm-input" maxlength="200" placeholder="내 말로 적기" autocomplete="off"><button class="cm-btn" type="button" data-own="1">넣기</button></div></div>';
+          }).join("") + "</div>";
+        box.querySelectorAll(".pd-blank").forEach(function (el) {
+          var i = +el.dataset.i;
+          el.querySelectorAll("[data-o]").forEach(function (b) { b.addEventListener("click", function () { fill(i, b.dataset.o); }); });
+          var inp = el.querySelector("input");
+          el.querySelector("[data-own]").addEventListener("click", function () { fill(i, inp.value); });
+          inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); fill(i, inp.value); } });
+          el.querySelector("[data-see]").addEventListener("click", function () {
+            var b = blankList(ta.value)[i]; if (!b) return;
+            ta.focus(); ta.setSelectionRange(b.at, b.at + b.len);
+            var lh = parseFloat(getComputedStyle(ta).lineHeight) || 22; ta.scrollTop = Math.max(0, (ta.value.slice(0, b.at).split("\n").length - 3) * lh);
+            ta.scrollIntoView({ block: "center" });
+          });
+        });
+      }
+      function drawM() { // 🎯 미션 확인: 키워드 횟수·사진·글자 수는 자동, 나머지는 직접 체크
+        if (!mc) { mbox.innerHTML = ""; return; }
+        var plain = bodyPlain(ta.value), title = $("d-title") ? $("d-title").value : "", rows = [];
+        (mc.kw || []).forEach(function (x) { var n = countIn(plain, x.k), tn = countIn(title, x.k); rows.push([n >= x.n, "키워드 “" + x.k + "” 본문 " + n + "/" + x.n + "번" + (tn ? " · 제목에도 있음" : "")]); });
+        if (mc.photos) rows.push([d.photos >= mc.photos, "사진 " + d.photos + "/" + mc.photos + "장 이상"]);
+        if (mc.chars) { var c = plain.replace(/\n{2,}/g, "\n").trim().length; rows.push([c >= mc.chars, "글자 수 " + c + "/" + mc.chars + "자 이상 (공백 포함, 사진 줄 빼고)"]); }
+        var left = blankList(ta.value).length; if (left) rows.push([false, "빈칸 " + left + "곳 남음"]);
+        var ok = rows.filter(function (r) { return r[0]; }).length;
+        mbox.innerHTML = '<div class="cm-card pd-card"><h2 class="cm-h3">🎯 미션 확인 <span class="cm-cap">' + ok + "/" + rows.length + " 자동 통과</span></h2>" +
+          '<ul class="pd-mc">' + rows.map(function (r) { return "<li>" + (r[0] ? "✅" : "❌") + " " + esc(r[1]) + "</li>"; }).join("") + "</ul>" +
+          ((mc.etc || []).length ? '<p class="cm-cap">직접 확인할 것 (했으면 체크)</p>' + mc.etc.map(function (x, i) { return '<label class="pd-chk"><input type="checkbox" data-etc="' + i + '"' + (etcDone[i] ? " checked" : "") + "><span>" + esc(x) + "</span></label>"; }).join("") : "") +
+          '<p class="cm-cap">안내문에서 AI가 뽑은 조건이에요. 빠진 게 있으면 안내문도 한 번 더 봐 주세요.</p></div>';
+        mbox.querySelectorAll("[data-etc]").forEach(function (c) { c.addEventListener("change", function () { etcDone[c.dataset.etc] = c.checked; save(ek, etcDone); }); });
+      }
+      var tm = 0;
+      ta.addEventListener("input", function () { clearTimeout(tm); tm = setTimeout(function () { draw(); drawM(); }, 400); });
+      if ($("d-title")) $("d-title").addEventListener("input", function () { clearTimeout(tm); tm = setTimeout(drawM, 400); });
+      draw(); drawM();
+    }
     function showDraft(d, miss, cut, why) {
       cur = d; miss = miss || [];
       var mine = curFiles && curFiles.id === d.id ? curFiles : null;
@@ -545,6 +732,7 @@
         (titles ? '<div class="cm-field"><span>제목 후보 (누르면 골라져요)</span><div class="pd-titles">' + titles + "</div></div>" : "") +
         '<label class="cm-field"><span>제목</span><input class="cm-input" id="d-title" maxlength="100" value="' + esc(d.title || "") + '" autocomplete="off"></label>' +
         '<label class="cm-field"><span>본문 (“📷 사진 N” 줄 아래 글이 그 사진 밑에 들어가요. 이 줄은 지우지 마세요)</span><textarea class="cm-input pd-body" id="d-body" maxlength="20000">' + esc(d.body || "") + "</textarea></label>" +
+        '<div id="blanks"></div><div id="mcheck"></div>' +
         '<label class="cm-field"><span>태그</span><textarea class="cm-input" id="d-tags" maxlength="600" style="min-height:64px">' + esc(d.tags || "") + "</textarea></label>" +
         '<div id="dmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="d-save">💾 고친 글 저장</button><button class="cm-btn" type="button" id="d-copy">📋 글 복사</button></div>' +
@@ -566,6 +754,7 @@
       }); });
       var dm = $("dmsg");
       if ($("th-open")) bindThumb(d, miss);
+      bindBlanks(d);
       $("d-save").addEventListener("click", function () {
         api("/draft/save", { id: d.id, title: $("d-title").value, body: $("d-body").value, tags: $("d-tags").value }).then(function (j) {
           if (j.ok) cur = j.draft;
@@ -573,7 +762,7 @@
         });
       });
       $("d-copy").addEventListener("click", function () {
-        var body = $("d-body").value.split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n").replace(/\n{3,}/g, "\n\n");
+        var body = spreadInfo(blankOut($("d-body").value)).split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n").replace(/\n{3,}/g, "\n\n");
         var t = [$("d-title").value.trim(), body.trim(), $("d-tags").value.trim()].filter(Boolean).join("\n\n");
         copy(t).then(function (ok) { msg(dm, ok ? "제목·본문·태그를 복사했어요. (사진 표시 줄은 뺐어요)" : "복사하지 못했어요. 글을 길게 눌러 직접 복사해 주세요.", !ok); });
       });
