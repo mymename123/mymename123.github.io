@@ -92,6 +92,7 @@
       nokey: "이 로그인은 아직 준비 중이에요.",
       nodb: "로그인은 아직 준비 중이에요.",
       rejoin: "탈퇴한 계정은 30일 동안 다시 가입할 수 없어요.",
+      beta: "블로랩 회원 기능은 아직 공개 전이에요. 지금은 초대받은 계정만 로그인할 수 있어요. 방금 로그인한 계정은 승인 대기 목록에 올라갔어요.",
       server: "잠시 문제가 생겼어요. 잠시 뒤 다시 해 주세요."
     };
     var ICON = {
@@ -185,7 +186,7 @@
           : '<button class="lg-mini" type="button" data-ln="' + p + '" aria-label="' + PN[p] + ' 로그인 추가">추가</button>') + "</span></li>";
       }).join("");
       ul.querySelectorAll("[data-ln]").forEach(function (b) {
-        b.addEventListener("click", function () { ul.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); b.textContent = "여는 중…"; location.href = A.api + "/auth/" + b.getAttribute("data-ln") + "/start?link=1"; });
+        b.addEventListener("click", function () { ul.querySelectorAll("button").forEach(function (x) { x.disabled = true; }); b.textContent = "여는 중…"; A.start(b.getAttribute("data-ln"), null, true); });
       });
       ul.querySelectorAll("[data-un]").forEach(function (b) {
         b.addEventListener("click", function () {
@@ -219,7 +220,7 @@
       if (!A.token()) choose("로그인이 풀렸어요. 먼저 로그인한 뒤 로그인 방법을 추가해 주세요.");
       else {
         wait("로그인 방법을 연결하는 중이에요…");
-        A.fetch("/auth/link", { method: "POST", body: JSON.stringify({ code: lk }) }).then(function (r) { return r.json(); })
+        A.fetch("/auth/link", { method: "POST", body: JSON.stringify({ code: lk, v: A.verifier() }) }).then(function (r) { A.verifierDone(); return r.json(); })
           .then(function (j) { showMe(j && j.ok ? (PN[j.p] || "") + " 로그인을 연결했어요. 이제 어느 것으로 로그인해도 같은 회원이에요." : (j && j.error) || ERR.server, !(j && j.ok)); })
           .catch(function () { showMe("인터넷 연결을 확인하고 다시 해 주세요.", true); });
       }
@@ -227,8 +228,8 @@
       showMe(ERR[err] || ERR.server, true);
     } else if (code) {
       wait("로그인하는 중이에요…");
-      fetch(A.api + "/auth/exchange", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code }) })
-        .then(function (r) { return r.json(); })
+      fetch(A.api + "/auth/exchange", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code, v: A.verifier() }) })
+        .then(function (r) { A.verifierDone(); return r.json(); })
         .then(function (j) {
           if (!j || !j.ok) { choose(j && j.error || ERR.server); return; }
           A.save(j.token, j.user);
