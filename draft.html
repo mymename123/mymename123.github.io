@@ -38,6 +38,14 @@
   .pd-pick b { color: var(--green); font-size: 16px; }
   .pd-pick:focus-within { outline: 3px solid var(--green); outline-offset: 2px; }
   .pd-pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .pd-blanks .pd-blank { border-top: 1px solid var(--line); padding: 10px 0; }
+  .pd-blank .pd-bh { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pd-blank .pd-ctx { margin: 4px 0 8px; }
+  .pd-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pd-chips .cm-btn { white-space: normal; text-align: left; }
+  .pd-own { display: flex; gap: 6px; margin-top: 6px; } .pd-own .cm-input { flex: 1; min-width: 0; }
+  .cm-link { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; font-size: 13px; cursor: pointer; }
+  .pd-mc { margin: 6px 0; padding-left: 4px; list-style: none; } .pd-mc li { margin: 3px 0; }
   .pd-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
   .pd-chk input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--green); }
   details.pd-more { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
@@ -270,8 +278,10 @@
         '<input class="cm-input" id="f-hours" maxlength="300" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
         '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
         '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글</summary><div>' +
-        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 안내문의 필수 키워드·내용을 빠짐없이 넣어 본문을 끝까지 써요</span></label>" +
-        '<label class="pd-chk"><input type="checkbox" id="f-skel"' + (form.skel ? " checked" : "") + "><span>뼈대만 만들기 (AI 작성 금지 캠페인용): 꼭 들어갈 멘트만 깔고 나머지는 ✍ 칸으로 비워 둬요</span></label>" +
+        '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글로 쓰기: 안내문의 필수 키워드·내용을 빠짐없이 넣어요</span></label>" +
+        '<label class="cm-field"><span>쓰는 방식</span><select class="cm-input" id="f-smode">' +
+        [["blank", "빈칸 뼈대 (추천): 정보·키워드는 다 쓰고, 맛·느낌 자리만 빈칸. 폰에서 눌러 골라 채워요"], ["full", "본문 끝까지: AI가 감상까지 다 써요"], ["skel", "뼈대만 (AI 작성 금지 캠페인용): 멘트만 깔고 ✍ 칸으로 비워 둬요"]]
+          .map(function (o) { return '<option value="' + o[0] + '"' + (smodeOf() === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" +
         '<textarea class="cm-input" id="f-mission" maxlength="3000" placeholder="캠페인 안내문(리뷰어 미션, 필수 키워드, 꼭 쓸 내용)을 붙여 넣어 주세요"></textarea></div></details>' +
         '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
         '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
@@ -352,14 +362,16 @@
       });
     }
     function placeBox2() { var el = $("pbox"); if (el) el.innerHTML = ""; }
+    // 협찬 쓰는 방식: 예전에 '뼈대만'을 켜 뒀으면 그대로, 아니면 빈칸 뼈대
+    function smodeOf() { return form.smode || (form.skel ? "skel" : "blank"); }
     function keepForm() {
       if (!$("f-kind")) return;
-      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.skel = $("f-skel").checked; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.smode = $("f-smode").value; form.skel = form.smode === "skel"; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
       save("bl-pd-form", form);
     }
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
-      ["f-kind", "f-tone", "f-len", "f-spon", "f-skel", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-smode", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
       $("f-kind").addEventListener("change", function () { form.kind = +$("f-kind").value; });
       $("go").addEventListener("click", make);
       styleBind();
@@ -458,7 +470,7 @@
     }
     function metaNow() {
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
-        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-skel").checked, mission: $("f-mission").value,
+        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-smode").value === "skel", blank: $("f-smode").value === "blank", mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
         pmemos: items.map(function (x) { return x.memo; }), qa: [], sample: $("f-sample").value,
         menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
@@ -552,6 +564,74 @@
         showDraft(g.draft, miss);
       });
     }
+    // ---------- 빈칸 뼈대: [[✍ 힌트 | 선택지1 / 선택지2]] 를 눌러 골라 채움 ----------
+    var BLANK_RE = /\[\[\s*✍\s*([^|\]]*?)\s*(?:\|([^\]]*))?\]\]/g;
+    function blankList(t) {
+      var out = [], m; BLANK_RE.lastIndex = 0;
+      while ((m = BLANK_RE.exec(t))) out.push({ at: m.index, len: m[0].length, hint: (m[1] || "직접").trim(), opts: (m[2] || "").split("/").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 5) });
+      return out;
+    }
+    function blankOut(t) { return String(t || "").replace(BLANK_RE, function (m, h) { return "___ (✍ " + (h || "직접").trim() + ")"; }); }
+    function bodyPlain(t) { return blankOut(t).split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n"); }
+    function countIn(t, k) { var n = 0, i = 0, a = t.replace(/\s+/g, " "), b = k.replace(/\s+/g, " "); if (!b) return 0; while ((i = a.indexOf(b, i)) >= 0) { n++; i += b.length; } return n; }
+    function bindBlanks(d) {
+      var ta = $("d-body"), box = $("blanks"), mbox = $("mcheck"), mc = d.meta && d.meta.mc, ek = "bl-pd-mc-" + d.id;
+      var etcDone = load(ek, {});
+      function around(t, b) { // 빈칸 앞뒤 글 조금 (어디인지 알게)
+        var a = t.slice(Math.max(0, b.at - 22), b.at).split("\n").pop(), z = t.slice(b.at + b.len, b.at + b.len + 16).split("\n")[0];
+        return (a ? "…" + a : "") + " ___ " + (z ? z + "…" : "");
+      }
+      function fill(i, v) {
+        v = String(v || "").trim(); if (!v) return;
+        var t = ta.value, b = blankList(t)[i]; if (!b) return;
+        ta.value = t.slice(0, b.at) + v + t.slice(b.at + b.len);
+        draw(); drawM();
+        msg($("dmsg"), "넣었어요. 다 채운 뒤 💾 고친 글 저장을 눌러 주세요.");
+      }
+      function draw() {
+        var t = ta.value, bs = blankList(t);
+        if (!bs.length) { box.innerHTML = /\[\[\s*✍/.test(d.body || "") ? '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기</h2><p class="cm-msg">빈칸을 다 채웠어요. 💾 고친 글 저장을 눌러 주세요.</p></div>' : ""; return; }
+        box.innerHTML = '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기 <span class="cm-cap">' + bs.length + "곳 남음</span></h2>" +
+          '<p class="cm-cap">직접 먹어 보고 느낀 자리예요. 맞는 걸 누르거나, 내 말로 적고 ‘넣기’를 눌러요. 고르면 본문에 바로 들어가요.</p>' +
+          bs.map(function (b, i) {
+            return '<div class="pd-blank" data-i="' + i + '"><div class="pd-bh"><b>' + esc(b.hint) + '</b> <button class="cm-link" type="button" data-see="' + i + '">본문에서 보기</button></div>' +
+              '<p class="cm-cap pd-ctx">' + esc(around(t, b)) + "</p>" +
+              '<div class="pd-chips">' + b.opts.map(function (o) { return '<button class="cm-btn" type="button" data-o="' + esc(o) + '">' + esc(o) + "</button>"; }).join("") + "</div>" +
+              '<div class="pd-own"><input class="cm-input" maxlength="200" placeholder="내 말로 적기" autocomplete="off"><button class="cm-btn" type="button" data-own="1">넣기</button></div></div>';
+          }).join("") + "</div>";
+        box.querySelectorAll(".pd-blank").forEach(function (el) {
+          var i = +el.dataset.i;
+          el.querySelectorAll("[data-o]").forEach(function (b) { b.addEventListener("click", function () { fill(i, b.dataset.o); }); });
+          var inp = el.querySelector("input");
+          el.querySelector("[data-own]").addEventListener("click", function () { fill(i, inp.value); });
+          inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); fill(i, inp.value); } });
+          el.querySelector("[data-see]").addEventListener("click", function () {
+            var b = blankList(ta.value)[i]; if (!b) return;
+            ta.focus(); ta.setSelectionRange(b.at, b.at + b.len);
+            var lh = parseFloat(getComputedStyle(ta).lineHeight) || 22; ta.scrollTop = Math.max(0, (ta.value.slice(0, b.at).split("\n").length - 3) * lh);
+            ta.scrollIntoView({ block: "center" });
+          });
+        });
+      }
+      function drawM() { // 🎯 미션 확인: 키워드 횟수·사진·글자 수는 자동, 나머지는 직접 체크
+        if (!mc) { mbox.innerHTML = ""; return; }
+        var plain = bodyPlain(ta.value), title = $("d-title") ? $("d-title").value : "", rows = [];
+        (mc.kw || []).forEach(function (x) { var n = countIn(plain, x.k), tn = countIn(title, x.k); rows.push([n >= x.n, "키워드 “" + x.k + "” 본문 " + n + "/" + x.n + "번" + (tn ? " · 제목에도 있음" : "")]); });
+        if (mc.photos) rows.push([d.photos >= mc.photos, "사진 " + d.photos + "/" + mc.photos + "장 이상"]);
+        if (mc.chars) { var c = plain.replace(/\n{2,}/g, "\n").trim().length; rows.push([c >= mc.chars, "글자 수 " + c + "/" + mc.chars + "자 이상 (공백 포함, 사진 줄 빼고)"]); }
+        var left = blankList(ta.value).length; if (left) rows.push([false, "빈칸 " + left + "곳 남음"]);
+        var ok = rows.filter(function (r) { return r[0]; }).length;
+        mbox.innerHTML = '<div class="cm-card pd-card"><h2 class="cm-h3">🎯 미션 확인 <span class="cm-cap">' + ok + "/" + rows.length + " 자동 통과</span></h2>" +
+          '<ul class="pd-mc">' + rows.map(function (r) { return "<li>" + (r[0] ? "✅" : "❌") + " " + esc(r[1]) + "</li>"; }).join("") + "</ul>" +
+          ((mc.etc || []).length ? '<p class="cm-cap">직접 확인할 것 (했으면 체크)</p>' + mc.etc.map(function (x, i) { return '<label class="pd-chk"><input type="checkbox" data-etc="' + i + '"' + (etcDone[i] ? " checked" : "") + "><span>" + esc(x) + "</span></label>"; }).join("") : "") +
+          '<p class="cm-cap">안내문에서 AI가 뽑은 조건이에요. 빠진 게 있으면 안내문도 한 번 더 봐 주세요.</p></div>';
+        mbox.querySelectorAll("[data-etc]").forEach(function (c) { c.addEventListener("change", function () { etcDone[c.dataset.etc] = c.checked; save(ek, etcDone); }); });
+      }
+      var tm = 0;
+      ta.addEventListener("input", function () { clearTimeout(tm); tm = setTimeout(function () { draw(); drawM(); }, 400); });
+      if ($("d-title")) $("d-title").addEventListener("input", function () { clearTimeout(tm); tm = setTimeout(drawM, 400); });
+      draw(); drawM();
+    }
     function showDraft(d, miss, cut, why) {
       cur = d; miss = miss || [];
       var mine = curFiles && curFiles.id === d.id ? curFiles : null;
@@ -569,6 +649,7 @@
         (titles ? '<div class="cm-field"><span>제목 후보 (누르면 골라져요)</span><div class="pd-titles">' + titles + "</div></div>" : "") +
         '<label class="cm-field"><span>제목</span><input class="cm-input" id="d-title" maxlength="100" value="' + esc(d.title || "") + '" autocomplete="off"></label>' +
         '<label class="cm-field"><span>본문 (“📷 사진 N” 줄 아래 글이 그 사진 밑에 들어가요. 이 줄은 지우지 마세요)</span><textarea class="cm-input pd-body" id="d-body" maxlength="20000">' + esc(d.body || "") + "</textarea></label>" +
+        '<div id="blanks"></div><div id="mcheck"></div>' +
         '<label class="cm-field"><span>태그</span><textarea class="cm-input" id="d-tags" maxlength="600" style="min-height:64px">' + esc(d.tags || "") + "</textarea></label>" +
         '<div id="dmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="d-save">💾 고친 글 저장</button><button class="cm-btn" type="button" id="d-copy">📋 글 복사</button></div>' +
@@ -590,6 +671,7 @@
       }); });
       var dm = $("dmsg");
       if ($("th-open")) bindThumb(d, miss);
+      bindBlanks(d);
       $("d-save").addEventListener("click", function () {
         api("/draft/save", { id: d.id, title: $("d-title").value, body: $("d-body").value, tags: $("d-tags").value }).then(function (j) {
           if (j.ok) cur = j.draft;
@@ -597,7 +679,7 @@
         });
       });
       $("d-copy").addEventListener("click", function () {
-        var body = spreadInfo($("d-body").value).split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n").replace(/\n{3,}/g, "\n\n");
+        var body = spreadInfo(blankOut($("d-body").value)).split("\n").filter(function (l) { return !/^\s*📷/.test(l); }).join("\n").replace(/\n{3,}/g, "\n\n");
         var t = [$("d-title").value.trim(), body.trim(), $("d-tags").value.trim()].filter(Boolean).join("\n\n");
         copy(t).then(function (ok) { msg(dm, ok ? "제목·본문·태그를 복사했어요. (사진 표시 줄은 뺐어요)" : "복사하지 못했어요. 글을 길게 눌러 직접 복사해 주세요.", !ok); });
       });
