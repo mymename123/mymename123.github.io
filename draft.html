@@ -46,6 +46,8 @@
   .pd-own { display: flex; gap: 6px; margin-top: 6px; } .pd-own .cm-input { flex: 1; min-width: 0; }
   .cm-link { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; font-size: 13px; cursor: pointer; }
   .pd-mc { margin: 6px 0; padding-left: 4px; list-style: none; } .pd-mc li { margin: 3px 0; }
+  .pd-rv { list-style: none; margin: 8px 0; padding: 0; } .pd-rv li { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; border-top: 1px solid var(--line); padding: 8px 0; }
+  .pd-rv li span { display: block; font-size: 13px; opacity: .8; } .pd-rv .bad { color: #d92d20; }
   .pd-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
   .pd-chk input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--green); }
   details.pd-more { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
@@ -211,10 +213,91 @@
         '<div class="cm-card pd-card"><h2 class="cm-h3">보관함</h2>' +
         (list ? '<ul class="pd-list">' + list + "</ul>" : '<p class="cm-cap">아직 만든 초안이 없어요.</p>') +
         '<p class="cm-cap">초안과 사진은 만든 날부터 ' + lim.keepDays + "일 동안만 보관하고 자동으로 지워요.</p></div>" +
-        keyCard();
-      bindNew(); bindKey();
+        rvCard() + keyCard();
+      bindNew(); bindKey(); bindRv();
       main.querySelectorAll("[data-open]").forEach(function (b) { b.addEventListener("click", function () { openDraft(b.dataset.open); }); });
       drawGrid();
+    }
+
+    // ---------- ⏰ 예약 발행 알림 (2026-11-15): 블로그 아이디별 마지막 예약 글 날짜를 보고, 다 떨어지면 폰 알림 ----------
+    function rvCard() {
+      return '<div class="cm-card pd-card" id="rv"><h2 class="cm-h3">⏰ 예약 발행 알림</h2>' +
+        '<p class="cm-cap">블로그마다 마지막 예약 글이 언제 나가는지 보여 주고, 예약 글이 다 떨어지면 알림을 보내요. 날짜는 PC 확장 프로그램이 보내 주거나 여기서 직접 적어요.</p>' +
+        '<div id="rv-list"><p class="cm-cap">불러오는 중…</p></div>' +
+        '<details class="pd-more"><summary>블로그 추가·날짜 고치기</summary><div>' +
+        '<input class="cm-input" id="rv-blog" maxlength="80" placeholder="블로그 아이디 (예: myblog)" autocomplete="off" autocapitalize="off">' +
+        '<label class="cm-field"><span>마지막 예약 글이 나가는 때</span><input class="cm-input" id="rv-when" type="datetime-local"></label>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="rv-save">저장</button></div></div></details>' +
+        '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="rv-push">🔔 이 기기에서 알림 켜기</button><button class="cm-btn" type="button" id="rv-test" hidden>시험 알림</button></div>' +
+        '<div id="rv-msg"></div></div>';
+    }
+    function rvLocal(ms) { var d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); }
+    function rvDraw(j) {
+      var el = $("rv-list"); if (!el) return;
+      var now = Date.now();
+      el.innerHTML = j.rows.length ? '<ul class="pd-rv">' + j.rows.map(function (r) {
+        var d = r.last - now, st = !r.last ? '<b class="bad">예약 글 없음</b>' : d <= 0 ? '<b class="bad">다 떨어졌어요</b> · 마지막 ' + when(r.last) : "마지막 예약 " + when(r.last) + " · <b" + (d < 2 * 86400000 ? ' class="bad"' : "") + ">" + (d < 86400000 ? Math.max(1, Math.round(d / 3600000)) + "시간" : Math.floor(d / 86400000) + "일") + " 남음</b>";
+        return "<li><div><b>" + esc(r.blog) + "</b><span>" + st + (r.count != null ? " · 예약 " + r.count + "편" : "") + "</span><span>" + (r.src === "pc" ? "PC에서 " : "직접 ") + when(r.updated) + " 받음</span></div>" +
+          '<div><button class="cm-link" type="button" data-rve="' + esc(r.blog) + '" data-last="' + (r.last || 0) + '">고치기</button> <button class="cm-link" type="button" data-rvd="' + esc(r.blog) + '">지우기</button></div></li>';
+      }).join("") + "</ul>" : '<p class="cm-cap">아직 등록한 블로그가 없어요. 아래에서 추가해 주세요. (' + j.max + "개까지)</p>";
+      el.querySelectorAll("[data-rve]").forEach(function (b) { b.addEventListener("click", function () {
+        $("rv-blog").value = b.dataset.rve; $("rv-when").value = +b.dataset.last ? rvLocal(+b.dataset.last) : ""; $("rv-blog").closest("details").open = true; $("rv-when").focus();
+      }); });
+      el.querySelectorAll("[data-rvd]").forEach(function (b) { b.addEventListener("click", function () {
+        if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "한 번 더 누르면 지워요"; return; }
+        api("/draft/reserve", { blog: b.dataset.rvd, act: "del" }).then(function (x) { if (x.ok) rvDraw(x); else msg($("rv-msg"), x.error || "지우지 못했어요.", true); });
+      }); });
+    }
+    function rvKey(t) { var s = atob(t.replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+    function rvCan() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+    async function rvSub() { var reg = await navigator.serviceWorker.getRegistration("/"); return reg ? reg.pushManager.getSubscription() : null; }
+    async function rvState() {
+      var b = $("rv-push"), t = $("rv-test"); if (!b) return;
+      var on = false; try { on = rvCan() && Notification.permission === "granted" && !!(await rvSub()); } catch (e) {}
+      if (!$("rv-push")) return;
+      b.dataset.on = on ? "1" : ""; b.textContent = on ? "🔕 이 기기 알림 끄기" : "🔔 이 기기에서 알림 켜기"; b.classList.toggle("pri", !on); t.hidden = !on;
+    }
+    function bindRv() {
+      var m = $("rv-msg");
+      api("/draft/reserve").then(function (j) { if (j && j.ok) rvDraw(j); else if ($("rv-list")) $("rv-list").innerHTML = '<p class="cm-cap">' + esc((j && j.error) || "불러오지 못했어요.") + "</p>"; });
+      rvState();
+      $("rv-save").addEventListener("click", function () {
+        var blog = $("rv-blog").value.trim().replace(/^https?:\/\/(m\.)?blog\.naver\.com\//, "").split(/[/?]/)[0], w = $("rv-when").value;
+        if (!blog) { msg(m, "블로그 아이디를 적어 주세요.", true); return; }
+        api("/draft/reserve", { blog: blog, last: w ? new Date(w).getTime() : 0 }).then(function (j) {
+          if (j.ok) { rvDraw(j); $("rv-blog").value = ""; $("rv-when").value = ""; msg(m, w ? "저장했어요." : "저장했어요. 날짜를 비워서 ‘예약 글 없음’으로 적었어요."); } else msg(m, j.error || "저장하지 못했어요.", true);
+        });
+      });
+      $("rv-push").addEventListener("click", async function () {
+        var b = $("rv-push");
+        try {
+          if (b.dataset.on === "1") {
+            var s0 = await rvSub();
+            if (s0) { await api("/draft/push", { act: "off", endpoint: s0.endpoint }); await s0.unsubscribe(); }
+            msg(m, "이 기기의 알림을 껐어요."); return rvState();
+          }
+          if (!rvCan()) {
+            var ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            msg(m, ios ? "아이폰은 홈 화면에 추가한 뒤에만 알림을 받을 수 있어요. 사파리 아래 공유 버튼 → ‘홈 화면에 추가’ 후, 홈 화면의 블로랩 아이콘으로 열어서 다시 눌러 주세요." : "이 브라우저는 알림을 받을 수 없어요. 크롬이나 삼성 인터넷으로 열어 주세요.", true); return;
+          }
+          b.disabled = true;
+          var perm = await Notification.requestPermission();
+          if (perm !== "granted") { b.disabled = false; msg(m, "알림이 막혀 있어요. 브라우저 주소창 옆 자물쇠(사이트 설정)에서 알림을 ‘허용’으로 바꾼 뒤 다시 눌러 주세요.", true); return; }
+          var k = await api("/draft/push");
+          if (!k || !k.ok) { b.disabled = false; msg(m, (k && k.error) || "알림을 켜지 못했어요.", true); return; }
+          await navigator.serviceWorker.register("/sw.js");
+          var reg = await navigator.serviceWorker.ready, old = await reg.pushManager.getSubscription();
+          if (old) { try { await old.unsubscribe(); } catch (e) {} } // 서버 열쇠가 바뀌었을 수 있어 새로 받음
+          var sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: rvKey(k.key) });
+          var j = await api("/draft/push", { sub: sub.toJSON() });
+          b.disabled = false;
+          if (j.ok) msg(m, "알림을 켰어요. ‘시험 알림’을 눌러 잘 오는지 확인해 보세요."); else { try { await sub.unsubscribe(); } catch (e) {} msg(m, j.error || "알림을 켜지 못했어요.", true); }
+          rvState();
+        } catch (e) { b.disabled = false; msg(m, "알림을 켜지 못했어요. (" + String((e && e.message) || e).slice(0, 80) + ")", true); }
+      });
+      $("rv-test").addEventListener("click", function () {
+        api("/draft/push", { act: "test" }).then(function (j) { msg(m, j.ok ? "시험 알림을 보냈어요. 몇 초 안에 와요." : j.error || "보내지 못했어요.", !j.ok); });
+      });
     }
 
     // ---------- 새 초안 ----------
