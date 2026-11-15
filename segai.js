@@ -42,12 +42,29 @@
       for (var i = 0; i < N; i++) if (all[off + i] > 0) a++;
       cand.push({ k: k, area: a / N, score: sc[k] || 0 });
     }
+    if (want === "all") return { w: W, h: H, list: cand.map(function (c) { return { logit: all.subarray(c.k * N, c.k * N + N), score: c.score, area: c.area }; }) };
     var okc = cand.filter(function (c) { return c.area > 0.02 && c.area < 0.9; });
     if (!okc.length) okc = cand;
     var top = Math.max.apply(null, okc.map(function (c) { return c.score; })), pick;
     if (want === "big") pick = okc.filter(function (c) { return c.score >= top - 0.12 && c.area < 0.8; }).sort(function (a, b) { return b.area - a.area; })[0];
     pick = pick || okc.sort(function (a, b) { return b.score - a.score; })[0];
     return { logit: Float32Array.from(all.subarray(pick.k * N, pick.k * N + N)), w: W, h: H, score: pick.score };
+  }
+  // 자동(가운데 물건): 가운데 점 하나로만 하면 그릇 속 음식만 잡히는 일이 많아서, 가운데 둘레 점 몇 개로도 따 본 뒤
+  // '가운데를 품은' 결과 중 AI 확신(score)이 가장 높은 것을 고름 (비슷하면 더 큰 것 = 그릇까지)
+  async function auto(E) {
+    var w = E.w, h = E.h, cx = Math.round(w / 2), cy = Math.round(h / 2), best = null;
+    var seeds = [[0, 0], [-0.1, 0], [0.1, 0], [0, -0.1], [0, 0.1], [-0.17, 0.03], [0.17, 0.03]];
+    for (var i = 0; i < seeds.length; i++) {
+      var p = { x: w * (0.5 + seeds[i][0]), y: h * (0.5 + seeds[i][1]), label: 1 };
+      var R = await cut(E, [p], "all");
+      R.list.forEach(function (c) {
+        if (c.logit[cy * R.w + cx] <= 0 || c.area < 0.02 || c.area > 0.85) return;
+        var better = !best || c.score > best.score + 0.03 || (c.score > best.score - 0.03 && c.area > best.area);
+        if (better) best = { logit: c.logit, w: R.w, h: R.h, score: c.score, area: c.area, pts: [p] };
+      });
+    }
+    return best || Object.assign(await cut(E, [{ x: cx, y: cy, label: 1 }], "big"), { pts: [{ x: cx, y: cy, label: 1 }] });
   }
   // logit → 0/1 영역. adj: -10(좁게) ~ +10(넓게)
   function mask(R, adj) {
@@ -71,5 +88,5 @@
     for (var j = 0; j < m.length; j++) if (m[j] && sizes[lab[j]] < big * 0.15) m[j] = 0;
     return m;
   }
-  window.BLSegAI = { load: load, embed: embed, cut: cut, mask: mask };
+  window.BLSegAI = { load: load, embed: embed, cut: cut, auto: auto, mask: mask };
 })();

@@ -958,7 +958,7 @@
     var segAIP = null, aiReady = false, aiWhy = "";
     function segAILoad() {
       if (window.BLSegAI) return Promise.resolve();
-      return segAIP || (segAIP = new Promise(function (res, rej) { var sc = document.createElement("script"); sc.src = "segai.js?v=1"; sc.onload = function () { res(); }; sc.onerror = function () { segAIP = null; rej(new Error("AI 누끼를 불러오지 못했어요")); }; document.head.appendChild(sc); }));
+      return segAIP || (segAIP = new Promise(function (res, rej) { var sc = document.createElement("script"); sc.src = "segai.js?v=2"; sc.onload = function () { res(); }; sc.onerror = function () { segAIP = null; rej(new Error("AI 누끼를 불러오지 못했어요")); }; document.head.appendChild(sc); }));
     }
     function tWait(p, ms, why) { return Promise.race([p, new Promise(function (r, j) { setTimeout(function () { j(new Error(why)); }, ms); })]); }
     function tMk(w, h) { var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; }
@@ -1134,7 +1134,7 @@
             if (!quiet) msg(tm, window.BLSegAI && aiReady ? "✂ AI가 누끼 따는 중… (몇 초)" : "✂ AI 누끼 준비 중… 처음 한 번은 모델(약 20MB)을 받느라 10~40초 걸려요. 와이파이를 권해요.");
             await segAILoad();
             E = await tWait(window.BLSegAI.embed(pc), 90000, "시간이 너무 걸려요");
-            ai = await window.BLSegAI.cut(E, pts, "big"); aiReady = true;
+            ai = await window.BLSegAI.auto(E); pts = ai.pts.map(function (q) { return Object.assign({ auto: true }, q); }); aiReady = true;
           } catch (e) { ai = null; E = null; aiWhy = String((e && e.message) || e).slice(0, 80); }
           var L = tSticker(Object.assign({ type: "sticker", pc: pc, im: im, score: score, ai: ai, E: E, pts: ai ? pts : null, adj: 0, shape: "cut", s: 560, x: TSZ / 2, y: TSZ * 0.62, rot: 0 }, at || {}));
           if (!ai && !quiet) msg(tm, "AI 누끼를 못 써서 색으로 땄어요. (" + aiWhy + ")");
@@ -1199,7 +1199,12 @@
         var base = (L.pts || []).filter(function (q) { return !(q.label && q.auto); });
         fixRun(fixLab && !base.some(function (q) { return q.label; }) ? base.concat([p]) : (L.pts || []).concat([p]));
       });
-      $("th-fx0").addEventListener("click", function () { if (fixL) fixRun([{ x: fixL.pc.width / 2, y: fixL.pc.height / 2, label: 1, auto: true }]); });
+      $("th-fx0").addEventListener("click", async function () {
+        var L = fixL; if (!L || fixBusy) return; fixBusy = true; msg($("th-fxmsg"), "AI가 다시 따는 중…");
+        try { var R = await window.BLSegAI.auto(L.E); if (fixL === L) { L.ai = R; L.pts = R.pts.map(function (q) { return Object.assign({ auto: true }, q); }); tSticker(L); fixDraw(); draw(); msg($("th-fxmsg"), ""); } }
+        catch (e) { msg($("th-fxmsg"), "다시 따지 못했어요.", true); }
+        fixBusy = false;
+      });
       $("th-fxok").addEventListener("click", function () { fixClose(); mark(); });
       var restick = function () { var L = T.sel; if (L && L.type === "sticker") { try { tSticker(L); } catch (e) {} draw(); } };
       $("th-adj").addEventListener("input", function (e) { if (T.sel && T.sel.type === "sticker") T.sel.adj = +e.target.value; });
