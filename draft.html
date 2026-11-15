@@ -48,6 +48,8 @@
   .pd-mc { margin: 6px 0; padding-left: 4px; list-style: none; } .pd-mc li { margin: 3px 0; }
   .pd-rv { list-style: none; margin: 8px 0; padding: 0; } .pd-rv li { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; border-top: 1px solid var(--line); padding: 8px 0; }
   .pd-rv li span { display: block; font-size: 13px; opacity: .8; } .pd-rv .bad { color: #d92d20; }
+  .th-fixer { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 8px 0; }
+  .th-fixcv canvas { width: 100%; height: auto; display: block; border-radius: 8px; touch-action: manipulation; cursor: crosshair; margin: 6px 0; }
   .pd-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
   .pd-chk input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--green); }
   details.pd-more { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
@@ -848,6 +850,11 @@
       var lh = L.fs * 1.12;
       return { w: w + L.fs * 0.5, h: lines.length * lh + L.fs * 0.3, lines: lines, lh: lh };
     }
+    function tMix(a, b, k) { // 색 두 개를 k 만큼 섞음 (#rrggbb)
+      var p = function (c, i) { return parseInt(c.slice(1 + i * 2, 3 + i * 2), 16); }, o = "#";
+      for (var i = 0; i < 3; i++) o += ("0" + Math.round(p(a, i) * (1 - k) + p(b, i) * k).toString(16)).slice(-2);
+      return o;
+    }
     function tSize(ctx, L) { return L.type === "text" ? tBox(ctx, L) : L.type === "sticker" ? { w: L.s, h: L.s * L.c.height / L.c.width } : { w: L.s, h: L.s }; }
     function tDraw(ctx, L) {
       ctx.save(); ctx.translate(L.x, L.y); ctx.rotate((L.rot || 0) * Math.PI / 180);
@@ -858,7 +865,29 @@
       } else if (L.type === "text") {
         var b = tBox(ctx, L);
         ctx.font = tFont(L, L.fs); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
-        var light = /^#(ffffff|ffd60a)$/i.test(L.fill);
+        var light = /^#(ffffff|ffd60a)$/i.test(L.fill), fs = L.fs;
+        if (L.style === "box") { // 색 띠 위에 글자
+          var bw = b.w + fs * 0.5, bh = b.h + fs * 0.25, rr = fs * 0.28;
+          ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = fs * 0.2; ctx.shadowOffsetY = fs * 0.08;
+          ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(-bw / 2, -bh / 2, bw, bh, rr); else ctx.rect(-bw / 2, -bh / 2, bw, bh);
+          ctx.fillStyle = L.fill; ctx.fill(); ctx.restore();
+          ctx.lineWidth = fs * 0.08; ctx.strokeStyle = L.line === "#ffffff" ? "#3b1d0e" : L.line; ctx.stroke();
+          b.lines.forEach(function (s, i) { var y = -b.h / 2 + fs * 0.15 + b.lh * (i + 0.5); ctx.fillStyle = light ? "#2a1608" : "#ffffff"; ctx.fillText(s, 0, y); });
+          ctx.restore(); return;
+        }
+        if (L.style === "game") { // 게임 썸네일처럼: 아래로 두꺼운 그림자 + 진한 바깥 테두리 + 흰 안쪽 테두리 + 위아래 그라데이션
+          var dark = L.line === "#ffffff" ? "#3b1d0e" : L.line, hi = tMix(L.fill, "#ffffff", /^#ffffff$/i.test(L.fill) ? 0 : 0.62), lo = /^#ffffff$/i.test(L.fill) ? "#cfe0ff" : L.fill;
+          b.lines.forEach(function (s, i) {
+            var y = -b.h / 2 + fs * 0.15 + b.lh * (i + 0.5);
+            ctx.strokeStyle = dark; ctx.fillStyle = dark; ctx.lineWidth = fs * 0.36;
+            ctx.save(); ctx.translate(fs * 0.03, fs * 0.11); ctx.globalAlpha = 0.85; ctx.strokeText(s, 0, y); ctx.fillText(s, 0, y); ctx.restore();
+            ctx.lineWidth = fs * 0.34; ctx.strokeText(s, 0, y);
+            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = fs * 0.15; ctx.strokeText(s, 0, y);
+            var g = ctx.createLinearGradient(0, y - fs * 0.45, 0, y + fs * 0.45); g.addColorStop(0, hi); g.addColorStop(0.55, lo); g.addColorStop(1, tMix(lo, dark, 0.18));
+            ctx.fillStyle = g; ctx.fillText(s, 0, y);
+          });
+          ctx.restore(); return;
+        }
         b.lines.forEach(function (s, i) {
           var y = -b.h / 2 + L.fs * 0.15 + b.lh * (i + 0.5);
           if (light || L.line === "#ffffff") { ctx.strokeStyle = L.line === "#ffffff" ? "#3b1d0e" : L.line; ctx.lineWidth = L.fs * 0.22; ctx.strokeText(s, 0, y); }
@@ -925,6 +954,13 @@
       if (window.BLSeg) return Promise.resolve();
       return segP || (segP = new Promise(function (res, rej) { var sc = document.createElement("script"); sc.src = "seg.js?v=1"; sc.onload = function () { res(); }; sc.onerror = function () { segP = null; rej(new Error("누끼 기능을 불러오지 못했어요")); }; document.head.appendChild(sc); }));
     }
+    // AI 누끼(segai.js): 처음 쓸 때만 불러옴. 못 쓰면 색 방식(seg.js)
+    var segAIP = null, aiReady = false, aiWhy = "";
+    function segAILoad() {
+      if (window.BLSegAI) return Promise.resolve();
+      return segAIP || (segAIP = new Promise(function (res, rej) { var sc = document.createElement("script"); sc.src = "segai.js?v=1"; sc.onload = function () { res(); }; sc.onerror = function () { segAIP = null; rej(new Error("AI 누끼를 불러오지 못했어요")); }; document.head.appendChild(sc); }));
+    }
+    function tWait(p, ms, why) { return Promise.race([p, new Promise(function (r, j) { setTimeout(function () { j(new Error(why)); }, ms); })]); }
     function tMk(w, h) { var c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; }
     function tDilate(M, r) { // 영역을 r 만큼 부풀림 (테두리용)
       var c = tMk(M.width, M.height), x = c.getContext("2d");
@@ -935,7 +971,8 @@
     // 스티커 그림 만들기: L.pc(사진), L.im(작은 사진 점), L.score(물건 점수), L.adj(범위), L.shape(cut|round)
     function tSticker(L) {
       var S = window.BLSeg, im = L.im, w = im.w, h = im.h, m = null, info = null;
-      if (L.shape !== "round") { m = S.maskFromScore(im, L.score, L.adj || 0); info = S.maskInfo(m, w, h); if (!info.n || info.n < w * h * 0.03) m = null; }
+      if (L.shape !== "round" && L.ai && window.BLSegAI) { w = L.ai.w; h = L.ai.h; m = window.BLSegAI.mask(L.ai, L.adj || 0); info = S.maskInfo(m, w, h); if (!info.n || info.n < w * h * 0.01) { m = null; w = im.w; h = im.h; } }
+      else if (L.shape !== "round") { m = S.maskFromScore(im, L.score, L.adj || 0); info = S.maskInfo(m, w, h); if (!info.n || info.n < w * h * 0.03) m = null; }
       if (!m) { // 동그라미 (누끼가 안 잡힐 때도 이쪽으로)
         m = new Uint8Array(w * h);
         var r = Math.min(w, h) * (0.4 + (L.adj || 0) * 0.008), cx = w / 2, cy = h / 2;
@@ -984,9 +1021,14 @@
           '<div id="th-tx"><label class="cm-field"><span>글자 (줄을 바꾸면 여러 줄)</span><textarea class="cm-input" id="th-text" style="min-height:72px" maxlength="80"></textarea></label>' +
           (chips ? '<div class="cm-field"><span>문구 고르기 (누르면 글자가 바뀌어요)</span><div class="pd-titles">' + chips + "</div></div>" : "") +
           '<div class="cm-field"><span>글씨체 (옆으로 밀어 더 보기)</span><div class="th-fonts">' + fonts + "</div></div>" +
+          '<div class="cm-field"><span>글자 꾸미기</span><div class="th-mode"><button type="button" class="cm-btn" data-ts="game">🎮 게임 썸네일</button><button type="button" class="cm-btn" data-ts="line">테두리만</button><button type="button" class="cm-btn" data-ts="box">색 띠</button></div></div>' +
           '<div class="cm-field"><span>테두리 색</span><div class="th-sws">' + sw(TLINE, "data-line") + "</div></div></div>" +
           '<div class="cm-field" id="th-colf"><span>색</span><div class="th-sws">' + sw(TFILL, "data-fill") + "</div></div>" +
           '<div id="th-stk"><div class="cm-field"><span>모양</span><div class="th-mode"><button type="button" class="cm-btn" data-shape="cut">✂ 누끼</button><button type="button" class="cm-btn" data-shape="round">⚪ 동그라미</button></div></div>' +
+          '<div class="pd-acts" id="th-fixw"><button class="cm-btn" type="button" id="th-fix">👆 눌러서 고치기</button></div>' +
+          '<div id="th-fixer" class="th-fixer" hidden><p class="cm-cap">사진에서 <b>넣을 곳</b>을 누르면 그 물건을 잡고, <b>빼기</b>를 고른 뒤 누르면 그 부분을 빼요. 초록색이 오려질 곳이에요.</p>' +
+            '<div class="th-fixcv"><canvas id="th-fcv"></canvas></div>' +
+            '<div class="th-mode"><button type="button" class="cm-btn" data-fx="1" aria-pressed="true">＋ 넣기</button><button type="button" class="cm-btn" data-fx="0" aria-pressed="false">－ 빼기</button><button type="button" class="cm-btn" id="th-fx0">처음으로</button><button type="button" class="cm-btn pri" id="th-fxok">다 됐어요</button></div><div id="th-fxmsg"></div></div>' +
           '<label class="th-r"><span>오릴 범위</span><input type="range" id="th-adj" min="-10" max="10" step="1"></label><p class="cm-cap">누끼가 덜 잡히면 범위를 넓히고, 배경까지 잡히면 좁혀 주세요. 잘 안 되는 사진은 동그라미가 깔끔해요.</p></div>' +
           '<label class="th-r"><span>크기</span><input type="range" id="th-size" min="40" max="420" step="2"></label>' +
           '<label class="th-r"><span>기울기</span><input type="range" id="th-rot" min="-30" max="30" step="1"></label>' +
@@ -994,7 +1036,7 @@
         "</div>" +
         '<div id="th-msg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="th-save">💾 썸네일 저장</button><button class="cm-btn" type="button" id="th-dl">📥 폰에 사진으로 저장</button></div>' +
-        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 누끼는 AI가 아니라 색으로 찾는 방식이라, 음식과 배경 색이 비슷하면 덜 깔끔할 수 있어요.</p></div>';
+        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 누끼는 이 폰 안에서 AI가 따요(사진은 서버로 안 가요). 처음 한 번은 AI 모델(약 20MB)을 받느라 오래 걸리고, 못 쓰는 폰에서는 색으로 찾는 방식으로 따요.</p></div>';
       top();
       var cv = $("th-cv"), ctx = cv.getContext("2d"), tm = $("th-msg"), raf = 0;
       function draw() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; if ($("th-cv") === cv) tRender(ctx, T, T.sel); }); }
@@ -1005,8 +1047,10 @@
         if (T.bg) { $("th-zoom").value = T.bg.zoom; $("th-dim").value = T.bg.dim; }
         if (!L) return;
         $("th-tx").hidden = L.type !== "text";
+        if (L.type === "text") main.querySelectorAll("[data-ts]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.ts === (L.style || "line") ? "true" : "false"); });
         $("th-stk").hidden = L.type !== "sticker"; $("th-colf").hidden = L.type === "sticker";
-        if (L.type === "sticker") { $("th-adj").value = L.adj || 0; main.querySelectorAll("[data-shape]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.shape === (L.shape || "cut") ? "true" : "false"); }); }
+        if (L.type !== "sticker" || L !== fixL) fixClose();
+        if (L.type === "sticker") { $("th-fixw").style.display = !L.E || L.shape === "round" ? "none" : ""; $("th-adj").value = L.adj || 0; main.querySelectorAll("[data-shape]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.shape === (L.shape || "cut") ? "true" : "false"); }); }
         var sz = $("th-size");
         if (L.type === "text") { sz.min = 40; sz.max = 320; sz.value = L.fs; if ($("th-text").value !== L.text) $("th-text").value = L.text; main.querySelectorAll("[data-font]").forEach(function (b) { b.classList.toggle("on", b.dataset.font === L.font); }); }
         else { sz.min = 60; sz.max = L.type === "sticker" ? 1080 : 700; sz.value = L.s; }
@@ -1021,7 +1065,7 @@
       function hbtn() { if ($("th-undo")) { $("th-undo").disabled = H.i <= 0; $("th-redo").disabled = H.i >= H.list.length - 1; } }
       function mark() {
         var s = { layers: T.layers.map(copyL), bg: T.bg ? Object.assign({}, T.bg) : null, sel: T.layers.indexOf(T.sel) };
-        s.k = JSON.stringify([s.layers, s.bg ? [s.bg.id, s.bg.zoom, s.bg.ox, s.bg.oy, s.bg.dim] : 0], function (k, v) { return k === "c" || k === "pc" || k === "im" || k === "score" ? undefined : v; }); // 그림 자체는 빼고 비교
+        s.k = JSON.stringify([s.layers, s.bg ? [s.bg.id, s.bg.zoom, s.bg.ox, s.bg.oy, s.bg.dim] : 0], function (k, v) { return k === "c" || k === "pc" || k === "im" || k === "score" || k === "ai" || k === "E" ? undefined : v; }); // 그림 자체는 빼고 비교
         if (H.i >= 0 && H.list[H.i].k === s.k) return;
         H.list = H.list.slice(0, H.i + 1); H.list.push(s);
         if (H.list.length > 60) H.list.shift();
@@ -1037,7 +1081,7 @@
       var markT = 0;
       function markSoon() { clearTimeout(markT); markT = setTimeout(mark, 600); }
       function addText(t) {
-        var L = { type: "text", text: tLines(t || tShort(d) || "글자를 써 주세요"), font: "jua", fill: "#ffffff", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: TSZ * 0.74, rot: 0 };
+        var L = { type: "text", text: tLines(t || tShort(d) || "글자를 써 주세요"), font: "jua", style: "game", fill: "#ffd60a", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: TSZ * 0.74, rot: 0 };
         tFit(ctx, L, TSZ - 90); T.layers.push(L); font(L); select(L); mark();
       }
       // 사진 줄
@@ -1084,9 +1128,18 @@
           var im = { w: wc.width, h: wc.height, data: wx.getImageData(0, 0, wc.width, wc.height).data };
           await new Promise(function (r) { setTimeout(r, 30); }); // 안내 글이 먼저 보이게
           var score = window.BLSeg.rectScore(im, { x0: im.w * 0.07, y0: im.h * 0.07, x1: im.w * 0.93, y1: im.h * 0.93 });
-          var L = tSticker(Object.assign({ type: "sticker", pc: pc, im: im, score: score, adj: 0, shape: "cut", s: 560, x: TSZ / 2, y: TSZ * 0.62, rot: 0 }, at || {}));
+          // AI 누끼: 사진 가운데를 '음식'으로 보고 땀. 처음엔 모델을 받느라 오래 걸릴 수 있어 90초 넘으면 색 방식으로
+          var ai = null, E = null, pts = [{ x: pc.width / 2, y: pc.height / 2, label: 1, auto: true }];
+          try {
+            if (!quiet) msg(tm, window.BLSegAI && aiReady ? "✂ AI가 누끼 따는 중… (몇 초)" : "✂ AI 누끼 준비 중… 처음 한 번은 모델(약 20MB)을 받느라 10~40초 걸려요. 와이파이를 권해요.");
+            await segAILoad();
+            E = await tWait(window.BLSegAI.embed(pc), 90000, "시간이 너무 걸려요");
+            ai = await window.BLSegAI.cut(E, pts, "big"); aiReady = true;
+          } catch (e) { ai = null; E = null; aiWhy = String((e && e.message) || e).slice(0, 80); }
+          var L = tSticker(Object.assign({ type: "sticker", pc: pc, im: im, score: score, ai: ai, E: E, pts: ai ? pts : null, adj: 0, shape: "cut", s: 560, x: TSZ / 2, y: TSZ * 0.62, rot: 0 }, at || {}));
+          if (!ai && !quiet) msg(tm, "AI 누끼를 못 써서 색으로 땄어요. (" + aiWhy + ")");
           T.layers.push(L);
-          if (!quiet) { msg(tm, ""); select(L); mark(); }
+          if (!quiet) { if (ai) msg(tm, "누끼를 땄어요. 덜 잡히거나 더 잡혔으면 아래 ‘👆 눌러서 고치기’를 써 보세요."); select(L); mark(); }
           return L;
         } catch (e) { if (!quiet) msg(tm, "누끼를 못 땄어요: " + String((e && e.message) || e), true); return null; }
       }
@@ -1107,9 +1160,50 @@
         pickMode = b.dataset.mode;
         main.querySelectorAll("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
       }); });
+      // 👆 눌러서 고치기: 사진을 눌러 넣을 곳(+)·뺄 곳(−)을 찍으면 AI가 다시 땀 (사진 특징 L.E 는 다시 계산 안 함)
+      var fixL = null, fixLab = 1, fixBusy = false;
+      function fixClose() { fixL = null; var f = $("th-fixer"); if (f) f.hidden = true; }
+      function fixDraw() {
+        var L = fixL, c = $("th-fcv"); if (!L || !c) return;
+        var W = L.pc.width, H = L.pc.height; if (c.width !== W) { c.width = W; c.height = H; }
+        var x = c.getContext("2d"); x.globalAlpha = 1; x.drawImage(L.pc, 0, 0);
+        if (L.ai) {
+          var m = window.BLSegAI.mask(L.ai, L.adj || 0), mc = tMk(L.ai.w, L.ai.h), mx = mc.getContext("2d"), id = mx.createImageData(L.ai.w, L.ai.h);
+          for (var i = 0; i < m.length; i++) { if (m[i]) { id.data[i * 4 + 1] = 220; id.data[i * 4 + 3] = 110; } else { id.data[i * 4 + 3] = 120; } }
+          mx.putImageData(id, 0, 0); x.drawImage(mc, 0, 0, W, H);
+        }
+        (L.pts || []).forEach(function (p) { x.beginPath(); x.arc(p.x, p.y, Math.max(10, W * 0.018), 0, Math.PI * 2); x.fillStyle = p.label ? "#03c75a" : "#ff3b30"; x.fill(); x.lineWidth = Math.max(3, W * 0.005); x.strokeStyle = "#fff"; x.stroke(); });
+      }
+      async function fixRun(pts) {
+        var L = fixL; if (!L || fixBusy) return;
+        fixBusy = true; msg($("th-fxmsg"), "AI가 다시 따는 중…");
+        try {
+          var R = await window.BLSegAI.cut(L.E, pts, pts.length === 1 && pts[0].label ? "big" : "best");
+          if (fixL !== L) return;
+          L.ai = R; L.pts = pts; L.shape = "cut"; tSticker(L); fixDraw(); draw(); msg($("th-fxmsg"), "");
+        } catch (e) { msg($("th-fxmsg"), "다시 따지 못했어요: " + String((e && e.message) || e).slice(0, 80), true); }
+        fixBusy = false;
+      }
+      $("th-fix").addEventListener("click", function () {
+        var L = T.sel; if (!L || !L.E) return;
+        fixL = L; fixLab = 1; $("th-fixer").hidden = false;
+        main.querySelectorAll("[data-fx]").forEach(function (x) { x.setAttribute("aria-pressed", x.dataset.fx === "1" ? "true" : "false"); });
+        fixDraw(); $("th-fixer").scrollIntoView({ block: "nearest" });
+      });
+      main.querySelectorAll("[data-fx]").forEach(function (b) { b.addEventListener("click", function () {
+        fixLab = +b.dataset.fx; main.querySelectorAll("[data-fx]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      }); });
+      $("th-fcv").addEventListener("click", function (e) {
+        var L = fixL; if (!L) return;
+        var c = $("th-fcv"), r = c.getBoundingClientRect(), p = { x: (e.clientX - r.left) * c.width / r.width, y: (e.clientY - r.top) * c.height / r.height, label: fixLab };
+        var base = (L.pts || []).filter(function (q) { return !(q.label && q.auto); });
+        fixRun(fixLab && !base.some(function (q) { return q.label; }) ? base.concat([p]) : (L.pts || []).concat([p]));
+      });
+      $("th-fx0").addEventListener("click", function () { if (fixL) fixRun([{ x: fixL.pc.width / 2, y: fixL.pc.height / 2, label: 1, auto: true }]); });
+      $("th-fxok").addEventListener("click", function () { fixClose(); mark(); });
       var restick = function () { var L = T.sel; if (L && L.type === "sticker") { try { tSticker(L); } catch (e) {} draw(); } };
       $("th-adj").addEventListener("input", function (e) { if (T.sel && T.sel.type === "sticker") T.sel.adj = +e.target.value; });
-      $("th-adj").addEventListener("change", function () { restick(); mark(); });
+      $("th-adj").addEventListener("change", function () { restick(); fixDraw(); mark(); });
       main.querySelectorAll("[data-shape]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (L && L.type === "sticker") { L.shape = b.dataset.shape; restick(); sync(); mark(); } }); });
       // 손가락
       var pts = {}, grab = null;
@@ -1163,6 +1257,7 @@
       $("th-undo").addEventListener("click", function () { clearTimeout(markT); mark(); step(-1); });
       $("th-redo").addEventListener("click", function () { step(1); });
       main.querySelectorAll("[data-fill]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (!L) return; if (L.type === "text") L.fill = b.dataset.fill; else L.color = b.dataset.fill; sync(); draw(); mark(); }); });
+      main.querySelectorAll("[data-ts]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (L && L.type === "text") { L.style = b.dataset.ts; sync(); draw(); mark(); } }); });
       main.querySelectorAll("[data-line]").forEach(function (b) { b.addEventListener("click", function () { if (T.sel && T.sel.type === "text") { T.sel.line = b.dataset.line; sync(); draw(); mark(); } }); });
       main.querySelectorAll("[data-tt]").forEach(function (b) { b.addEventListener("click", function () { var L = T.sel; if (L && L.type === "text") { L.text = tLines(b.dataset.tt); tFit(ctx, L, TSZ - 90); font(L); sync(); draw(); mark(); } }); });
       main.querySelectorAll("[data-add]").forEach(function (b) { b.addEventListener("click", function () {
@@ -1185,9 +1280,9 @@
           if (T.bg) T.bg.dim = 0.28;
           var spots = foods.length > 1 ? [{ x: 330, y: 740, s: 540, rot: -5 }, { x: 765, y: 700, s: 540, rot: 5 }] : [{ x: TSZ / 2, y: 700, s: 700 }];
           for (var i = 0; i < foods.length; i++) { await addSticker((function (n) { return function () { return srcOf(n); }; })(foods[i]), spots[i], true); if ($("th-cv") !== cv) return; }
-          var L = { type: "text", text: tLines(th.text || tShort(d) || "글자를 써 주세요"), font: "jua", fill: "#ffffff", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: foods.length ? 215 : TSZ * 0.74, rot: 0 };
+          var L = { type: "text", text: tLines(th.text || tShort(d) || "글자를 써 주세요"), font: "bhs", style: "game", fill: "#ffd60a", line: "#3b1d0e", fs: 150, x: TSZ / 2, y: foods.length ? 215 : TSZ * 0.74, rot: 0 };
           tFit(ctx, L, TSZ - 110); L.fs = Math.min(L.fs, 150); T.layers.push(L); font(L);
-          msg(tm, "자동으로 만들었어요. 마음에 안 드는 곳은 눌러서 고치거나, 사진을 눌러 배경·스티커를 바꿔 주세요.");
+          msg(tm, "자동으로 만들었어요. 마음에 안 드는 곳은 눌러서 고치거나, 사진을 눌러 배경·스티커를 바꿔 주세요." + (foods.length && !aiReady ? " (AI 누끼를 못 써서 색으로 땄어요: " + aiWhy + ")" : ""));
           select(L); mark();
         } catch (e) { msg(tm, "자동으로 만들지 못했어요: " + String((e && e.message) || e), true); }
         bt.disabled = false;
