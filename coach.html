@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>AI 콘텐츠 코치 | 블로랩</title>
+<!-- 회원 페이지에는 광고·방문자 통계를 넣지 않아요 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .co-main { padding-block: 40px 72px; display: flex; flex-direction: column; gap: 16px; max-width: 760px; margin: 0 auto; }
+  .co-head { display: flex; flex-direction: column; gap: 6px; }
+  .co-card { display: flex; flex-direction: column; gap: 14px; }
+  .co-card > h2 { margin: 0; }
+  .co-run { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .co-run .cm-cap { margin: 0; }
+  .co-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .co-chips a { padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; font-size: 14px; }
+  .co-chips a[aria-current] { border-color: var(--green); color: var(--green); font-weight: 600; }
+  .co-stage { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+  .co-stage b { font-size: 26px; letter-spacing: -0.5px; color: var(--green); }
+  .co-why { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; }
+  .co-nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .co-num { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; min-width: 0; }
+  .co-num span { font-size: 12.5px; color: var(--sub); }
+  .co-num b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .co-dir { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+  .co-rec { border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .co-rec-top { display: flex; align-items: flex-start; gap: 10px; }
+  .co-pri { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 2px 8px; border-radius: 999px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; }
+  .co-rec-top h3 { margin: 0; font-size: 18px; line-height: 1.45; }
+  .co-kws { display: flex; flex-wrap: wrap; gap: 6px; }
+  .co-kw { padding: 2px 10px; border-radius: 999px; background: var(--chip); color: var(--green); font-size: 13.5px; }
+  .co-kw.main { font-weight: 700; }
+  .co-tag { padding: 2px 10px; border-radius: 999px; border: 1px dashed var(--line); color: var(--sub); font-size: 13px; }
+  .co-dl { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px 12px; margin: 0; }
+  .co-dl dt { font-weight: 700; font-size: 14px; color: var(--sub); }
+  .co-dl dd { margin: 0; min-width: 0; }
+  .co-dl ol, .co-dl ul { margin: 0; padding-left: 18px; }
+  .co-dl a { color: var(--green); }
+  .co-title { display: flex; align-items: center; gap: 6px; }
+  .co-copy { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 8px; font: inherit; font-size: 12px; color: var(--sub); cursor: pointer; }
+  .co-copy:hover { color: var(--text); }
+  .co-bars { display: flex; flex-direction: column; gap: 8px; }
+  .co-bar { display: grid; grid-template-columns: minmax(0, 140px) minmax(0, 1fr) 76px; align-items: center; gap: 10px; font-size: 14px; }
+  .co-bar > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .co-track { height: 10px; border-radius: 999px; background: var(--chip); overflow: hidden; }
+  .co-fill { display: block; height: 100%; background: var(--green); border-radius: 999px; }
+  .co-idx { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--sub); }
+  .co-idx.up { color: var(--green); font-weight: 700; }
+  .co-idx.down { color: #c2410c; font-weight: 700; }
+  .co-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .co-col { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .co-col b { font-size: 14px; }
+  .co-col ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .co-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .co-list li { padding: 10px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+  .co-list li:last-child { border-bottom: 0; }
+  .co-list a { color: var(--green); font-weight: 600; }
+  .co-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  h4.co-sub { margin: 4px 0 0; font-size: 15px; }
+  @media (max-width: 600px) {
+    .co-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .co-cols { grid-template-columns: 1fr; }
+    .co-dl { grid-template-columns: 1fr; gap: 2px; }
+    .co-dl dd { margin-bottom: 8px; }
+    .co-bar { grid-template-columns: minmax(0, 96px) minmax(0, 1fr) 64px; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap co-main" id="main" aria-live="polite">
+  <div class="co-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">AI 콘텐츠 코치</h1></div>
+  <div class="cm-card"><div class="co-wait"><span class="cm-spin" aria-hidden="true"></span>잠시만요…</div></div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // AI 콘텐츠 코치: 내 블로그 데이터 → 성장 단계 · 다음에 쓸 글 3개 · 콘텐츠 비중
+  (function () {
+    var A = window.BLAuth, main = document.getElementById("main");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var $ = function (id) { return document.getElementById(id); };
+    var HEAD = '<div class="co-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">AI 콘텐츠 코치</h1></div>';
+    var D = null;
+    var PICK = (new URLSearchParams(location.search).get("blog") || "").toLowerCase();
+    function num(n) { return n == null ? "-" : Number(n).toLocaleString("ko-KR"); }
+    function ymd(ms) { var d = new Date(ms); return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일"; }
+    function rk() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12); }
+    function api(path, body) {
+      return A.fetch(path, body ? { method: "POST", body: JSON.stringify(body) } : {}).then(function (r) { return r.json(); })
+        .catch(function () { return { ok: false, error: "인터넷 연결을 확인하고 다시 해 주세요." }; });
+    }
+    function gate(title, text, btn) { main.innerHTML = HEAD + '<div class="cm-card co-card"><h2 class="cm-h3">' + esc(title) + '</h2><p class="cm-cap">' + text + "</p>" + (btn || "") + "</div>"; }
+    function postLink(p) { return '<a href="https://blog.naver.com/' + esc(D.blog) + "/" + esc(p.logNo) + '" target="_blank" rel="noopener">' + esc(p.title) + "</a>"; }
+
+    function load() {
+      if (!A.on()) { gate("곧 열려요", "회원 기능은 준비 중이에요.", '<div><a class="cm-btn" href="index.html">첫 화면으로</a></div>'); return; }
+      if (!A.token()) { gate("로그인이 필요해요", "내 블로그를 등록하면 AI 코치가 다음에 쓸 글을 골라 드려요.", '<div><a class="cm-btn pri" href="login.html?r=' + encodeURIComponent("/coach.html") + '">로그인하기</a></div>'); return; }
+      api("/coach/last" + (PICK ? "?blog=" + encodeURIComponent(PICK) : "")).then(function (j) {
+        if (j && j.status === "need_login") { A.clear(); load(); return; }
+        if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
+        D = j;
+        if (!D.blog) { gate("내 블로그를 먼저 등록해 주세요", "코치는 내 블로그로 확인한 블로그만 분석해요.", '<div><a class="cm-btn pri" href="me.html">내 블로그 등록하기</a></div>'); return; }
+        draw();
+      });
+    }
+
+    function draw(err) {
+      var L = D.last;
+      main.innerHTML = HEAD + runCard(err) + (L ? stageCard(L.result) + recCard(L.result) + pfCard(L.result) + fixCard(L.result) + missCard(L.result) : "");
+      $("run").addEventListener("click", run);
+      main.querySelectorAll("[data-copy]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var t = b.getAttribute("data-copy");
+          Promise.resolve().then(function () { return navigator.clipboard.writeText(t); }).then(function () { b.textContent = "복사됨"; }).catch(function () { b.textContent = "복사 실패"; });
+        });
+      });
+    }
+
+    function runCard(err) {
+      var chips = D.blogs.length > 1 ? '<nav class="co-chips" aria-label="블로그 고르기">' + D.blogs.map(function (x) { return '<a href="coach.html?blog=' + encodeURIComponent(x.id) + '"' + (x.id === D.blog ? ' aria-current="true"' : "") + ">" + esc(x.title) + "</a>"; }).join("") + "</nav>" : "";
+      var name = (D.blogs.filter(function (x) { return x.id === D.blog; })[0] || {}).title || D.blog;
+      return '<section class="cm-card co-card">' + chips +
+        '<div class="co-run"><button class="cm-btn pri" id="run" type="button"' + (D.left ? "" : " disabled") + ">🧭 " + (D.last ? "다시 분석하기" : "지금 분석하기") + "</button>" +
+        '<p class="cm-cap"><b>' + esc(name) + "</b> · 오늘 " + D.left + "/" + D.limit + "번 남음" + (D.last ? " · 마지막 " + ymd(D.last.at) : "") + "</p></div>" +
+        '<div id="rmsg">' + (err ? '<p class="cm-msg err" role="alert">' + esc(err) + "</p>" : "") + "</div></section>";
+    }
+
+    function run() {
+      var b = $("run");
+      b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 글을 읽고 분석하는 중 (30초쯤)';
+      api("/coach/run", { rk: rk(), blog: D.blog }).then(function (j) {
+        if (j && j.ok) { D.last = { id: j.id, at: j.at, result: j.result }; D.left = Math.max(0, D.left - 1); draw(); return; }
+        draw((j && j.error) || "분석하지 못했어요.");
+      });
+    }
+
+    function stageCard(R) {
+      var f = R.facts, s = f.sig, st = f.stage, c = R.coach;
+      return '<section class="cm-card co-card" aria-labelledby="stH"><h2 class="cm-h3" id="stH">지금 단계</h2>' +
+        '<div class="co-stage"><b>' + esc(st.label) + "</b><span>" + esc(st.focus) + "</span></div>" +
+        (st.why && st.why.length ? '<ul class="co-why">' + st.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>" : "") +
+        '<div class="co-nums">' +
+          '<div class="co-num"><span>전체 글</span><b>' + num(s.total) + "</b></div>" +
+          '<div class="co-num"><span>운영</span><b>' + (s.ageDays == null ? "-" : num(s.ageDays) + "일") + "</b></div>" +
+          '<div class="co-num"><span>이웃</span><b>' + num(s.neighbors) + "</b></div>" +
+          '<div class="co-num"><span>하루 방문자</span><b>' + (s.daily == null ? "-" : "약 " + num(s.daily)) + "</b></div>" +
+        "</div>" +
+        (c.summary ? "<p>" + esc(c.summary) + "</p>" : "") +
+        (c.strategy.length ? '<h4 class="co-sub">핵심 방향</h4><ol class="co-dir">' + c.strategy.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>" : "") +
+        "</section>";
+    }
+
+    function recCard(R) {
+      var recs = R.coach.recs || [];
+      return '<section class="cm-card co-card" aria-labelledby="rcH"><h2 class="cm-h3" id="rcH">다음에 쓸 글</h2>' + recs.map(function (r) {
+        var row = function (k, v) { return v ? "<dt>" + k + "</dt><dd>" + v + "</dd>" : ""; };
+        var li = function (a, tag) { return a && a.length ? "<" + (tag || "ul") + ">" + a.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</" + (tag || "ul") + ">" : ""; };
+        return '<article class="co-rec"><div class="co-rec-top"><span class="co-pri">' + r.priority + "순위</span><h3>" + esc(r.topic) + "</h3></div>" +
+          '<div class="co-kws">' + (r.mainKw ? '<span class="co-kw main">' + esc(r.mainKw) + "</span>" : "") + (r.subKws || []).map(function (k) { return '<span class="co-kw">' + esc(k) + "</span>"; }).join("") +
+          '<span class="co-tag" title="' + esc(r.demand && r.demand.note) + '">검색량 미확인</span><span class="co-tag">확신 ' + esc(r.confidence) + "</span></div>" +
+          '<dl class="co-dl">' +
+            row("추천 이유", esc(r.why)) +
+            row("이어지는 글", li((r.related || []).map(postLink))) +
+            row("차별화", esc(r.diff)) +
+            row("글 구성", li((r.outline || []).map(esc), "ol")) +
+            row("제목 후보", li((r.titles || []).map(function (t) { return '<span class="co-title">' + esc(t) + ' <button class="co-copy" type="button" data-copy="' + esc(t) + '">복사</button></span>'; }))) +
+            row("준비할 것", li((r.needs || []).map(esc))) +
+          "</dl></article>";
+      }).join("") + "</section>";
+    }
+
+    function bars(list, unit) {
+      if (!list || !list.length) return '<p class="cm-cap">없어요</p>';
+      return '<div class="co-bars">' + list.slice(0, 8).map(function (x) {
+        var cls = x.index == null ? "" : x.index >= 130 ? " up" : x.index <= 60 ? " down" : "";
+        return '<div class="co-bar"><span title="' + esc(x.name) + '">' + esc(x.name) + " " + x.count + '</span><span class="co-track"><span class="co-fill" style="width:' + Math.max(2, x.share) + '%"></span></span><span class="co-idx' + cls + '">' + x.share + "% · " + (x.index == null ? "-" : x.index) + "</span></div>";
+      }).join("") + "</div>";
+    }
+
+    function pfCard(R) {
+      var p = R.facts.portfolio, a = R.coach.portfolio || {};
+      var unit = p.basis === "reads" ? "조회" : "반응";
+      var col = function (t, list) { return '<div class="co-col"><b>' + t + "</b>" + (list.length ? "<ul>" + list.map(function (x) { return "<li>" + esc(x.topic) + (x.why ? ' <span class="cm-cap">' + esc(x.why) + "</span>" : "") + "</li>"; }).join("") + "</ul>" : '<span class="cm-cap">없어요</span>') + "</div>"; };
+      return '<section class="cm-card co-card" aria-labelledby="pfH"><h2 class="cm-h3" id="pfH">콘텐츠 비중</h2>' +
+        '<p class="cm-cap">최근 글 ' + p.n + "개 기준 · 오른쪽 숫자 = 비중 · " + unit + "지수 (100 = 내 블로그 평균" + (p.basis === "reads" ? "" : ", 공감+댓글") + ")</p>" +
+        '<h4 class="co-sub">카테고리</h4>' + bars(p.categories) +
+        '<h4 class="co-sub">지역 <span class="cm-cap">지역이 들어간 글 ' + p.regionShare + "%</span></h4>" + bars(p.regions) +
+        (a.over ? '<p class="cm-msg" role="note">⚖ ' + esc(a.over) + "</p>" : "") +
+        '<div class="co-cols">' + col("잘 되는 주제", a.good || []) + col("약한 주제", a.weak || []) + col("넓혀 볼 영역", a.gaps || []) + "</div>" +
+        (a.advice ? "<p>" + esc(a.advice) + "</p>" : "") + "</section>";
+    }
+
+    function fixCard(R) {
+      var f = R.coach.fixPosts || [];
+      if (!f.length) return "";
+      return '<section class="cm-card co-card" aria-labelledby="fxH"><h2 class="cm-h3" id="fxH">고쳐 볼 기존 글</h2><ul class="co-list">' + f.map(function (x) {
+        return "<li>" + postLink(x.post) + "<span>" + esc(x.why) + '</span><span class="cm-cap">' + esc(x.how) + "</span></li>";
+      }).join("") + "</ul></section>";
+    }
+
+    function missCard(R) {
+      var m = (R.facts.dataMissing || []).concat(R.coach.missing || []);
+      return '<section class="cm-card co-card" aria-labelledby="msH"><h2 class="cm-h3" id="msH">아직 모르는 것</h2><ul class="co-why">' + m.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></section>";
+    }
+
+    load();
+  })();
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>
