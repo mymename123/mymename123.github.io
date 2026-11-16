@@ -220,7 +220,7 @@
         (s.length ? '<div class="mb-nums"><div class="mb-num"><span>공개 글</span><b>' + num(last.posts) + "개</b>" + delta("posts") + '</div><div class="mb-num"><span>누적 방문자</span><b>' + num(last.visitors) + "명</b>" + delta("visitors") + '</div><div class="mb-num"><span>이웃</span><b>' + num(last.neighbors) + "명</b>" + delta("neighbors") + "</div></div>" +
           '<details class="mb-more"><summary>날짜별 기록 보기 (' + s.length + "일)</summary>" + '<div class="mb-tbl"><table><thead><tr><th>날짜</th><th>글</th><th>누적 방문자</th><th>이웃</th></tr></thead><tbody>' + rows + "</tbody></table></div></details>"
           : '<p class="cm-cap">아직 기록된 숫자가 없어요. 아래 새로 고침을 눌러 보세요.</p>') +
-        '<div class="mb-row"><a class="cm-btn pri" href="coach.html?blog=' + encodeURIComponent(b.id) + '">🧭 AI 콘텐츠 코치</a><button class="cm-btn" type="button" id="refresh"' + (D.refreshLeft ? "" : " disabled") + ">숫자 새로 고침 (오늘 " + D.refreshLeft + "번 남음)</button></div>" +
+        '<div class="mb-row"><a class="cm-btn pri" href="coach.html?blog=' + encodeURIComponent(b.id) + '">🧭 AI 콘텐츠 코치</a><a class="cm-btn" href="track.html">🔎 내 글 유통 추적</a><button class="cm-btn" type="button" id="refresh"' + (D.refreshLeft ? "" : " disabled") + ">숫자 새로 고침 (오늘 " + D.refreshLeft + "번 남음)</button></div>" +
         '<p class="cm-cap">숫자는 매일 한 번 자동으로 기록돼요. <a href="history.html?blog=' + encodeURIComponent(b.id) + '&go=1" style="color:var(--green)">히스토리에서 날짜별 성장 그래프 보기</a></p><div id="bmsg"></div>' +
         '<div class="mb-foot">' + (D.plan === "pro" ? '<button class="mb-quiet" type="button" id="addBlog">블로그 더 등록하기</button>' : "") + '<button class="mb-quiet" type="button" id="release" aria-expanded="false">내 블로그 해제</button></div><div id="relBox"></div></section>';
     }

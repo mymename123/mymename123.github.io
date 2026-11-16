@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>콘텐츠 유통 추적기 | 블로랩</title>
+<!-- 회원 페이지에는 광고·방문자 통계를 넣지 않아요 -->
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; word-break: keep-all; }
+  .tr-main { padding-block: 40px 72px; display: flex; flex-direction: column; gap: 16px; max-width: 860px; margin: 0 auto; }
+  .tr-head { display: flex; flex-direction: column; gap: 6px; }
+  .tr-card { display: flex; flex-direction: column; gap: 14px; }
+  .tr-card > h2 { margin: 0; }
+  .tr-add { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tr-add .cm-input { flex: 1 1 280px; }
+  .tr-nums { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .tr-num { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; min-width: 0; }
+  .tr-num span { font-size: 12.5px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tr-num b { font-size: 22px; font-variant-numeric: tabular-nums; }
+  .tr-num.date b { font-size: 16px; padding-top: 4px; white-space: nowrap; }
+  .tr-num.warn b { color: #c2410c; }
+  .tr-num.off b { color: var(--sub); font-size: 15px; font-weight: 600; padding-top: 6px; }
+  .tr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .tr-item { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .tr-item:last-child { border-bottom: 0; }
+  .tr-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: var(--chip); display: block; }
+  .tr-it { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .tr-it a.t { color: var(--text); font-weight: 700; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tr-it a.t:hover { color: var(--green); }
+  .tr-tags { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 12.5px; }
+  .tr-eng { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--sub); }
+  .tr-eng.y { border-color: var(--green); color: var(--green); font-weight: 600; }
+  .tr-pill { display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .tr-pill.link, .tr-pill.found { background: var(--chip); color: var(--green); }
+  .tr-pill.quote, .tr-pill.title { background: #eaf1fb; color: #1d4f91; }
+  .tr-pill.copy { background: #fdebdd; color: #9a3412; }
+  .tr-pill.gone, .tr-pill.miss { background: var(--bg); color: var(--sub); border: 1px solid var(--line); }
+  .tr-pill.new { background: #c2410c; color: #fff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tr-pill.quote, :root:not([data-theme="light"]) .tr-pill.title { background: #1b2c47; color: #9cc2f5; } :root:not([data-theme="light"]) .tr-pill.copy { background: #3b2416; color: #fdba8c; } }
+  :root[data-theme="dark"] .tr-pill.quote, :root[data-theme="dark"] .tr-pill.title { background: #1b2c47; color: #9cc2f5; }
+  :root[data-theme="dark"] .tr-pill.copy { background: #3b2416; color: #fdba8c; }
+  .tr-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .tr-side .cm-btn { min-height: 36px; padding: 0 12px; font-size: 14px; }
+  .tr-top { display: flex; flex-direction: column; gap: 8px; }
+  .tr-top h2 { margin: 0; font-size: 21px; line-height: 1.4; }
+  .tr-top a.src { color: var(--green); font-size: 14px; word-break: break-all; }
+  .tr-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tr-back { color: var(--sub); text-decoration: none; font-size: 14px; }
+  .tr-back:hover { color: var(--green); }
+  /* 확산 경로 */
+  .tr-map { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+  .tr-origin { background: #e8effc; color: #0e1a2b; border-radius: 12px; padding: 14px; text-align: center; font-weight: 700; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tr-origin { background: #1b2c47; color: #e6ecf3; } }
+  :root[data-theme="dark"] .tr-origin { background: #1b2c47; color: #e6ecf3; }
+  .tr-stem { width: 2px; height: 18px; background: var(--line); margin: 0 auto; }
+  .tr-nodes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; border-top: 2px solid var(--line); padding-top: 14px; }
+  .tr-node { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 10px 8px; border: 1px solid var(--line); border-radius: 12px; min-width: 0; color: var(--text); text-decoration: none; }
+  a.tr-node:hover { border-color: var(--green); }
+  .tr-node svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tr-node b { font-size: 15px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tr-node.dim { opacity: .55; }
+  /* 표 */
+  .tr-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .tr-tbl th { text-align: left; font-size: 12.5px; color: var(--sub); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .tr-tbl td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tr-tbl tr:last-child td { border-bottom: 0; }
+  .tr-tbl a { color: var(--green); }
+  .tr-tbl .w { min-width: 0; word-break: break-all; }
+  .tr-tbl .n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tr-tbl details { margin-top: 4px; }
+  .tr-tbl summary { cursor: pointer; color: var(--sub); font-size: 13px; }
+  .tr-tbl ul { margin: 4px 0 0; padding-left: 18px; color: var(--sub); font-size: 13px; }
+  .tr-mini { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 8px; font: inherit; font-size: 12px; color: var(--sub); cursor: pointer; }
+  .tr-mini:hover { color: var(--text); }
+  .tr-ign td { opacity: .5; }
+  /* 확산 추이 */
+  .tr-chart { width: 100%; height: auto; display: block; }
+  .tr-chart text { fill: var(--sub); font-size: 11px; font-family: inherit; }
+  .tr-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--sub); }
+  .tr-legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  .tr-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
+  .tr-empty { color: var(--sub); }
+  details.tr-more > summary { cursor: pointer; font-weight: 700; }
+  details.tr-more ol, details.tr-more ul { margin: 8px 0 0; padding-left: 20px; }
+  @media (max-width: 700px) {
+    .tr-nums { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tr-item { grid-template-columns: 48px minmax(0, 1fr); }
+    .tr-thumb { width: 48px; height: 48px; }
+    .tr-side { grid-column: 2; flex-direction: row; align-items: center; justify-content: flex-start; }
+    .tr-tbl.disc thead { display: none; }
+    .tr-tbl.disc tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .tr-tbl.disc td { border: 0; padding: 0; }
+    .tr-tbl.disc td.w { grid-column: 1 / -1; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="sh"><div class="sh-in">
+  <a class="sh-logo" href="index.html"><svg width="21" height="28" viewBox="16.5 10 31 44" aria-hidden="true"><circle cx="32" cy="38.5" r="10" fill="none" stroke="#2bd48a" stroke-width="7"/><rect x="18.5" y="12" width="7" height="40" rx="3.5" fill="#fff"/><circle cx="32" cy="38.5" r="3" fill="#fff"/></svg>블로랩</a>
+  <nav class="sh-nav" aria-label="주요 메뉴"><a href="history.html">블로그 히스토리</a><a href="widget.html">업적 위젯</a><a href="analyze.html">체험단 진단</a><a href="analyze.html?mode=adpost">애드포스트 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개</a></nav>
+  <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  <nav class="mnav" id="mnav" hidden><a href="history.html">내 블로그 히스토리</a><a href="widget.html">블로그 업적 위젯</a><a href="analyze.html">체험단 탈락원인 진단</a><a href="analyze.html?mode=adpost">애드포스트 탈락원인 진단</a><a href="schedule.html">일정 관리</a><a href="index.html#sites">체험단 사이트 모음</a><a href="index.html#tips">꿀팁</a><a href="about.html">소개·문의</a></nav></div>
+</div></header>
+<main class="cm-wrap tr-main" id="main" aria-live="polite">
+  <div class="tr-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">콘텐츠 유통 추적기</h1></div>
+  <div class="cm-card"><div class="tr-wait"><span class="cm-spin" aria-hidden="true"></span>잠시만요…</div></div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // 콘텐츠 유통 추적기: 내 글이 검색엔진·다른 사이트 어디서 발견되는지
+  (function () {
+    var A = window.BLAuth, main = document.getElementById("main");
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var $ = function (id) { return document.getElementById(id); };
+    var HEAD = '<div class="tr-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">콘텐츠 유통 추적기</h1></div>';
+    var ENG = ["naver", "daum", "brave", "google"], EN = { naver: "네이버", daum: "다음", brave: "Brave", google: "구글" };
+    var TYPE = { link: "원문 링크", quote: "문장 인용", copy: "복제 의심", title: "같은 제목" };
+    var ID = new URLSearchParams(location.search).get("id") || "";
+    var L = null, msg = "";
+    function num(n) { return n == null ? "-" : Number(n).toLocaleString("ko-KR"); }
+    function ymd(ms) { if (!ms) return "-"; var d = new Date(ms); return d.getFullYear() + "." + (d.getMonth() + 1) + "." + d.getDate(); }
+    function ago(ms) { if (!ms) return "아직 안 찾음"; var m = Math.round((Date.now() - ms) / 60000); return m < 1 ? "방금" : m < 60 ? m + "분 전" : m < 1440 ? Math.round(m / 60) + "시간 전" : Math.round(m / 1440) + "일 전"; }
+    function api(path, body) {
+      return A.fetch(path, body ? { method: "POST", body: JSON.stringify(body) } : {}).then(function (r) { return r.json(); })
+        .catch(function () { return { ok: false, error: "인터넷 연결을 확인하고 다시 해 주세요." }; });
+    }
+    function gate(title, text, btn) { main.innerHTML = HEAD + '<div class="cm-card tr-card"><h2 class="cm-h3">' + esc(title) + '</h2><p class="cm-cap">' + text + "</p>" + (btn || "") + "</div>"; }
+    function note(t, err) { return t ? '<p class="cm-msg' + (err ? " err" : "") + '" role="' + (err ? "alert" : "status") + '">' + esc(t) + "</p>" : ""; }
+    function busy(b, t) { b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> ' + t; }
+
+    function load() {
+      if (!A.on()) { gate("곧 열려요", "회원 기능은 준비 중이에요.", '<div><a class="cm-btn" href="index.html">첫 화면으로</a></div>'); return; }
+      if (!A.token()) { gate("로그인이 필요해요", "내 글이 인터넷 어디서 발견되는지 찾아 드려요.", '<div><a class="cm-btn pri" href="login.html?r=' + encodeURIComponent(location.pathname + location.search) + '">로그인하기</a></div>'); return; }
+      if (ID) return loadPost();
+      api("/track/list").then(function (j) {
+        if (j && j.status === "need_login") { A.clear(); load(); return; }
+        if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
+        L = j;
+        if (!L.blogs.length) { gate("내 블로그를 먼저 등록해 주세요", "내 블로그로 확인한 블로그의 글만 추적할 수 있어요.", '<div><a class="cm-btn pri" href="me.html">내 블로그 등록하기</a></div>'); return; }
+        drawList();
+      });
+    }
+
+    // ---- 대시보드 ----
+    function drawList() {
+      var s = L.stats, E = L.engines;
+      var box = function (k, v, cls) { return '<div class="tr-num' + (cls ? " " + cls : "") + '"><span>' + k + "</span><b>" + v + "</b></div>"; };
+      var eng = ENG.map(function (e) { return E[e] ? box(EN[e] + " 발견", num(s.found[e])) : box(EN[e], "연결 안 됨", "off"); }).join("");
+      main.innerHTML = HEAD +
+        '<section class="cm-card tr-card"><form class="tr-add" id="addF"><input class="cm-input" id="url" type="url" inputmode="url" placeholder="내 글 주소 (blog.naver.com/아이디/글번호)" aria-label="추적할 글 주소" autocomplete="off"><button class="cm-btn pri" id="addB" type="submit">추가</button><button class="cm-btn" id="recentB" type="button">최근 글 10개</button></form>' +
+        '<p class="cm-cap">추적 ' + s.posts + "/" + L.max + "개 · 오늘 다시 찾기 " + L.left + "/" + L.dayLimit + "번 · " + L.recheckDays + "일마다 자동으로 찾아요</p>" +
+        '<div id="lmsg">' + note(msg, /못|없|넘|다 썼|해 주세요/.test(msg)) + "</div></section>" +
+        '<section class="cm-card tr-card" aria-labelledby="sH"><h2 class="cm-h3" id="sH">유통 현황</h2><div class="tr-nums">' +
+          box("추적 글", num(s.posts)) + eng + box("외부 사이트", num(s.sites)) + box("원문 링크", num(s.link)) + box("인용", num(s.quote)) + box("복제 의심", num(s.copy), s.copy ? "warn" : "") + box("최근 7일 신규", num(s.new7)) +
+        "</div></section>" +
+        '<section class="cm-card tr-card" aria-labelledby="pH"><h2 class="cm-h3" id="pH">추적 중인 글</h2>' +
+        (L.posts.length ? '<ul class="tr-list">' + L.posts.map(item).join("") + "</ul>" : '<p class="tr-empty">아직 없어요. 위에 글 주소를 넣거나 최근 글 10개를 눌러 주세요.</p>') + "</section>";
+      msg = "";
+      $("addF").addEventListener("submit", function (e) { e.preventDefault(); add({ url: $("url").value.trim() }, $("addB"), "추가하는 중"); });
+      $("recentB").addEventListener("click", function () { add({ recent: 10, blog: L.blogs[0].id }, $("recentB"), "불러오는 중"); });
+      main.querySelectorAll("[data-check]").forEach(function (b) { b.addEventListener("click", function () { check(b.getAttribute("data-check"), b, function (j) { msg = j.ok ? "찾았어요: " + j.found + "곳" + (j.newN ? " (새로 " + j.newN + "곳)" : "") : j.error; load(); }); }); });
+    }
+    function item(p) {
+      var c = p.counts || {};
+      var eng = ENG.filter(function (e) { return L.engines[e]; }).map(function (e) {
+        var v = p.engines[e];
+        return '<span class="tr-eng' + (v ? " y" : "") + '" title="' + EN[e] + (v ? " 검색 결과에서 발견" : v === 0 ? " 이번 검색에선 못 찾음" : " 아직 확인 안 함") + '">' + (v ? "✓ " : "") + EN[e] + "</span>";
+      }).join("");
+      var pills = (c.link ? '<span class="tr-pill link">링크 ' + c.link + "</span>" : "") + ((c.quote || 0) + (c.title || 0) ? '<span class="tr-pill quote">인용 ' + ((c.quote || 0) + (c.title || 0)) + "</span>" : "") + (c.copy ? '<span class="tr-pill copy">복제 의심 ' + c.copy + "</span>" : "");
+      return '<li class="tr-item">' + (p.img ? '<img class="tr-thumb" src="' + esc(p.img) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="tr-thumb" aria-hidden="true"></span>') +
+        '<div class="tr-it"><a class="t" href="track.html?id=' + encodeURIComponent(p.id) + '">' + esc(p.title || p.url) + "</a>" +
+        '<div class="tr-tags">' + (p.newN ? '<span class="tr-pill new">새 ' + p.newN + "</span>" : "") + (p.status === "gone" ? '<span class="tr-pill gone">원본 없음</span>' : "") + eng + pills + "</div>" +
+        '<span class="cm-cap">' + ymd(p.pub) + " 발행 · " + ago(p.last) + "</span></div>" +
+        '<div class="tr-side"><button class="cm-btn" type="button" data-check="' + esc(p.id) + '"' + (L.left && p.status !== "gone" ? "" : " disabled") + ">" + (p.last ? "다시 찾기" : "찾기") + "</button></div></li>";
+    }
+    function add(body, b, t) {
+      if (body.url === "") { $("lmsg").innerHTML = note("글 주소를 넣어 주세요.", true); return; }
+      busy(b, t);
+      api("/track/add", body).then(function (j) {
+        if (!j.ok) { msg = j.error; load(); return; }
+        msg = j.added ? j.added + "개 추가했어요." + (j.full ? " (추적 한도까지만)" : "") + " 찾기를 눌러 주세요." : "이미 추적 중인 글이에요.";
+        if (j.added === 1 && j.ids.length === 1 && body.url) { location.href = "track.html?id=" + encodeURIComponent(j.ids[0]) + "&run=1"; return; }
+        load();
+      });
+    }
+    function check(id, b, done) {
+      busy(b, "찾는 중 (30초쯤)");
+      api("/track/check", { id: id }).then(done);
+    }
+
+    // ---- 글 상세 ----
+    var P = null;
+    function loadPost(m) {
+      api("/track/post?id=" + encodeURIComponent(ID)).then(function (j) {
+        if (j && j.status === "need_login") { A.clear(); load(); return; }
+        if (!j || !j.ok) { gate("글을 찾지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><a class="cm-btn" href="track.html">목록으로</a></div>'); return; }
+        j.results.sort(function (a, b) { return ENG.indexOf(a.engine) - ENG.indexOf(b.engine); });
+        P = j; drawPost(m);
+        if (/[?&]run=1/.test(location.search) && !P.post.last) { history.replaceState(null, "", "track.html?id=" + encodeURIComponent(ID)); $("chk").click(); }
+      });
+    }
+    function drawPost(m) {
+      var p = P.post;
+      main.innerHTML = HEAD +
+        '<section class="cm-card tr-card"><a class="tr-back" href="track.html">← 전체 현황</a><div class="tr-top"><h2>' + esc(p.title) + '</h2><a class="src" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.url) + '</a><span class="cm-cap">' + ymd(p.pub) + " 발행 · 등록 " + ymd(p.added) + " · 마지막 확인 " + ago(p.last) + (p.status === "gone" ? " · 원본을 열 수 없어 멈춤" : "") + "</span></div>" +
+        '<div class="tr-acts"><button class="cm-btn pri" id="chk" type="button"' + (p.status === "gone" ? " disabled" : "") + ">" + (p.last ? "지금 다시 찾기" : "지금 찾기") + '</button><button class="cm-btn ghost danger" id="del" type="button">추적 그만</button></div>' +
+        '<div id="pmsg">' + (m ? note(m.t, m.err) : "") + "</div></section>" +
+        (p.last ? mapCard() + engCard() + discCard() + spreadCard() + moreCard() : '<section class="cm-card tr-card"><p class="tr-empty">아직 안 찾았어요. 지금 찾기를 눌러 주세요.</p></section>');
+      $("chk").addEventListener("click", function () {
+        check(p.id, $("chk"), function (j) { loadPost(j.ok ? { t: "찾았어요: " + j.found + "곳" + (j.newN ? ", 새로 " + j.newN + "곳" : "") + (j.goneN ? ", 사라짐 " + j.goneN + "곳" : "") } : { t: j.error, err: true }); });
+      });
+      $("del").addEventListener("click", function () {
+        if (!confirm("이 글 추적을 그만할까요? 찾은 기록도 지워져요.")) return;
+        api("/track/del", { id: p.id }).then(function (j) { if (j.ok) location.href = "track.html"; else $("pmsg").innerHTML = note(j.error, true); });
+      });
+      main.querySelectorAll("[data-mark]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var act = b.getAttribute("data-act");
+          api("/track/mark", { did: b.getAttribute("data-mark"), act: act }).then(function (j) { if (j.ok) loadPost(); else $("pmsg").innerHTML = note(j.error, true); });
+        });
+      });
+    }
+    var IC = {
+      eng: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
+      blog: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+      site: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>'
+    };
+    function mapCard() {
+      var nodes = [];
+      P.results.forEach(function (r) {
+        nodes.push('<div class="tr-node' + (r.found ? "" : " dim") + '">' + IC.eng + "<b>" + esc(r.name) + '</b><span class="tr-pill ' + (r.found ? "found" : "miss") + '">' + (r.found ? "발견" : "못 찾음") + "</span></div>");
+      });
+      P.disc.filter(function (d) { return d.status === "live"; }).slice(0, 9).forEach(function (d) {
+        var blogish = /blog\.naver|tistory|brunch|cafe\.naver/.test(d.domain);
+        nodes.push('<a class="tr-node" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + (blogish ? IC.blog : IC.site) + "<b>" + esc(d.site || d.domain) + '</b><span class="tr-pill ' + d.type + '">' + TYPE[d.type] + "</span></a>");
+      });
+      return '<section class="cm-card tr-card" aria-labelledby="mH"><h2 class="cm-h3" id="mH">확산 경로</h2><div class="tr-map"><div class="tr-origin">원본 네이버 블로그 글</div><div class="tr-stem"></div><div class="tr-nodes">' + nodes.join("") + "</div></div></section>";
+    }
+    function engCard() {
+      var off = ENG.filter(function (e) { return !P.results.some(function (r) { return r.engine === e; }); });
+      return '<section class="cm-card tr-card" aria-labelledby="eH"><h2 class="cm-h3" id="eH">검색엔진</h2><table class="tr-tbl"><thead><tr><th>검색엔진</th><th>결과</th><th>찾은 방법</th><th>처음 발견</th><th>확인</th></tr></thead><tbody>' +
+        P.results.map(function (r) {
+          return "<tr><td><b>" + esc(r.name) + "</b></td><td>" + (r.found ? '<span class="tr-pill found">발견</span>' + (r.url ? ' <a href="' + esc(r.url) + '" target="_blank" rel="noopener">결과</a>' : "") : '<span class="tr-pill miss">못 찾음</span><div class="cm-cap">' + esc(r.note) + "</div>") +
+            '</td><td>' + esc(r.how || "-") + '</td><td class="n">' + ymd(r.first) + '</td><td class="n">' + ago(r.checked) + "</td></tr>";
+        }).join("") +
+        off.map(function (e) { return "<tr><td><b>" + EN[e] + '</b></td><td colspan="4" class="cm-cap">연결 안 됨 (확인 안 함)</td></tr>'; }).join("") +
+        "</tbody></table></section>";
+    }
+    function discCard() {
+      var D = P.disc;
+      if (!D.length) return '<section class="cm-card tr-card" aria-labelledby="dH"><h2 class="cm-h3" id="dH">외부에서 발견</h2><p class="tr-empty">이번까지 찾은 곳이 없어요.</p></section>';
+      return '<section class="cm-card tr-card" aria-labelledby="dH"><h2 class="cm-h3" id="dH">외부에서 발견 <span class="cm-cap">' + D.filter(function (d) { return d.status === "live"; }).length + "곳</span></h2>" +
+        '<table class="tr-tbl disc"><thead><tr><th>발견 위치</th><th>유형</th><th>일치</th><th>처음 발견</th><th></th></tr></thead><tbody>' +
+        D.map(function (d) {
+          var ign = d.status === "ignore", gone = d.status === "gone";
+          return '<tr class="' + (ign ? "tr-ign" : "") + '"><td class="w">' + (d.isNew ? '<span class="tr-pill new">새</span> ' : "") + "<b>" + esc(d.site || d.domain) + '</b><br><a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.title || d.url) + "</a>" +
+            '<div class="cm-cap">' + esc(d.relation || "") + "</div>" +
+            (d.matched && d.matched.length ? "<details><summary>같은 문장 " + d.matched.length + "개</summary><ul>" + d.matched.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul></details>" : "") + "</td>" +
+            "<td>" + (gone ? '<span class="tr-pill gone">사라짐</span>' : '<span class="tr-pill ' + d.type + '">' + TYPE[d.type] + "</span>") + "</td>" +
+            '<td class="n" title="' + (d.basis === "page" ? "페이지를 열어 내 글 문장과 비교" : "검색 결과 요약만 보고 고른 문장 기준") + '">' + (d.score == null ? "-" : d.score + "%") + '<div class="cm-cap">' + (d.basis === "page" ? "페이지" : "요약") + " 기준</div></td>" +
+            '<td class="n">' + ymd(d.first) + '<div class="cm-cap">확인 ' + ymd(d.last) + "</div></td>" +
+            '<td><button class="tr-mini" type="button" data-mark="' + esc(d.id) + '" data-act="' + (ign ? "restore" : "ignore") + '">' + (ign ? "되돌리기" : "내 글 맞음") + "</button></td></tr>";
+        }).join("") + "</tbody></table>" +
+        '<p class="cm-cap">일치율만으로 무단 복제라고 단정할 수 없어요. 직접 열어 확인해 주세요.</p></section>';
+    }
+    function spreadCard() {
+      var s = P.spread;
+      var box = function (k, v, c) { return '<div class="tr-num' + (c ? " " + c : "") + '"><span>' + k + "</span><b>" + v + "</b></div>"; };
+      return '<section class="cm-card tr-card" aria-labelledby="gH"><h2 class="cm-h3" id="gH">확산 추이</h2><div class="tr-nums">' +
+        box("최초 발견", s.first ? ymd(s.first) : "-", "date") + box("누적 외부 발견", num(s.total)) + box("최근 7일", num(s.d7)) + box("최근 30일", num(s.d30)) + box("확인 횟수", num(P.logs.length)) + "</div>" + chart(s.days) + "</section>";
+    }
+    function chart(days) {
+      if (!days || days.length < 2) return '<p class="cm-cap">두 번 이상 찾으면 날짜별 그래프가 생겨요.</p>';
+      var C = { ext: "#c2410c", naver: "#0a7a52", daum: "#1d4f91", brave: "#a16207", google: "#7c3aed" };
+      var keys = ["ext"].concat(ENG.filter(function (e) { return days.some(function (d) { return d[e]; }); }));
+      var W = 820, H = 200, pl = 34, pr = 10, pt = 10, pb = 26;
+      var t0 = Date.parse(days[0].day), t1 = Date.parse(days[days.length - 1].day), span = Math.max(1, t1 - t0);
+      var max = Math.max(1, Math.max.apply(null, days.map(function (d) { return Math.max.apply(null, keys.map(function (k) { return d[k] || 0; })); })));
+      var x = function (day) { return pl + (Date.parse(day) - t0) / span * (W - pl - pr); }, y = function (v) { return pt + (1 - v / max) * (H - pt - pb); };
+      var grid = [0, Math.ceil(max / 2), max].map(function (v) { return '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="currentColor" stroke-opacity=".12"/><text x="' + (pl - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + "</text>"; }).join("");
+      var lines = keys.map(function (k) {
+        var pts = [], prev = null;
+        days.forEach(function (d) { var X = x(d.day).toFixed(1); if (prev != null) pts.push(X + "," + y(prev).toFixed(1)); pts.push(X + "," + y(d[k] || 0).toFixed(1)); prev = d[k] || 0; });
+        return '<polyline fill="none" stroke="' + C[k] + '" stroke-width="2.2" points="' + pts.join(" ") + '"/>';
+      }).join("");
+      var lab = '<text x="' + pl + '" y="' + (H - 6) + '">' + days[0].day.slice(5).replace("-", ".") + '</text><text x="' + (W - pr) + '" y="' + (H - 6) + '" text-anchor="end">' + days[days.length - 1].day.slice(5).replace("-", ".") + "</text>";
+      return '<svg class="tr-chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="날짜별 누적 발견 수">' + grid + lines + lab + "</svg>" +
+        '<div class="tr-legend">' + keys.map(function (k) { return '<span><i style="background:' + C[k] + '"></i>' + (k === "ext" ? "외부 발견" : EN[k] + " 검색") + "</span>"; }).join("") + "</div>";
+    }
+    function moreCard() {
+      var p = P.post;
+      return '<section class="cm-card tr-card"><details class="tr-more"><summary>비교에 쓴 문장 ' + (p.sentences || []).length + "개</summary><ol>" + (p.sentences || []).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></details>" +
+        '<details class="tr-more"><summary>확인 기록</summary><ul>' + P.logs.map(function (l) { return "<li>" + ymd(l.at) + " " + (l.how === "auto" ? "자동" : "직접") + " · " + (l.status === "ok" ? "새 발견 " + l.newN + (l.goneN ? ", 사라짐 " + l.goneN : "") : "원본을 열 수 없음") + "</li>"; }).join("") + "</ul></details></section>";
+    }
+
+    load();
+  })();
+  // ☰ 메뉴 열고 닫기 (바깥 누르기·Esc·메뉴 고르기로 닫힘)
+  (function () {
+    var b = document.getElementById("mbtn"), n = document.getElementById("mnav");
+    if (!b || !n) return;
+    function set(open) { n.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false"); b.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기"); }
+    b.addEventListener("click", function (e) { e.stopPropagation(); set(n.hidden); });
+    n.addEventListener("click", function () { set(false); });
+    document.addEventListener("click", function (e) { if (!n.hidden && !n.contains(e.target)) set(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !n.hidden) { set(false); b.focus(); } });
+  })();
+</script>
+</body>
+</html>
