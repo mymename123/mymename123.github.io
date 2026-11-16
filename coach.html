@@ -63,6 +63,18 @@
   .co-list a { color: var(--green); font-weight: 600; }
   .co-wait { display: flex; align-items: center; gap: 10px; color: var(--sub); }
   h4.co-sub { margin: 4px 0 0; font-size: 15px; }
+  .co-chat { display: flex; flex-direction: column; gap: 10px; }
+  .co-msg { padding: 10px 14px; border-radius: 14px; max-width: 92%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .co-msg.user { align-self: flex-end; background: var(--green); color: #fff; }
+  .co-msg.coach { align-self: flex-start; background: var(--chip); }
+  .co-ask { display: flex; gap: 8px; align-items: flex-end; }
+  .co-ask textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 160px; resize: vertical; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); }
+  .co-ex { display: flex; flex-wrap: wrap; gap: 6px; }
+  .co-ex button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13.5px; color: var(--text); cursor: pointer; }
+  .co-ex button:hover { border-color: var(--green); color: var(--green); }
+  .co-st { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .co-st.ok { color: var(--green); }
+  .co-st.off { color: var(--sub); }
   @media (max-width: 600px) {
     .co-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .co-cols { grid-template-columns: 1fr; }
@@ -95,7 +107,8 @@
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
     var $ = function (id) { return document.getElementById(id); };
     var HEAD = '<div class="co-head"><span class="cm-kicker">블로랩 회원</span><h1 class="cm-h2">AI 콘텐츠 코치</h1></div>';
-    var D = null;
+    var D = null, CHAT = { list: [], left: null, limit: 20 }, ASKING = false;
+    var EX = ["지금 내 블로그에서 어떤 글을 쓰는 게 좋을까?", "최근 조회수가 감소한 이유가 뭘까?", "기존 게시글 중 개선할 만한 글을 찾아줘", "내가 잘 다루지 않는 분야 중 성장 가능성이 있는 주제는?", "다음 주 콘텐츠 계획을 만들어줘", "최근 작성한 글의 문제점을 분석해 줘", "내 블로그의 장기적인 성장 방향을 제안해 줘"];
     var PICK = (new URLSearchParams(location.search).get("blog") || "").toLowerCase();
     function num(n) { return n == null ? "-" : Number(n).toLocaleString("ko-KR"); }
     function ymd(ms) { var d = new Date(ms); return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일"; }
@@ -114,6 +127,7 @@
         if (j && j.status === "need_login") { A.clear(); load(); return; }
         if (!j || !j.ok) { gate("불러오지 못했어요", esc((j && j.error) || "잠시 뒤 다시 해 주세요."), '<div><button class="cm-btn" type="button" onclick="location.reload()">다시 불러오기</button></div>'); return; }
         D = j;
+        api("/coach/ask?blog=" + encodeURIComponent(D.blog || "")).then(function (c) { if (c && c.ok) { CHAT = { list: c.list || [], left: c.left, limit: c.limit }; if (D.last) drawChat(); } });
         if (!D.blog) { gate("내 블로그를 먼저 등록해 주세요", "코치는 내 블로그로 확인한 블로그만 분석해요.", '<div><a class="cm-btn pri" href="me.html">내 블로그 등록하기</a></div>'); return; }
         draw();
       });
@@ -121,8 +135,9 @@
 
     function draw(err) {
       var L = D.last;
-      main.innerHTML = HEAD + runCard(err) + (L ? stageCard(L.result) + recCard(L.result) + pfCard(L.result) + kwCard(L.result) + fixCard(L.result) + missCard(L.result) : "");
+      main.innerHTML = HEAD + runCard(err) + (L ? stageCard(L.result) + askCard() + recCard(L.result) + trackCard(L.result) + pfCard(L.result) + kwCard(L.result) + fixCard(L.result) + missCard(L.result) : "");
       $("run").addEventListener("click", run);
+      if (L) bindAsk();
       main.querySelectorAll("[data-copy]").forEach(function (b) {
         b.addEventListener("click", function () {
           var t = b.getAttribute("data-copy");
@@ -213,6 +228,51 @@
       var kw = st.keywords ? '<h4 class="co-sub">검색 유입 키워드 <span class="cm-cap">' + d(st.keywords) + '</span></h4><div class="co-kws">' + st.keywords.items.slice(0, 20).map(function (x) { return '<span class="co-kw">' + esc(x.kw) + " " + num(x.count) + "</span>"; }).join("") + "</div>" : "";
       var tp = st.posts ? '<h4 class="co-sub">조회수 많은 글 <span class="cm-cap">' + d(st.posts) + '</span></h4><ul class="co-list">' + st.posts.top.slice(0, 5).map(function (x) { return "<li>" + postLink(x) + '<span class="cm-cap">조회 ' + num(x.views) + "</span></li>"; }).join("") + "</ul>" : "";
       return '<section class="cm-card co-card" aria-labelledby="kwH"><h2 class="cm-h3" id="kwH">내 통계</h2>' + kw + tp + "</section>";
+    }
+
+    // 4단계: 지난 추천이 실제로 발행됐는지, 7일·30일 성과 (100 = 내 블로그 평균)
+    function trackCard(R) {
+      var t = R.facts.track || [];
+      if (!t.length) return "";
+      var st = function (x) {
+        if (x.status === "published") return '<span class="co-st ok">발행' + (x.i7 != null ? " · 7일 " + x.i7 : "") + (x.i30 != null ? " · 30일 " + x.i30 : "") + "</span>";
+        return '<span class="co-st off">' + (x.status === "expired" ? "안 씀" : "발행 전") + "</span>";
+      };
+      return '<section class="cm-card co-card" aria-labelledby="tkH"><h2 class="cm-h3" id="tkH">지난 추천 성과</h2><p class="cm-cap">숫자 = 평균 대비 (100 = 내 블로그 평균)</p><ul class="co-list">' + t.map(function (x) {
+        return '<li><span style="display:flex;justify-content:space-between;gap:8px"><b>' + esc(x.topic) + "</b>" + st(x) + "</span>" + (x.post ? postLink(x.post) : '<span class="cm-cap">' + esc(x.mainKw) + "</span>") + "</li>";
+      }).join("") + "</ul></section>";
+    }
+
+    // 5단계: 코치에게 질문
+    function askCard() {
+      return '<section class="cm-card co-card" aria-labelledby="akH"><h2 class="cm-h3" id="akH">코치에게 묻기</h2><div class="co-chat" id="chat"></div>' +
+        '<div class="co-ex" id="ex">' + EX.map(function (q) { return '<button type="button">' + esc(q) + "</button>"; }).join("") + "</div>" +
+        '<div class="co-ask"><textarea id="q" maxlength="500" rows="2" placeholder="궁금한 걸 물어보세요"></textarea><button class="cm-btn pri" id="askBtn" type="button">묻기</button></div>' +
+        '<p class="cm-cap" id="askInfo"></p><div id="amsg"></div></section>';
+    }
+    function drawChat() {
+      var box = $("chat"); if (!box) return;
+      box.innerHTML = CHAT.list.map(function (m) { return '<div class="co-msg ' + (m.role === "user" ? "user" : "coach") + '">' + esc(m.text) + "</div>"; }).join("");
+      $("ex").style.display = CHAT.list.length ? "none" : "";
+      $("askInfo").textContent = CHAT.left == null ? "" : "오늘 " + CHAT.left + "/" + CHAT.limit + "번 남음";
+    }
+    function bindAsk() {
+      drawChat();
+      $("ex").querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { $("q").value = b.textContent; ask(); }); });
+      $("askBtn").addEventListener("click", ask);
+      $("q").addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(); } });
+    }
+    function ask() {
+      var q = $("q").value.trim(), b = $("askBtn");
+      if (!q || ASKING) return;
+      ASKING = true; b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span>';
+      CHAT.list.push({ role: "user", text: q }); drawChat(); $("q").value = ""; $("amsg").innerHTML = "";
+      api("/coach/ask", { blog: D.blog, q: q }).then(function (j) {
+        ASKING = false; b.disabled = false; b.textContent = "묻기";
+        if (j && j.ok) { CHAT.list.push({ role: "coach", text: j.answer + (j.missing && j.missing.length ? "\n\n필요한 데이터: " + j.missing.join(", ") : "") }); CHAT.left = j.left; drawChat(); return; }
+        CHAT.list.pop(); drawChat(); $("q").value = q;
+        $("amsg").innerHTML = '<p class="cm-msg err" role="alert">' + esc((j && j.error) || "답을 받지 못했어요.") + "</p>";
+      });
     }
 
     function fixCard(R) {
