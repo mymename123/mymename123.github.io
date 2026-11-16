@@ -44,6 +44,10 @@
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tr-pill.quote, :root:not([data-theme="light"]) .tr-pill.title { background: #1b2c47; color: #9cc2f5; } :root:not([data-theme="light"]) .tr-pill.copy { background: #3b2416; color: #fdba8c; } }
   :root[data-theme="dark"] .tr-pill.quote, :root[data-theme="dark"] .tr-pill.title { background: #1b2c47; color: #9cc2f5; }
   :root[data-theme="dark"] .tr-pill.copy { background: #3b2416; color: #fdba8c; }
+  .tr-found { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; }
+  .tr-found li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tr-found a { color: var(--green); }
+  a.tr-eng { text-decoration: none; }
   .tr-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .tr-side .cm-btn { min-height: 36px; padding: 0 12px; font-size: 14px; }
   .tr-top { display: flex; flex-direction: column; gap: 8px; }
@@ -165,6 +169,7 @@
         '<section class="cm-card tr-card" aria-labelledby="pH"><h2 class="cm-h3" id="pH">추적 중인 글</h2>' +
         (L.posts.length ? '<ul class="tr-list">' + L.posts.map(item).join("") + "</ul>" : '<p class="tr-empty">아직 없어요. 위에 글 주소를 넣거나 최근 글 10개를 눌러 주세요.</p>') + "</section>";
       msg = "";
+      setTimeout(autoRun, 0);
       $("addF").addEventListener("submit", function (e) { e.preventDefault(); add({ url: $("url").value.trim() }, $("addB"), "추가하는 중"); });
       $("recentB").addEventListener("click", function () { add({ recent: 10, blog: L.blogs[0].id }, $("recentB"), "불러오는 중"); });
       main.querySelectorAll("[data-check]").forEach(function (b) { b.addEventListener("click", function () { check(b.getAttribute("data-check"), b, function (j) { msg = j.ok ? "찾았어요: " + j.found + "곳" + (j.newN ? " (새로 " + j.newN + "곳)" : "") : j.error; load(); }); }); });
@@ -172,23 +177,44 @@
     function item(p) {
       var c = p.counts || {};
       var eng = ENG.filter(function (e) { return L.engines[e]; }).map(function (e) {
-        var v = p.engines[e];
-        return '<span class="tr-eng' + (v ? " y" : "") + '" title="' + EN[e] + (v ? " 검색 결과에서 발견" : v === 0 ? " 이번 검색에선 못 찾음" : " 아직 확인 안 함") + '">' + (v ? "✓ " : "") + EN[e] + "</span>";
+        var v = p.engines[e], n = (p.notes || {})[e] || {};
+        var t = EN[e] + (v ? " 검색 결과에서 발견" : v === 0 ? " — " + (n.note || "이번 검색에선 못 찾음") : " 아직 확인 안 함");
+        return v && n.url ? '<a class="tr-eng y" href="' + esc(n.url) + '" target="_blank" rel="noopener" title="' + esc(t) + '">✓ ' + EN[e] + "</a>" : '<span class="tr-eng' + (v ? " y" : "") + '" title="' + esc(t) + '">' + (v ? "✓ " : "") + EN[e] + "</span>";
       }).join("");
       var pills = (c.link ? '<span class="tr-pill link">링크 ' + c.link + "</span>" : "") + ((c.quote || 0) + (c.title || 0) ? '<span class="tr-pill quote">인용 ' + ((c.quote || 0) + (c.title || 0)) + "</span>" : "") + (c.copy ? '<span class="tr-pill copy">복제 의심 ' + c.copy + "</span>" : "");
       return '<li class="tr-item">' + (p.img ? '<img class="tr-thumb" src="' + esc(p.img) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="tr-thumb" aria-hidden="true"></span>') +
         '<div class="tr-it"><a class="t" href="track.html?id=' + encodeURIComponent(p.id) + '">' + esc(p.title || p.url) + "</a>" +
-        '<div class="tr-tags">' + (p.newN ? '<span class="tr-pill new">새 ' + p.newN + "</span>" : "") + (p.status === "gone" ? '<span class="tr-pill gone">원본 없음</span>' : "") + eng + pills + "</div>" +
-        '<span class="cm-cap">' + ymd(p.pub) + " 발행 · " + ago(p.last) + "</span></div>" +
+        '<div class="tr-tags">' + (p.newN ? '<span class="tr-pill new" title="마지막으로 이 글 상세를 본 뒤 새로 찾은 곳">새로 찾음 ' + p.newN + "</span>" : "") + (p.status === "gone" ? '<span class="tr-pill gone">원본 없음</span>' : "") + eng + pills + "</div>" +
+        '<span class="cm-cap">' + ymd(p.pub) + " 발행 · " + (RUN === p.id ? '<span class="cm-spin" aria-hidden="true"></span> 찾는 중' : ago(p.last)) + "</span>" + found(p) + "</div>" +
         '<div class="tr-side"><button class="cm-btn" type="button" data-check="' + esc(p.id) + '"' + (L.left && p.status !== "gone" ? "" : " disabled") + ">" + (p.last ? "다시 찾기" : "찾기") + "</button></div></li>";
+    }
+    // 찾은 곳을 목록에서 바로 보여줌 (눌러 들어가지 않아도)
+    function found(p) {
+      var a = p.top || [];
+      if (!p.last || !a.length) return p.last ? '<span class="cm-cap">다른 곳에서 찾은 글은 아직 없어요</span>' : "";
+      return '<ul class="tr-found">' + a.map(function (d) {
+        return '<li><span class="tr-pill ' + d.type + '">' + TYPE[d.type] + "</span> <b>" + esc(d.site) + '</b> <a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.title || d.url) + "</a>" + (d.score != null ? ' <span class="cm-cap">' + d.score + "%</span>" : "") + "</li>";
+      }).join("") + "</ul>";
+    }
+    // 아직 안 찾은 글은 페이지를 열면 차례로 자동으로 찾음 (하루 횟수 안에서)
+    var RUN = "", AUTO = false, STOP = false;
+    function autoRun() {
+      if (AUTO || STOP || ID) return;
+      var next = L.posts.filter(function (p) { return !p.last && p.status !== "gone"; })[0];
+      if (!next || !L.left) return;
+      AUTO = true; RUN = next.id; drawList();
+      api("/track/check", { id: next.id }).then(function (j) {
+        AUTO = false; RUN = "";
+        if (!j.ok) { STOP = true; msg = j.error; load(); return; } // 실패하면 이번엔 자동 찾기 멈춤
+        api("/track/list").then(function (k) { if (k && k.ok) { L = k; drawList(); autoRun(); } });
+      });
     }
     function add(body, b, t) {
       if (body.url === "") { $("lmsg").innerHTML = note("글 주소를 넣어 주세요.", true); return; }
       busy(b, t);
       api("/track/add", body).then(function (j) {
         if (!j.ok) { msg = j.error; load(); return; }
-        msg = j.added ? j.added + "개 추가했어요." + (j.full ? " (추적 한도까지만)" : "") + " 찾기를 눌러 주세요." : "이미 추적 중인 글이에요.";
-        if (j.added === 1 && j.ids.length === 1 && body.url) { location.href = "track.html?id=" + encodeURIComponent(j.ids[0]) + "&run=1"; return; }
+        msg = j.added ? j.added + "개 추가했어요." + (j.full ? " (추적 한도까지만)" : "") + " 차례로 자동으로 찾아요." : "이미 추적 중인 글이에요.";
         load();
       });
     }
