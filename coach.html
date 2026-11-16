@@ -121,7 +121,7 @@
 
     function draw(err) {
       var L = D.last;
-      main.innerHTML = HEAD + runCard(err) + (L ? stageCard(L.result) + recCard(L.result) + pfCard(L.result) + fixCard(L.result) + missCard(L.result) : "");
+      main.innerHTML = HEAD + runCard(err) + (L ? stageCard(L.result) + recCard(L.result) + pfCard(L.result) + kwCard(L.result) + fixCard(L.result) + missCard(L.result) : "");
       $("run").addEventListener("click", run);
       main.querySelectorAll("[data-copy]").forEach(function (b) {
         b.addEventListener("click", function () {
@@ -194,15 +194,25 @@
 
     function pfCard(R) {
       var p = R.facts.portfolio, a = R.coach.portfolio || {};
-      var unit = p.basis === "reads" ? "조회" : "반응";
+      var unit = p.basis === "engage" ? "반응" : "조회";
       var col = function (t, list) { return '<div class="co-col"><b>' + t + "</b>" + (list.length ? "<ul>" + list.map(function (x) { return "<li>" + esc(x.topic) + (x.why ? ' <span class="cm-cap">' + esc(x.why) + "</span>" : "") + "</li>"; }).join("") + "</ul>" : '<span class="cm-cap">없어요</span>') + "</div>"; };
       return '<section class="cm-card co-card" aria-labelledby="pfH"><h2 class="cm-h3" id="pfH">콘텐츠 비중</h2>' +
-        '<p class="cm-cap">최근 글 ' + p.n + "개 기준 · 오른쪽 숫자 = 비중 · " + unit + "지수 (100 = 내 블로그 평균" + (p.basis === "reads" ? "" : ", 공감+댓글") + ")</p>" +
+        '<p class="cm-cap">최근 글 ' + p.n + "개 기준 · 오른쪽 숫자 = 비중 · " + unit + "지수 (100 = 내 블로그 평균" + (p.basis === "views" ? ", 네이버 통계 조회수" : p.basis === "reads" ? "" : ", 공감+댓글") + ")</p>" +
         '<h4 class="co-sub">카테고리</h4>' + bars(p.categories) +
         '<h4 class="co-sub">지역 <span class="cm-cap">지역이 들어간 글 ' + p.regionShare + "%</span></h4>" + bars(p.regions) +
         (a.over ? '<p class="cm-msg" role="note">⚖ ' + esc(a.over) + "</p>" : "") +
         '<div class="co-cols">' + col("잘 되는 주제", a.good || []) + col("약한 주제", a.weak || []) + col("넓혀 볼 영역", a.gaps || []) + "</div>" +
         (a.advice ? "<p>" + esc(a.advice) + "</p>" : "") + "</section>";
+    }
+
+    // 2단계: 확장이 보낸 네이버 통계 (검색 유입 키워드·조회수 많은 글)
+    function kwCard(R) {
+      var st = R.facts.stats || {};
+      if (!st.keywords && !st.posts) return "";
+      var d = function (x) { return x.from.slice(5).replace("-", "/") + "~" + x.to.slice(5).replace("-", "/"); };
+      var kw = st.keywords ? '<h4 class="co-sub">검색 유입 키워드 <span class="cm-cap">' + d(st.keywords) + '</span></h4><div class="co-kws">' + st.keywords.items.slice(0, 20).map(function (x) { return '<span class="co-kw">' + esc(x.kw) + " " + num(x.count) + "</span>"; }).join("") + "</div>" : "";
+      var tp = st.posts ? '<h4 class="co-sub">조회수 많은 글 <span class="cm-cap">' + d(st.posts) + '</span></h4><ul class="co-list">' + st.posts.top.slice(0, 5).map(function (x) { return "<li>" + postLink(x) + '<span class="cm-cap">조회 ' + num(x.views) + "</span></li>"; }).join("") + "</ul>" : "";
+      return '<section class="cm-card co-card" aria-labelledby="kwH"><h2 class="cm-h3" id="kwH">내 통계</h2>' + kw + tp + "</section>";
     }
 
     function fixCard(R) {
