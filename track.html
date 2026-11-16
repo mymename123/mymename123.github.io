@@ -48,6 +48,12 @@
   .tr-found li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tr-found a { color: var(--green); }
   a.tr-eng { text-decoration: none; }
+  .tr-tips { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; }
+  .tr-tips li { display: flex; gap: 6px; align-items: baseline; }
+  .tr-tips li.warn { color: #9a3412; }
+  .tr-tips li.ok { color: var(--green); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tr-tips li.warn { color: #fdba8c; } }
+  :root[data-theme="dark"] .tr-tips li.warn { color: #fdba8c; }
   .tr-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .tr-side .cm-btn { min-height: 36px; padding: 0 12px; font-size: 14px; }
   .tr-top { display: flex; flex-direction: column; gap: 8px; }
@@ -185,7 +191,7 @@
       return '<li class="tr-item">' + (p.img ? '<img class="tr-thumb" src="' + esc(p.img) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="tr-thumb" aria-hidden="true"></span>') +
         '<div class="tr-it"><a class="t" href="track.html?id=' + encodeURIComponent(p.id) + '">' + esc(p.title || p.url) + "</a>" +
         '<div class="tr-tags">' + (p.newN ? '<span class="tr-pill new" title="마지막으로 이 글 상세를 본 뒤 새로 찾은 곳">새로 찾음 ' + p.newN + "</span>" : "") + (p.status === "gone" ? '<span class="tr-pill gone">원본 없음</span>' : "") + eng + pills + "</div>" +
-        '<span class="cm-cap">' + ymd(p.pub) + " 발행 · " + (RUN === p.id ? '<span class="cm-spin" aria-hidden="true"></span> 찾는 중' : ago(p.last)) + "</span>" + found(p) + "</div>" +
+        '<span class="cm-cap">' + ymd(p.pub) + " 발행 · " + (RUN === p.id ? '<span class="cm-spin" aria-hidden="true"></span> 찾는 중' : ago(p.last)) + "</span>" + found(p) + tips(p, 3) + "</div>" +
         '<div class="tr-side"><button class="cm-btn" type="button" data-check="' + esc(p.id) + '"' + (L.left && p.status !== "gone" ? "" : " disabled") + ">" + (p.last ? "다시 찾기" : "찾기") + "</button></div></li>";
     }
     // 찾은 곳을 목록에서 바로 보여줌 (눌러 들어가지 않아도)
@@ -195,6 +201,13 @@
       return '<ul class="tr-found">' + a.map(function (d) {
         return '<li><span class="tr-pill ' + d.type + '">' + TYPE[d.type] + "</span> <b>" + esc(d.site) + '</b> <a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.title || d.url) + "</a>" + (d.score != null ? ' <span class="cm-cap">' + d.score + "%</span>" : "") + "</li>";
       }).join("") + "</ul>";
+    }
+    // 노출 조언: 고칠 것·해 볼 것 먼저 (AI 안 씀)
+    var LV = { warn: "⚠", tip: "💡", ok: "✓" };
+    function tips(p, max) {
+      var a = (p.advice || []).filter(function (x) { return max ? x.lv !== "ok" : true; }).slice(0, max || 9);
+      if (!a.length) return "";
+      return '<ul class="tr-tips">' + a.map(function (x) { return '<li class="' + x.lv + '"><span aria-hidden="true">' + LV[x.lv] + "</span> " + esc(x.t) + "</li>"; }).join("") + "</ul>";
     }
     // 아직 안 찾은 글은 페이지를 열면 차례로 자동으로 찾음 (하루 횟수 안에서)
     var RUN = "", AUTO = false, STOP = false;
@@ -240,7 +253,7 @@
         '<section class="cm-card tr-card"><a class="tr-back" href="track.html">← 전체 현황</a><div class="tr-top"><h2>' + esc(p.title) + '</h2><a class="src" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.url) + '</a><span class="cm-cap">' + ymd(p.pub) + " 발행 · 등록 " + ymd(p.added) + " · 마지막 확인 " + ago(p.last) + (p.status === "gone" ? " · 원본을 열 수 없어 멈춤" : "") + "</span></div>" +
         '<div class="tr-acts"><button class="cm-btn pri" id="chk" type="button"' + (p.status === "gone" ? " disabled" : "") + ">" + (p.last ? "지금 다시 찾기" : "지금 찾기") + '</button><button class="cm-btn ghost danger" id="del" type="button">추적 그만</button></div>' +
         '<div id="pmsg">' + (m ? note(m.t, m.err) : "") + "</div></section>" +
-        (p.last ? mapCard() + engCard() + discCard() + spreadCard() + moreCard() : '<section class="cm-card tr-card"><p class="tr-empty">아직 안 찾았어요. 지금 찾기를 눌러 주세요.</p></section>');
+        (p.last ? ((p.advice || []).length ? '<section class="cm-card tr-card" aria-labelledby="aH"><h2 class="cm-h3" id="aH">노출 조언</h2>' + tips(p) + '<p class="cm-cap">검색엔진 내부 기준이 아니라 일반적인 노출 요령이에요.</p></section>' : "") + mapCard() + engCard() + discCard() + spreadCard() + moreCard() : '<section class="cm-card tr-card"><p class="tr-empty">아직 안 찾았어요. 지금 찾기를 눌러 주세요.</p></section>');
       $("chk").addEventListener("click", function () {
         check(p.id, $("chk"), function (j) { loadPost(j.ok ? { t: "찾았어요: " + j.found + "곳" + (j.newN ? ", 새로 " + j.newN + "곳" : "") + (j.goneN ? ", 사라짐 " + j.goneN + "곳" : "") } : { t: j.error, err: true }); });
       });
