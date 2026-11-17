@@ -89,6 +89,10 @@
   .pd-qa p { margin: 0; }
   .pd-place { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
   .pd-place p { margin: 0; overflow-wrap: anywhere; }
+  .pd-where { display: flex; flex-direction: column; gap: 8px; }
+  .pd-where .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pd-where .chips button { border: 1px solid var(--line); background: var(--bg, transparent); color: inherit; border-radius: 999px; padding: 8px 12px; font: inherit; text-align: left; cursor: pointer; max-width: 100%; }
+  .pd-where .chips button small { opacity: .7; margin-left: 4px; }
   .pd-quiet { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 13px; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .pd-quiet:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 4px; }
   .th-stage { background: #2b2d31; border-radius: 12px; padding: 8px; display: flex; justify-content: center; }
@@ -352,7 +356,7 @@
         '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
         '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
-        '<div class="pd-acts"><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="pbox"></div>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="f-where">📍 사진으로 장소 추천</button><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="wbox"></div><div id="pbox"></div>' +
         '<p class="cm-cap">💬 ‘초안 만들기’를 누르면 AI가 사진과 가게 정보를 먼저 보고, 글에 필요한 것을 몇 가지 물어봐요. 고르기만 하면 그 답을 살려서 글을 써요.</p>' +
         '<label class="cm-field"><span>그 밖의 메모 (선택)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 주차는 건물 뒤, 포장도 됨"></textarea></label>' +
         '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
@@ -390,14 +394,14 @@
       el.innerHTML = '<div class="pd-place"><b>✅ ' + esc(p.name) + "</b>" + (p.category ? ' <span class="cm-cap">' + esc(p.category) + "</span>" : "") +
         '<p class="cm-cap">' + [p.addr && "📌 " + esc(p.addr), p.hours && "🕐 " + esc(p.hours), p.parking && "🚗 " + esc(p.parking), p.phone && "📞 " + esc(p.phone)].filter(Boolean).join("<br>") + "</p>" +
         (ms.length ? '<label class="pd-chk"><input type="checkbox" id="f-menus" checked><span>지도에 등록된 메뉴·가격 ' + ms.length + "개를 글에 쓰기</span></label>" +
-          '<p class="cm-cap">' + ms.slice(0, 8).map(function (m) { return "· " + esc(m.name) + " " + esc(m.price); }).join("<br>") + (ms.length > 8 ? "<br>외 " + (ms.length - 8) + "개" : "") + "</p>" : '<p class="cm-cap">지도에 등록된 메뉴는 찾지 못했어요.</p>') +
+          '<p class="cm-cap">' + ms.slice(0, 8).map(function (m) { return "· " + esc(m.name) + " " + esc(m.price); }).join("<br>") + (ms.length > 8 ? "<br>외 " + (ms.length - 8) + "개" : "") + "</p>" : $("f-kind") && +$("f-kind").value === 0 ? '<p class="cm-cap">지도에 등록된 메뉴는 찾지 못했어요.</p>' : "") +
         '<p class="cm-cap">다른 가게가 나왔으면 이름 앞에 지역을 붙여 다시 찾아 주세요. 아래 “가게 정보 직접 적기”에서 고칠 수 있어요.</p></div>';
     }
-    async function findPlace(quiet) {
+    async function findPlace(quiet, pid) {
       var q = $("f-shop").value.trim(), say = function (t, e) { msg($("nmsg"), t, e); };
       if (!q) { if (!quiet) say("가게·상품 이름을 먼저 적어 주세요. 지역을 같이 적으면 더 잘 찾아요. (예: 의정부 ○○국밥)", true); return false; }
       var bt = $("f-find"); if (bt) { bt.disabled = true; bt.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 지도에서 찾는 중…'; }
-      var j = await api("/draft/place", { q: q });
+      var j = await api("/draft/place", pid ? { q: q, id: pid } : { q: q });
       if (bt) { bt.disabled = false; bt.textContent = "🔍 네이버 지도에서 가게 정보 찾기"; }
       if (!$("f-shop")) return false;
       if (!j || !j.ok || !j.place) {
@@ -414,6 +418,81 @@
       [["f-addr", j.place.addr], ["f-phone", j.place.phone], ["f-hours", j.place.hours], ["f-park", j.place.parking]].forEach(function (x) { if (x[1] && $(x[0])) $(x[0]).value = x[1]; });
       if (!quiet) say("지도에서 가게 정보를 가져왔어요. 맞는 가게인지 확인해 주세요.");
       return true;
+    }
+    // ---------- 사진 속 촬영 날짜·위치 (EXIF) ----------
+    // (2026-11-17 동혁) 방문일은 파일 날짜보다 사진을 찍은 날짜가 정확함. 위치는 폰·앱 설정에 따라 빠져 있을 수 있음
+    async function exifOf(f) {
+      var out = { day: null, gps: null };
+      try {
+        if (!/jpe?g/i.test(f.type || "") && !/\.jpe?g$/i.test(f.name || "")) return out;
+        var v = new DataView(await f.slice(0, 196608).arrayBuffer());
+        if (v.getUint16(0) !== 0xffd8) return out;
+        var o = 2;
+        while (o + 4 < v.byteLength) {
+          var mk = v.getUint16(o), len = v.getUint16(o + 2);
+          if (mk === 0xffe1 && v.getUint32(o + 4) === 0x45786966) { exifTiff(v, o + 10, out); break; }
+          if ((mk & 0xff00) !== 0xff00 || mk === 0xffda) break;
+          o += 2 + len;
+        }
+      } catch (e) {}
+      return out;
+    }
+    function exifTiff(v, t, out) {
+      var le = v.getUint16(t) === 0x4949, u16 = function (p) { return v.getUint16(p, le); }, u32 = function (p) { return v.getUint32(p, le); };
+      var tags = function (ifd) { var n = u16(t + ifd), m = {}; for (var i = 0; i < n; i++) { var e = t + ifd + 2 + i * 12; m[u16(e)] = e; } return m; };
+      var str = function (e) { var n = u32(e + 4), p = n > 4 ? t + u32(e + 8) : e + 8, s = ""; for (var i = 0; i < n - 1; i++) s += String.fromCharCode(v.getUint8(p + i)); return s; };
+      var rat3 = function (e) { var p = t + u32(e + 8), r = function (k) { var d = u32(p + k * 8 + 4); return d ? u32(p + k * 8) / d : 0; }; return r(0) + r(1) / 60 + r(2) / 3600; };
+      var ch = function (e) { return String.fromCharCode(v.getUint8(e + 8)); };
+      var i0 = tags(u32(t + 4));
+      if (i0[0x8769]) {
+        var ex = tags(u32(i0[0x8769] + 8)), dt = ex[0x9003] || ex[0x9004];
+        var m = dt && /^(\d{4}):(\d\d):(\d\d)/.exec(str(dt));
+        if (m) { var d = new Date(+m[1], +m[2] - 1, +m[3]); if (d.getFullYear() > 2000 && d <= new Date()) out.day = d; }
+      }
+      if (i0[0x8825]) {
+        var g = tags(u32(i0[0x8825] + 8));
+        if (g[2] && g[4]) {
+          var lat = rat3(g[2]) * (g[1] && ch(g[1]) === "S" ? -1 : 1), lng = rat3(g[4]) * (g[3] && ch(g[3]) === "W" ? -1 : 1);
+          if (lat && lng) out.gps = { lat: Math.round(lat * 1e5) / 1e5, lng: Math.round(lng * 1e5) / 1e5 };
+        }
+      }
+    }
+    // ---------- 사진으로 장소 추천 (서버 /draft/where) ----------
+    var where = null, kindTouched = false, whereBusy = false;
+    function gpsOfItems() { for (var i = 0; i < items.length; i++) if (items[i].gps) return items[i].gps; return null; }
+    function whereBox(note) {
+      var el = $("wbox"); if (!el) return;
+      if (!where && !note) { el.innerHTML = ""; return; }
+      if (!where) { el.innerHTML = '<p class="cm-cap">' + note + "</p>"; return; }
+      var ps = where.places, km = function (k) { return k == null ? "" : k < 1 ? Math.round(k * 1000) + "m" : k.toFixed(1) + "km"; };
+      el.innerHTML = '<div class="pd-place pd-where"><b>📍 ' + esc(where.cat) + (where.why ? ' <span class="cm-cap">' + esc(where.why) + "</span>" : "") + "</b>" +
+        (ps.length ? '<div class="chips">' + ps.map(function (p, i) { return '<button type="button" data-w="' + i + '">' + esc(p.name) + "<small>" + esc([p.cat.split(",")[0], km(p.km)].filter(Boolean).join(" · ")) + "</small></button>"; }).join("") + "</div>" +
+          '<p class="cm-cap">누르면 그 가게 정보를 지도에서 가져와요.</p>'
+          : '<p class="cm-cap">' + (where.gps ? "사진 찍은 곳 근처에서 맞는 가게를 못 찾았어요." : "사진에 위치 정보가 없어서 가게를 고르지 못했어요.") + " 가게 이름을 직접 적어 주세요.</p>") +
+        (where.gps ? "" : '<div class="pd-acts"><button class="cm-btn" type="button" data-w="gps">📡 지금 있는 곳 근처로 찾기</button></div>') + "</div>";
+    }
+    async function whereGo(auto, here) {
+      if (whereBusy || !items.length) return;
+      whereBusy = true;
+      var bt = $("f-where"); if (bt) { bt.disabled = true; bt.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 사진 보는 중…'; }
+      try {
+        var ths = [], k = Math.min(6, items.length);
+        for (var i = 0; i < k; i++) ths.push(shrink(await tImg("data:image/jpeg;base64," + items[i].b64), 640, 0.7));
+        var gps = here || gpsOfItems();
+        var j = await api("/draft/where", null, JSON.stringify({ gps: gps }) + "\n" + ths.join("\n"));
+        if (!$("wbox")) return;
+        if (!j || !j.ok) { where = null; whereBox(auto ? "" : esc((j && j.error) || "장소를 추천하지 못했어요.")); return; }
+        where = j; whereBox();
+        if (j.kind >= 0 && !kindTouched && $("f-kind") && +$("f-kind").value !== j.kind) { $("f-kind").value = String(j.kind); form.kind = j.kind; keepForm(); }
+      } finally {
+        whereBusy = false;
+        var b2 = $("f-where"); if (b2) { b2.disabled = false; b2.textContent = "📍 사진으로 장소 추천"; }
+      }
+    }
+    function whereHere() {
+      if (!navigator.geolocation) { whereBox("이 브라우저는 위치를 쓸 수 없어요."); return; }
+      navigator.geolocation.getCurrentPosition(function (p) { whereGo(false, { lat: Math.round(p.coords.latitude * 1e5) / 1e5, lng: Math.round(p.coords.longitude * 1e5) / 1e5 }); },
+        function () { where = null; whereBox("위치를 쓸 수 없어요. 폰 설정에서 위치 권한을 켜 주세요."); }, { timeout: 10000, maximumAge: 300000 });
     }
     // ---------- 내 글 학습 ----------
     var styleNow; // undefined = 아직 안 물어봄, null = 없음
@@ -463,6 +542,15 @@
       $("f-spon").addEventListener("change", goLabel); goLabel();
       styleBind();
       $("f-find").addEventListener("click", function () { findPlace(false); });
+      $("f-where").addEventListener("click", function () { whereGo(false); });
+      $("wbox").addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-w]"); if (!b) return;
+        if (b.dataset.w === "gps") { whereHere(); return; }
+        var p = where && where.places[+b.dataset.w]; if (!p) return;
+        $("f-shop").value = p.q; place = null; findPlace(false, p.id);
+      });
+      $("f-kind").addEventListener("change", function () { kindTouched = true; });
+      if (where) whereBox();
       $("f-shop").addEventListener("input", function () { if (place && place.q !== $("f-shop").value.trim()) { place = null; placeBox2(); } });
       if (place && place.p) placeBox();
       $("grid").addEventListener("click", function (e) {
@@ -483,7 +571,8 @@
     async function prep(f) {
       var bmp;
       try { bmp = await bitmap(f); } catch (e) { await new Promise(function (r) { setTimeout(r, 400); }); bmp = await viaImg(f); }
-      var it = { b64: bigOf(bmp), url: "data:image/jpeg;base64," + shrink(bmp, 240, 0.7), day: fileDay(f), memo: "" };
+      var ex = await exifOf(f);
+      var it = { b64: bigOf(bmp), url: "data:image/jpeg;base64," + shrink(bmp, 240, 0.7), day: ex.day || fileDay(f), gps: ex.gps, memo: "" };
       if (bmp.close) bmp.close();
       if (it.b64.length < 200) throw new Error("빈 사진");
       return it;
@@ -504,6 +593,7 @@
       }
       prepping = false;
       if (go) go.disabled = false;
+      if (items.length && !$("f-shop").value.trim() && !$("f-spon").checked && !where) whereGo(true); // 가게 이름이 비어 있으면 사진으로 장소를 바로 추천
       msg($("nmsg"), bad ? "사진 " + bad + "장은 열 수 없어 뺐어요. (JPG·PNG 사진만 돼요. 클라우드에만 있는 사진은 먼저 폰에 내려받아 주세요)" : over ? "사진은 " + L.limit.maxPhotos + "장까지라 앞의 " + room + "장만 넣었어요." : "", !!bad || over);
     }
     function fileDay(f) {
@@ -607,7 +697,7 @@
           api("/draft/list").then(function (x) { if (x && x.ok) L = x; });
           return;
         }
-        items = []; place = null;
+        items = []; place = null; where = null; kindTouched = false;
         showDraft(w.draft, miss, w.cut, upErr);
       } catch (e) {
         done(); say("오류가 났어요: " + String((e && e.message) || e), true);
@@ -627,7 +717,7 @@
         var r = await api("/draft/ready", { id: j.id, title: $("f-td").value.trim() || $("f-shop").value.trim() });
         done();
         if (!r.ok) { say(r.error || "넘기지 못했어요.", true); return; }
-        items = []; place = null;
+        items = []; place = null; where = null; kindTouched = false;
         showDraft(r.draft, miss);
         msg($("dmsg"), miss.length ? "사진 " + miss.length + "장이 아직 안 올라갔어요. 위에서 다시 올려 주세요." : "사진 " + n + "장을 PC로 넘겼어요. PC 📸 본문 작성 창 맨 위 📱 폰 초안에서 불러오면 돼요.", !!miss.length);
       } catch (e) { done(); say("오류가 났어요: " + String((e && e.message) || e), true); }
