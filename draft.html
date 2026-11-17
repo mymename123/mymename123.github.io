@@ -354,7 +354,8 @@
         '<div class="pd-grid" id="grid"></div><p class="cm-cap" id="gcap" hidden></p>' +
         '<div class="pd-row"><label class="cm-field"><span>글 종류</span><select class="cm-input" id="f-kind">' + kinds + "</select></label>" +
         '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
-        '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label></div>" +
+        '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label>" +
+        (L.claude ? '<label class="cm-field"><span>글 쓰는 AI</span>' + sel("f-ai", { claude: "Claude (글 품질 · 1편 약 300~500원)", gemini: "Gemini (빠름 · 1편 몇 원)" }, form.ai || "claude") + "</label>" : "") + "</div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="f-where">📍 사진으로 장소 추천</button><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="wbox"></div><div id="pbox"></div>' +
         '<p class="cm-cap">💬 ‘초안 만들기’를 누르면 AI가 사진과 가게 정보를 먼저 보고, 글에 필요한 것을 몇 가지 물어봐요. 고르기만 하면 그 답을 살려서 글을 써요.</p>' +
@@ -381,7 +382,10 @@
         '<div id="st-now"></div>' +
         '<textarea class="cm-input" id="st-urls" style="min-height:110px" placeholder="내 블로그 글 주소를 한 줄에 하나씩 (10개까지)&#10;https://blog.naver.com/아이디/글번호" autocomplete="off"></textarea>' +
         '<textarea class="cm-input" id="st-text" maxlength="12000" style="min-height:90px" placeholder="비공개 글이면 글 내용을 여기에 붙여넣어 주세요 (선택)"></textarea>' +
-        '<div class="pd-acts"><button class="cm-btn" type="button" id="st-go">📚 학습하기</button><button class="cm-btn danger" type="button" id="st-off" hidden>학습 지우기</button></div><div id="st-msg"></div></div></details>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="st-go">📚 학습하기</button><button class="cm-btn danger" type="button" id="st-off" hidden>학습 지우기</button></div>' +
+        '<p class="cm-cap" style="margin-top:14px"><b>🌟 잘 쓴 다른 블로그 글 배우기</b> · 닮고 싶은 글 주소를 넣으면 글 구성과 기법만 배워요. 남의 문장은 따라 쓰지 않아요.</p>' +
+        '<textarea class="cm-input" id="st-refs" style="min-height:90px" placeholder="잘 쓴 글 주소를 한 줄에 하나씩 (2~10개)&#10;https://blog.naver.com/아이디/글번호" autocomplete="off"></textarea>' +
+        '<div class="pd-acts"><button class="cm-btn" type="button" id="st-ref">🌟 잘 쓴 글 배우기</button></div><div id="st-msg"></div></div></details>' +
         '<div id="nmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="go">✨ 초안 만들기</button></div>';
     }
@@ -499,12 +503,14 @@
     function styleDraw() {
       if (!$("st-now")) return;
       var st = styleNow;
-      $("st-on").textContent = st ? "· 학습됨 (" + [st.n ? "글 " + st.n + "편" : "", st.fixN ? "고친 글 " + st.fixN + "편 비교" : ""].filter(Boolean).join(", ") + ")" : "";
+      $("st-on").textContent = st ? "· 학습됨 (" + [st.n ? "글 " + st.n + "편" : "", st.fixN ? "고친 글 " + st.fixN + "편 비교" : "", st.refN ? "잘 쓴 글 " + st.refN + "편" : ""].filter(Boolean).join(", ") + ")" : "";
       $("st-off").hidden = !st;
       $("st-go").textContent = st && st.n ? "📚 다시 학습하기 (새 글로 바꿈)" : "📚 학습하기";
       $("st-now").innerHTML = (st && st.fix ? '<div class="pd-place"><b>✅ 발행한 글 ' + st.fixN + '편과 비교해 배운 점</b><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.fix) + '</p><p class="cm-cap">초안을 열면 아래쪽 “📝 발행한 글로 학습”에서 더 쌓을 수 있어요.</p><div><button class="pd-quiet" type="button" id="st-fixoff">배운 점만 지우기</button></div></div>' : "") +
         (st && !st.n ? "" : !st ? "" : '<div class="pd-place"><b>✅ 글 ' + st.n + "편을 학습했어요</b>" + (st.titles && st.titles.length ? '<p class="cm-cap">' + st.titles.map(function (t) { return "· " + esc(t); }).join("<br>") + "</p>" : "") +
-        '<details><summary class="cm-cap">AI가 정리한 내 글쓰기 습관 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.guide) + "</p></details></div>");
+        '<details><summary class="cm-cap">AI가 정리한 내 글쓰기 습관 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.guide) + "</p></details></div>") +
+        (st && st.ref ? '<div class="pd-place"><b>🌟 잘 쓴 글 ' + st.refN + '편에서 배운 기법</b><details><summary class="cm-cap">배운 기법 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.ref) + '</p></details><div><button class="pd-quiet" type="button" id="st-refoff">이것만 지우기</button></div></div>' : "");
+      if ($("st-refoff")) $("st-refoff").addEventListener("click", async function () { var j = await api("/draft/style", { act: "refoff" }); if (j && j.ok) { styleNow = j.style; styleDraw(); } });
       if ($("st-fixoff")) $("st-fixoff").addEventListener("click", async function () { var j = await api("/draft/style", { act: "fixoff" }); if (j && j.ok) { styleNow = j.style; styleDraw(); } });
     }
     function styleBind() {
@@ -520,6 +526,16 @@
         if (j && j.ok) { styleNow = j.style; $("st-urls").value = ""; $("st-text").value = ""; styleDraw(); msg(m, "학습했어요. 이제부터 초안을 내 글처럼 써요." + (j.failed ? " 읽지 못한 글 " + j.failed.length + "편은 뺐어요 (비공개 글은 내용을 붙여넣어 주세요)." : "")); }
         else { styleDraw(); msg(m, ((j && j.error) || "학습하지 못했어요.") + (j && j.why ? " (" + j.why + ")" : ""), true); }
       });
+      $("st-ref").addEventListener("click", async function () {
+        var b = $("st-ref"), m = $("st-msg"), urls = $("st-refs").value.split(/\s+/).filter(Boolean);
+        if (urls.length < 2) { msg(m, "잘 쓴 글 주소를 2개 이상 넣어 주세요.", true); return; }
+        b.disabled = true; b.innerHTML = '<span class="cm-spin" aria-hidden="true"></span> 잘 쓴 글을 읽고 기법을 정리하는 중… (30~90초)';
+        var j = await api("/draft/style", { act: "ref", urls: urls, ai: $("f-ai") ? $("f-ai").value : "gemini" });
+        if (!$("st-ref")) return;
+        b.disabled = false; b.textContent = "🌟 잘 쓴 글 배우기";
+        if (j && j.ok) { styleNow = j.style; $("st-refs").value = ""; styleDraw(); msg(m, "배웠어요. 이제부터 초안에 이 기법을 써요." + (j.failed ? " 읽지 못한 글 " + j.failed.length + "편은 뺐어요." : "")); }
+        else { styleDraw(); msg(m, ((j && j.error) || "배우지 못했어요.") + (j && j.why ? " (" + j.why + ")" : ""), true); }
+      });
       $("st-off").addEventListener("click", async function () {
         var j = await api("/draft/style", { act: "off" });
         if (j && j.ok) { styleNow = null; styleDraw(); msg($("st-msg"), "학습한 내용을 지웠어요."); }
@@ -530,12 +546,12 @@
     function smodeOf() { return form.smode || (form.skel ? "skel" : "blank"); }
     function keepForm() {
       if (!$("f-kind")) return;
-      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.sponsor = $("f-spon").checked; form.smode = $("f-smode").value; form.skel = form.smode === "skel"; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
+      form.kind = +$("f-kind").value; form.tone = $("f-tone").value; form.len = $("f-len").value; form.ai = $("f-ai") ? $("f-ai").value : form.ai; form.sponsor = $("f-spon").checked; form.smode = $("f-smode").value; form.skel = form.smode === "skel"; form.persona = $("f-persona").value.trim(); form.sample = $("f-sample").value.trim();
       save("bl-pd-form", form);
     }
     function bindNew() {
       $("files").addEventListener("change", function (e) { var t = e.target; addFiles(t.files).then(function () { t.value = ""; }, function () { t.value = ""; }); }); // 다 읽은 뒤에 칸을 비움
-      ["f-kind", "f-tone", "f-len", "f-spon", "f-smode", "f-persona", "f-sample"].forEach(function (id) { $(id).addEventListener("change", keepForm); });
+      ["f-kind", "f-tone", "f-len", "f-spon", "f-smode", "f-persona", "f-sample", "f-ai"].forEach(function (id) { if ($(id)) $(id).addEventListener("change", keepForm); });
       $("f-kind").addEventListener("change", function () { form.kind = +$("f-kind").value; });
       $("go").addEventListener("click", make);
       var goLabel = function () { var g = $("go"); if (g && !busyNow) g.textContent = $("f-spon").checked ? "📤 사진만 PC로 보내기" : "✨ 초안 만들기"; };
@@ -647,7 +663,7 @@
     }
     function metaNow() {
       return { kind: +$("f-kind").value, tone: $("f-tone").value, len: $("f-len").value, memo: $("f-memo").value, kw: $("f-kw").value, tdraft: $("f-td").value,
-        visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-smode").value === "skel", blank: $("f-smode").value === "blank", mission: $("f-mission").value,
+        ai: $("f-ai") ? $("f-ai").value : "gemini", visit: $("f-visit").checked ? visitText() : "", persona: $("f-persona").value, sponsor: $("f-spon").checked, skel: $("f-smode").value === "skel", blank: $("f-smode").value === "blank", mission: $("f-mission").value,
         shop: { name: $("f-shop").value, addr: $("f-addr").value, phone: $("f-phone").value, hours: $("f-hours").value, parking: $("f-park").value },
         pmemos: items.map(function (x) { return x.memo; }), qa: [], sample: $("f-sample").value,
         menus: place && place.p && $("f-menus") && $("f-menus").checked ? place.p.menus : [] };
@@ -684,7 +700,7 @@
         if (!j.ok) { say(j.error || "만들지 못했어요.", true); done(); return; }
         var id = j.id;
         curFiles = { id: id, b64s: b64s, prev: prev, meta: meta };
-        say("AI가 글을 쓰는 중… (보통 20~40초) 화면을 켜 둔 채로 기다려 주세요. 그동안 사진도 같이 올려요.");
+        say((meta.ai === "claude" ? "Claude가 글을 쓰는 중… (보통 1~3분)" : "AI가 글을 쓰는 중… (보통 20~40초)") + " 화면을 켜 둔 채로 기다려 주세요. 그동안 사진도 같이 올려요.");
         var writing = api("/draft/write", null, JSON.stringify(Object.assign({ id: id }, meta)) + "\n" + thumbs.join("\n"));
         thumbs = null;
         var up = uploadAll(id, b64s, function (k) { say("AI가 글을 쓰는 중… 사진 올리기 " + k + "/" + n); });
@@ -743,7 +759,7 @@
       return miss.sort(function (a, b) { return a - b; });
     }
     async function waitDraft(id) {
-      for (var i = 0; i < 30; i++) {
+      for (var i = 0; i < 120; i++) {
         await new Promise(function (r) { setTimeout(r, 4000); });
         var g = await api("/draft/get?id=" + encodeURIComponent(id));
         if (g.ok && g.draft.status === "done") return { ok: true, draft: g.draft };
