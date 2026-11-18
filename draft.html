@@ -17,6 +17,9 @@
   .pd-main { padding-block: 28px 96px; display: flex; flex-direction: column; gap: 16px; max-width: 720px; margin: 0 auto; }
   .pd-head { display: flex; flex-direction: column; gap: 6px; }
   .pd-card { display: flex; flex-direction: column; gap: 14px; }
+  .pd-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+  .pd-stats span { background: var(--chip); border-radius: 999px; padding: 6px 12px; font-size: 14px; }
+  .pd-stats b { font-weight: 800; }
   .pd-card > h2 { margin: 0; }
   .pd-row { display: flex; flex-wrap: wrap; gap: 10px; }
   .pd-row > * { flex: 1 1 150px; min-width: 0; }
@@ -145,7 +148,7 @@
     var A = window.BLAuth, main = document.getElementById("main");
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
     var $ = function (id) { return document.getElementById(id); };
-    var HEAD = '<div class="pd-head"><span class="cm-kicker">블로랩 회원 · 시험 중</span><h1 class="cm-h2">사진 초안</h1><p class="cm-cap">폰에서 사진을 고르면 AI가 본문 초안을 써 둬요. PC에서 확장 프로그램으로 불러와 네이버 글쓰기 화면에 넣어요.</p></div>';
+    var HEAD = '<div class="pd-head"><span class="cm-kicker">블로랩 회원 · 시험 중</span><h1 class="cm-h2">사진 초안</h1><p class="cm-cap">📷 폰에서 사진 고르기 → ✍ AI 초안 → 💻 PC 확장으로 넣기</p></div>';
     var L = null;          // 서버 목록 (/draft/list)
     var items = [];        // 새 초안에 고른 사진 { b64(큰 사진), url(작은 미리 보기), day, memo }: 고르자마자 한 번만 읽어 줄여 둠 (폰이 나중에 사진 파일을 못 읽게 하는 일이 있어서)
     var prepping = false;
@@ -210,11 +213,11 @@
       }).join("");
       main.innerHTML = HEAD +
         '<div class="cm-card pd-card"><h2 class="cm-h3">새 초안 만들기</h2>' +
-        '<p class="cm-cap">오늘 ' + rest + "개 더 만들 수 있어요 (하루 " + lim.daily + "개" + (L.plan === "pro" ? ", PRO" : "") + "). 사진은 한 번에 " + lim.maxPhotos + "장까지예요.</p>" +
+        '<p class="pd-stats"><span>남은 초안 만들기 <b>' + rest + "/" + lim.daily + "</b>" + (L.plan === "pro" ? " · PRO" : "") + "</span><span>사진 최대 <b>" + lim.maxPhotos + "장</b></span></p>" +
         newForm() + "</div>" +
         '<div class="cm-card pd-card"><h2 class="cm-h3">보관함</h2>' +
         (list ? '<ul class="pd-list">' + list + "</ul>" : '<p class="cm-cap">아직 만든 초안이 없어요.</p>') +
-        '<p class="cm-cap">초안과 사진은 만든 날부터 ' + lim.keepDays + "일 동안만 보관하고 자동으로 지워요.</p></div>" +
+        '<p class="cm-cap">🗑 보관 ' + lim.keepDays + "일 · 지나면 자동 삭제</p></div>" +
         rvCard() + keyCard();
       bindNew(); bindKey(); bindRv();
       main.querySelectorAll("[data-open]").forEach(function (b) { b.addEventListener("click", function () { openDraft(b.dataset.open); }); });
@@ -224,7 +227,7 @@
     // ---------- ⏰ 예약 발행 알림 (2026-11-15): 블로그 아이디별 마지막 예약 글 날짜를 보고, 다 떨어지면 폰 알림 ----------
     function rvCard() {
       return '<div class="cm-card pd-card" id="rv"><h2 class="cm-h3">⏰ 예약 발행 알림</h2>' +
-        '<p class="cm-cap">블로그마다 마지막 예약 글이 언제 나가는지 보여 주고, 예약 글이 다 떨어지면 알림을 보내요. 날짜는 PC 확장 프로그램이 보내 주거나 여기서 직접 적어요.</p>' +
+        '<p class="cm-cap">마지막 예약 글 날짜 · 다 떨어지면 🔔 알림</p>' +
         '<div id="rv-list"><p class="cm-cap">불러오는 중…</p></div>' +
         '<details class="pd-more"><summary>블로그 추가·날짜 고치기</summary><div>' +
         '<input class="cm-input" id="rv-blog" maxlength="80" placeholder="블로그 아이디 (예: myblog)" autocomplete="off" autocapitalize="off">' +
@@ -320,7 +323,7 @@
       return new Promise(function (done) {
         var el = document.createElement("div"); el.className = "pd-ask"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "글을 보완하는 질문");
         el.innerHTML = '<div class="pd-ask-in"><h2>' + (basic ? "몇 가지만 알려 주세요" : "사진을 보고 궁금한 점이에요") + '</h2>' +
-          '<p class="cm-cap">' + (basic ? "AI가 질문을 만들지 못해 기본 질문을 보여 드려요. " : "") + "맛·느낌처럼 사진만으로는 알 수 없는 것들이에요. 답한 내용은 글에 그대로 살려요. 여러 개 골라도 되고, 모르는 건 그냥 넘어가도 돼요.</p>" +
+          '<p class="cm-cap">' + (basic ? "AI가 질문을 만들지 못해 기본 질문을 보여 드려요. " : "") + "여러 개 골라도 돼요 · 모르면 넘어가기</p>" +
           qs.map(function (x, i) {
             return '<fieldset class="pd-ask-q" data-i="' + i + '"><legend>' + (i + 1) + ". " + esc(x.q) + "</legend>" +
               (x.opts.length ? '<div class="pd-ask-o">' + x.opts.map(function (o) { return '<button type="button" class="pd-opt" aria-pressed="false">' + esc(o) + "</button>"; }).join("") + "</div>" : "") +
@@ -346,15 +349,14 @@
     function newForm() {
       var kinds = L.kinds.map(function (k, i) { return '<option value="' + i + '"' + (+form.kind === i ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + '<option value="-1"' + (+form.kind === -1 ? " selected" : "") + ">자유 형식 (틀 없이)</option>";
       var sel = function (id, map, v) { return '<select class="cm-input" id="' + id + '">' + Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (v === k ? " selected" : "") + ">" + map[k] + "</option>"; }).join("") + "</select>"; };
-      return '<label class="pd-pick"><input type="file" id="files" accept="image/*" multiple><b>📷 사진 고르기</b><span class="cm-cap">갤러리에서 글에 넣을 순서대로 골라 주세요. 고른 순서대로 번호가 붙어요</span></label>' +
+      return '<label class="pd-pick"><input type="file" id="files" accept="image/*" multiple><b>📷 사진 고르기</b><span class="cm-cap">고른 순서 = 글 순서</span></label>' +
         '<div class="pd-grid" id="grid"></div><p class="cm-cap" id="gcap" hidden></p>' +
         '<div class="pd-row"><label class="cm-field"><span>글 종류</span><select class="cm-input" id="f-kind">' + kinds + "</select></label>" +
         '<label class="cm-field"><span>말투</span>' + sel("f-tone", { pro: "담백하고 정중하게", free: "친근하고 가볍게" }, form.tone) + "</label>" +
         '<label class="cm-field"><span>분량</span>' + sel("f-len", { short: "짧게 (약 800자)", normal: "보통 (약 1500자)", long: "길게 (약 2500자)" }, form.len) + "</label>" +
-        (L.claude ? '<label class="cm-field"><span>글 쓰는 AI</span>' + sel("f-ai", { claude: "Claude (글 품질 · 1편 약 300~500원)", gemini: "Gemini (빠름 · 1편 몇 원)" }, form.ai || "claude") + "</label>" : "") + "</div>" +
+        (L.claude ? '<label class="cm-field"><span>글 쓰는 AI</span>' + sel("f-ai", { claude: "Claude (고품질)", gemini: "Gemini (저렴)" }, form.ai || "claude") + "</label>" : "") + "</div>" +
         '<label class="cm-field"><span>가게·상품 이름 (선택)</span><input class="cm-input" id="f-shop" maxlength="60" placeholder="예) 성수동 ○○베이커리" autocomplete="off"></label>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="f-find">🔍 네이버 지도에서 가게 정보 찾기</button></div><div id="pbox"></div>' +
-        '<p class="cm-cap">💬 ‘초안 만들기’를 누르면 AI가 사진과 가게 정보를 먼저 보고, 글에 필요한 것을 몇 가지 물어봐요. 고르기만 하면 그 답을 살려서 글을 써요.</p>' +
         '<label class="cm-field"><span>그 밖의 메모 (선택)</span><textarea class="cm-input" id="f-memo" maxlength="1500" placeholder="예) 웨이팅 20분, 주차는 건물 뒤, 포장도 됨"></textarea></label>' +
         '<div class="pd-row"><label class="cm-field"><span>필수 키워드 (선택, 쉼표로)</span><input class="cm-input" id="f-kw" maxlength="200" placeholder="예) 성수동 소금빵, 성수 카페" autocomplete="off"></label>' +
         '<label class="cm-field"><span>제목 초안 (선택)</span><input class="cm-input" id="f-td" maxlength="100" placeholder="예) 성수동 소금빵 후기" autocomplete="off"></label></div>' +
@@ -362,7 +364,7 @@
         '<details class="pd-more"><summary>가게 정보 직접 적기 (아는 것만)</summary><div>' +
         '<input class="cm-input" id="f-addr" maxlength="120" placeholder="📌 주소" autocomplete="off"><input class="cm-input" id="f-phone" maxlength="30" placeholder="📞 전화" autocomplete="off">' +
         '<input class="cm-input" id="f-hours" maxlength="300" placeholder="🕐 영업시간" autocomplete="off"><input class="cm-input" id="f-park" maxlength="80" placeholder="🚗 주차" autocomplete="off">' +
-        '<p class="cm-cap">비워 두면 AI가 지어내지 않고 “(확인 필요)”로 남겨요. PC 확장 프로그램에서 네이버 지도로 채울 수 있어요.</p></div></details>' +
+        '<p class="cm-cap">빈칸은 “(확인 필요)”로 남아요</p></div></details>' +
         '<details class="pd-more"' + (form.sponsor ? " open" : "") + '><summary>🎁 협찬 글</summary><div>' +
         '<label class="pd-chk"><input type="checkbox" id="f-spon"' + (form.sponsor ? " checked" : "") + "><span>협찬 글이에요: 폰에서는 글을 만들지 않고 사진(과 안내문)만 PC로 넘겨요. PC 확장 프로그램이 캠페인 양식에 맞춰 써요. 하루 횟수도 안 써요.</span></label>" +
         '<label class="cm-field" hidden><span>쓰는 방식</span><select class="cm-input" id="f-smode">' +
@@ -372,14 +374,14 @@
         '<details class="pd-more"><summary>내 소개 (AI에게 알려 줄 말투·성별 등)</summary><div>' +
         '<textarea class="cm-input" id="f-persona" maxlength="300" placeholder="예) 30대 남성 블로거. 담백한 존댓말, 과한 감탄사는 안 씀">' + esc(form.persona || "") + "</textarea>" +
         '<textarea class="cm-input" id="f-sample" maxlength="3000" style="min-height:140px" placeholder="내가 직접 쓴 블로그 글을 붙여 넣으면 그 말투를 따라 써요 (선택, 3000자까지)">' + esc(form.sample || "") + "</textarea>" +
-        '<p class="cm-cap">이 기기에만 저장되고, 초안을 만들 때 AI에게 같이 보내요. 글 예시는 말투만 따라 하고 내용은 가져오지 않아요.</p></div></details>' +
+        '<p class="cm-cap">이 기기에만 저장 · 말투만 따라 해요</p></div></details>' +
         '<details class="pd-more" id="st-box"><summary>📚 내 글 학습 <span id="st-on" class="cm-cap"></span></summary><div>' +
-        '<p class="cm-cap">내가 쓴 글 여러 편을 AI가 읽고 말투, 글 구성, 자주 쓰는 표현을 정리해 둬요. 그 뒤로는 초안을 만들 때마다 내 글처럼 써요. 한 번만 해 두면 계정에 저장돼요.</p>' +
+        '<p class="cm-cap">내 글 여러 편 → 말투·구성 학습 · 한 번이면 계정에 저장</p>' +
         '<div id="st-now"></div>' +
         '<textarea class="cm-input" id="st-urls" style="min-height:110px" placeholder="내 블로그 글 주소를 한 줄에 하나씩 (10개까지)&#10;https://blog.naver.com/아이디/글번호" autocomplete="off"></textarea>' +
         '<textarea class="cm-input" id="st-text" maxlength="12000" style="min-height:90px" placeholder="비공개 글이면 글 내용을 여기에 붙여넣어 주세요 (선택)"></textarea>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="st-go">📚 학습하기</button><button class="cm-btn danger" type="button" id="st-off" hidden>학습 지우기</button></div>' +
-        '<p class="cm-cap" style="margin-top:14px"><b>🌟 잘 쓴 다른 블로그 글 배우기</b> · 닮고 싶은 글 주소를 넣으면 글 구성과 기법만 배워요. 남의 문장은 따라 쓰지 않아요.</p>' +
+        '<p class="cm-cap" style="margin-top:14px"><b>🌟 잘 쓴 다른 블로그 글 배우기</b> · 기법만 배우고 문장은 안 베껴요</p>' +
         '<textarea class="cm-input" id="st-refs" style="min-height:90px" placeholder="잘 쓴 글 주소를 한 줄에 하나씩 (2~10개)&#10;https://blog.naver.com/아이디/글번호" autocomplete="off"></textarea>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="st-ref">🌟 잘 쓴 글 배우기</button></div><div id="st-msg"></div></div></details>' +
         '<div id="nmsg"></div>' +
@@ -395,7 +397,7 @@
         '<p class="cm-cap">' + [p.addr && "📌 " + esc(p.addr), p.hours && "🕐 " + esc(p.hours), p.parking && "🚗 " + esc(p.parking), p.phone && "📞 " + esc(p.phone)].filter(Boolean).join("<br>") + "</p>" +
         (ms.length ? '<label class="pd-chk"><input type="checkbox" id="f-menus" checked><span>지도에 등록된 메뉴·가격 ' + ms.length + "개를 글에 쓰기</span></label>" +
           '<p class="cm-cap">' + ms.slice(0, 8).map(function (m) { return "· " + esc(m.name) + " " + esc(m.price); }).join("<br>") + (ms.length > 8 ? "<br>외 " + (ms.length - 8) + "개" : "") + "</p>" : $("f-kind") && +$("f-kind").value === 0 ? '<p class="cm-cap">지도에 등록된 메뉴는 찾지 못했어요.</p>' : "") +
-        '<p class="cm-cap">다른 가게가 나왔으면 이름 앞에 지역을 붙여 다시 찾아 주세요. 아래 “가게 정보 직접 적기”에서 고칠 수 있어요.</p></div>';
+        '<p class="cm-cap">다른 가게면 이름 앞에 지역을 붙여 다시 찾기</p></div>';
     }
     async function findPlace(quiet, pid) {
       var q = $("f-shop").value.trim(), say = function (t, e) { msg($("nmsg"), t, e); };
@@ -456,7 +458,7 @@
       $("st-on").textContent = st ? "· 학습됨 (" + [st.n ? "글 " + st.n + "편" : "", st.fixN ? "고친 글 " + st.fixN + "편 비교" : "", st.refN ? "잘 쓴 글 " + st.refN + "편" : ""].filter(Boolean).join(", ") + ")" : "";
       $("st-off").hidden = !st;
       $("st-go").textContent = st && st.n ? "📚 다시 학습하기 (새 글로 바꿈)" : "📚 학습하기";
-      $("st-now").innerHTML = (st && st.fix ? '<div class="pd-place"><b>✅ 발행한 글 ' + st.fixN + '편과 비교해 배운 점</b><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.fix) + '</p><p class="cm-cap">초안을 열면 아래쪽 “📝 발행한 글로 학습”에서 더 쌓을 수 있어요.</p><div><button class="pd-quiet" type="button" id="st-fixoff">배운 점만 지우기</button></div></div>' : "") +
+      $("st-now").innerHTML = (st && st.fix ? '<div class="pd-place"><b>✅ 발행한 글 ' + st.fixN + '편과 비교해 배운 점</b><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.fix) + '</p><div><button class="pd-quiet" type="button" id="st-fixoff">배운 점만 지우기</button></div></div>' : "") +
         (st && !st.n ? "" : !st ? "" : '<div class="pd-place"><b>✅ 글 ' + st.n + "편을 학습했어요</b>" + (st.titles && st.titles.length ? '<p class="cm-cap">' + st.titles.map(function (t) { return "· " + esc(t); }).join("<br>") + "</p>" : "") +
         '<details><summary class="cm-cap">AI가 정리한 내 글쓰기 습관 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.guide) + "</p></details></div>") +
         (st && st.ref ? '<div class="pd-place"><b>🌟 잘 쓴 글 ' + st.refN + '편에서 배운 기법</b><details><summary class="cm-cap">배운 기법 보기</summary><p class="cm-cap" style="white-space:pre-wrap">' + esc(st.ref) + '</p></details><div><button class="pd-quiet" type="button" id="st-refoff">이것만 지우기</button></div></div>' : "");
@@ -745,7 +747,7 @@
         var t = ta.value, bs = blankList(t);
         if (!bs.length) { box.innerHTML = /\[\[\s*✍/.test(d.body || "") ? '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기</h2><p class="cm-msg">빈칸을 다 채웠어요. 💾 고친 글 저장을 눌러 주세요.</p></div>' : ""; return; }
         box.innerHTML = '<div class="cm-card pd-card pd-blanks"><h2 class="cm-h3">✍ 빈칸 채우기 <span class="cm-cap">' + bs.length + "곳 남음</span></h2>" +
-          '<p class="cm-cap">직접 먹어 보고 느낀 자리예요. 맞는 걸 누르거나, 내 말로 적고 ‘넣기’를 눌러요. 고르면 본문에 바로 들어가요.</p>' +
+          '<p class="cm-cap">고르거나 직접 적고 ‘넣기’</p>' +
           bs.map(function (b, i) {
             return '<div class="pd-blank" data-i="' + i + '"><div class="pd-bh"><b>' + esc(b.hint) + '</b> <button class="cm-link" type="button" data-see="' + i + '">본문에서 보기</button></div>' +
               '<p class="cm-cap pd-ctx">' + esc(around(t, b)) + "</p>" +
@@ -777,7 +779,7 @@
         mbox.innerHTML = '<div class="cm-card pd-card"><h2 class="cm-h3">🎯 미션 확인 <span class="cm-cap">' + ok + "/" + rows.length + " 자동 통과</span></h2>" +
           '<ul class="pd-mc">' + rows.map(function (r) { return "<li>" + (r[0] ? "✅" : "❌") + " " + esc(r[1]) + "</li>"; }).join("") + "</ul>" +
           ((mc.etc || []).length ? '<p class="cm-cap">직접 확인할 것 (했으면 체크)</p>' + mc.etc.map(function (x, i) { return '<label class="pd-chk"><input type="checkbox" data-etc="' + i + '"' + (etcDone[i] ? " checked" : "") + "><span>" + esc(x) + "</span></label>"; }).join("") : "") +
-          '<p class="cm-cap">안내문에서 AI가 뽑은 조건이에요. 빠진 게 있으면 안내문도 한 번 더 봐 주세요.</p></div>';
+          '<p class="cm-cap">AI가 뽑은 조건 · 안내문도 한 번 확인</p></div>';
         mbox.querySelectorAll("[data-etc]").forEach(function (c) { c.addEventListener("change", function () { etcDone[c.dataset.etc] = c.checked; save(ek, etcDone); }); });
       }
       var tm = 0;
@@ -791,7 +793,7 @@
       main.innerHTML = HEAD +
         '<div class="cm-card pd-card"><div class="pd-acts"><button class="cm-btn" type="button" id="back">← 보관함</button></div>' +
         '<h2 class="cm-h3">🎁 ' + esc(d.title || "협찬 사진") + '</h2>' +
-        '<p class="cm-cap">협찬 글이라 폰에서는 글을 만들지 않았어요. 사진 ' + d.photos + "장이 PC로 넘어가요. PC 📸 본문 작성 창 맨 위 📱 폰 초안에서 불러오면 확장 프로그램이 캠페인 양식에 맞춰 써요.</p>" +
+        '<p class="cm-cap">🎁 협찬 · 사진 ' + d.photos + "장만 PC로 · PC 📱 폰 초안에서 불러오기</p>" +
         (miss.length ? '<p class="cm-msg err" role="alert">사진 ' + miss.length + "장(" + miss.join(", ") + "번)이 아직 안 올라갔어요.</p>" + (mine ? '<div class="pd-acts"><button class="cm-btn" type="button" id="reup">사진 다시 올리기</button></div>' : "") : "") +
         '<div id="dmsg"></div>' +
         '<div class="pd-acts"><button class="cm-btn danger" type="button" id="d-del">지우기</button></div>' +
@@ -823,7 +825,7 @@
         (note ? '<p class="cm-msg err" role="alert">' + esc(note) + "</p>" : "") +
         (miss.length ? '<p class="cm-msg err" role="alert">사진 ' + d.photos + "장 중 " + miss.length + "장(" + miss.join(", ") + "번)이 아직 안 올라갔어요." + (why ? " (이유: " + esc(why) + ")" : "") + "</p>" +
           '<div class="pd-acts">' + (mine ? '<button class="cm-btn" type="button" id="reup">사진 다시 올리기</button>' : "") + '<label class="cm-btn pd-re"><input type="file" id="repick" accept="image/*" multiple>빠진 사진 ' + miss.length + "장 다시 고르기</label></div>" +
-          '<p class="cm-cap">다시 고를 때는 빠진 사진 ' + miss.length + "장만 골라 주세요. 고른 순서대로 " + miss.join(", ") + "번 자리에 들어가요.</p>" : "") +
+          '<p class="cm-cap">빠진 사진 ' + miss.length + "장만 다시 고르기 → " + miss.join(", ") + "번 자리</p>" : "") +
         (cut ? '<p class="cm-msg">글이 길어 끝이 잘렸을 수 있어요. 분량을 줄여 다시 만들어 보세요.</p>' : "") +
         (need ? '<p class="cm-msg">“(확인 필요)”·“(직접 느낀 점 입력)”·✍ 표시가 ' + need + "곳 있어요. 여기서 고치거나 PC에서 넣은 뒤 채워 주세요.</p>" : "") +
         (titles ? '<div class="cm-field"><span>제목 후보 (누르면 골라져요)</span><div class="pd-titles">' + titles + "</div></div>" : "") +
@@ -837,12 +839,12 @@
         '<p class="cm-cap">' + when(d.created) + " 만듦 · 사진 " + d.photos + "장 · " + left(d.expires) + (d.pc ? " · PC로 가져감 (" + when(d.pc) + ")" : "") + "</p></div>" +
         (d.status === "done" ? thumbCard(d) : "") +
         (d.status === "done" ? '<div class="cm-card pd-card"><h2 class="cm-h3">📝 발행한 글로 학습' + (d.meta && d.meta.learned ? ' <span class="cm-cap">· 학습함</span>' : "") + '</h2>' +
-          '<p class="cm-cap">이 초안을 고쳐서 블로그에 발행했으면 그 글 주소를 넣어 주세요. AI가 처음 쓴 글과 내가 발행한 글을 비교해서, 내가 지운 것·더한 것·바꾼 말투를 배워요. 다음 초안부터는 처음부터 그렇게 써요. 할수록 쌓여요.</p>' +
+          '<p class="cm-cap">발행한 글 주소 → 내가 고친 점 학습 · 할수록 쌓여요</p>' +
           '<input class="cm-input" id="lr-url" inputmode="url" autocomplete="off" placeholder="https://blog.naver.com/아이디/글번호">' +
           '<details class="pd-more"><summary>예약·비공개 글이면 내용 붙여넣기</summary><div><textarea class="cm-input" id="lr-text" maxlength="12000" style="min-height:110px" placeholder="에디터에서 고친 최종 본문을 전체 복사해 붙여넣어 주세요"></textarea></div></details>' +
           '<div class="pd-acts"><button class="cm-btn" type="button" id="lr-go">📝 비교해서 학습하기</button></div><div id="lr-msg"></div><div id="lr-out"></div></div>' : "") +
         '<div class="cm-card pd-card"><h2 class="cm-h3">PC에서 불러오기</h2><ol class="pd-steps"><li>PC 크롬에서 네이버 블로그 글쓰기 화면을 열어요.</li><li>📸 본문 작성 창에서 “📱 폰 초안”을 눌러 이 초안을 골라요.</li><li>사진과 글이 순서대로 들어가면 확인하고 예약 발행해요. 썸네일을 만들어 뒀으면 글 맨 앞에 같이 들어가요.</li></ol>' +
-        '<p class="cm-cap">확장 프로그램이 없으면 “📋 글 복사”로 글만 가져가고 사진은 직접 올려 주세요.</p></div>';
+        '<p class="cm-cap">확장 없으면 “📋 글 복사” + 사진은 직접</p></div>';
       top();
       $("back").addEventListener("click", home);
       main.querySelectorAll("[data-t]").forEach(function (b) { b.addEventListener("click", function () {
@@ -1107,7 +1109,7 @@
         '<h2 class="cm-h3">🖼 썸네일 만들기</h2>' +
         '<div class="th-stage"><canvas id="th-cv" width="' + TSZ + '" height="' + TSZ + '" aria-label="썸네일 미리 보기"></canvas></div>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="th-undo" disabled>↩ 되돌리기</button><button class="cm-btn" type="button" id="th-redo" disabled>↪ 다시 하기</button><button class="cm-btn" type="button" id="th-auto">✨ 자동으로 만들기</button></div>' +
-        '<p class="cm-cap">글자·꾸미기는 손가락으로 끌어 옮겨요. 빈 곳을 끌면 배경 사진이 움직이고, 두 손가락을 벌리면 커져요.</p>' +
+        '<p class="cm-cap">끌어서 옮기기 · 두 손가락으로 크기</p>' +
         '<div class="cm-field"><span>사진을 누르면</span><div class="th-mode"><button type="button" class="cm-btn" data-mode="bg" aria-pressed="true">배경으로</button><button type="button" class="cm-btn" data-mode="stk" aria-pressed="false">✂ 누끼 스티커로</button></div><div class="th-strip" id="th-strip"></div></div>' +
         '<label class="th-r"><span>배경 확대</span><input type="range" id="th-zoom" min="1" max="3" step="0.02" value="1"></label>' +
         '<label class="th-r"><span>배경 어둡게</span><input type="range" id="th-dim" min="0" max="0.6" step="0.02" value="0"></label>' +
@@ -1124,14 +1126,14 @@
           '<div id="th-fixer" class="th-fixer" hidden><p class="cm-cap">사진에서 <b>넣을 곳</b>을 누르면 그 물건을 잡고, <b>빼기</b>를 고른 뒤 누르면 그 부분을 빼요. 초록색이 오려질 곳이에요.</p>' +
             '<div class="th-fixcv"><canvas id="th-fcv"></canvas></div>' +
             '<div class="th-mode"><button type="button" class="cm-btn" data-fx="1" aria-pressed="true">＋ 넣기</button><button type="button" class="cm-btn" data-fx="0" aria-pressed="false">－ 빼기</button><button type="button" class="cm-btn" id="th-fx0">처음으로</button><button type="button" class="cm-btn pri" id="th-fxok">다 됐어요</button></div><div id="th-fxmsg"></div></div>' +
-          '<label class="th-r"><span>오릴 범위</span><input type="range" id="th-adj" min="-10" max="10" step="1"></label><p class="cm-cap">누끼가 덜 잡히면 범위를 넓히고, 배경까지 잡히면 좁혀 주세요. 잘 안 되는 사진은 동그라미가 깔끔해요.</p></div>' +
+          '<label class="th-r"><span>오릴 범위</span><input type="range" id="th-adj" min="-10" max="10" step="1"></label><p class="cm-cap">덜 잡히면 넓게 · 배경까지 잡히면 좁게</p></div>' +
           '<label class="th-r"><span>크기</span><input type="range" id="th-size" min="40" max="420" step="2"></label>' +
           '<label class="th-r"><span>기울기</span><input type="range" id="th-rot" min="-30" max="30" step="1"></label>' +
           '<div class="pd-acts"><button class="cm-btn danger" type="button" id="th-rm">이것 지우기</button></div>' +
         "</div>" +
         '<div id="th-msg"></div>' +
         '<div class="pd-acts"><button class="cm-btn pri grow" type="button" id="th-save">💾 썸네일 저장</button><button class="cm-btn" type="button" id="th-dl">📥 폰에 사진으로 저장</button></div>' +
-        '<p class="cm-cap">저장하면 PC에서 이 초안을 불러올 때 글 맨 앞에 썸네일이 같이 들어가요. 누끼는 이 폰 안에서 AI가 따요(사진은 서버로 안 가요). 처음 한 번은 AI 모델(약 20MB)을 받느라 오래 걸리고, 못 쓰는 폰에서는 색으로 찾는 방식으로 따요.</p></div>';
+        '<p class="cm-cap">저장 → PC 글 맨 앞에 들어가요 · 첫 누끼는 모델(약 20MB) 받느라 느려요</p></div>';
       top();
       var cv = $("th-cv"), ctx = cv.getContext("2d"), tm = $("th-msg"), raf = 0;
       function draw() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; if ($("th-cv") === cv) tRender(ctx, T, T.sel); }); }
@@ -1422,7 +1424,7 @@
     function thumbCard(d) {
       return '<div class="cm-card pd-card"><h2 class="cm-h3">🖼 썸네일</h2><div id="th-now"></div>' +
         '<div class="pd-acts"><button class="cm-btn" type="button" id="th-open">' + (d.thumb ? "썸네일 다시 만들기" : "썸네일 만들기") + "</button>" + (d.thumb ? '<button class="pd-quiet" type="button" id="th-del">썸네일 지우기</button>' : "") + "</div>" +
-        '<p class="cm-cap">' + (d.thumb ? "PC에서 이 초안을 불러오면 글 맨 앞에 같이 들어가요." : "사진 한 장에 제목 글자를 올려 정사각형 썸네일을 만들어요. PC에서 불러올 때 글 맨 앞에 같이 들어가요.") + "</p></div>";
+        '<p class="cm-cap">' + (d.thumb ? "PC 글 맨 앞에 들어가요" : "사진 + 제목 글자 → 정사각형 썸네일") + "</p></div>";
     }
     function bindThumb(d, miss) {
       $("th-open").addEventListener("click", function () {
@@ -1444,7 +1446,7 @@
     function keyCard() {
       var k = L.pcKey;
       return '<div class="cm-card pd-card"><h2 class="cm-h3">PC 연결 키</h2>' +
-        '<p class="cm-cap">PC 확장 프로그램이 내 초안을 읽을 때 쓰는 열쇠예요. 확장 프로그램의 “📱 폰 초안” 칸에 한 번만 넣으면 돼요. 이 키로는 초안을 읽기만 할 수 있어요.</p>' +
+        '<p class="cm-cap">확장 “📱 폰 초안” 칸에 한 번 넣기 · 읽기 전용</p>' +
         (k ? '<p class="cm-cap">' + when(k.made) + "에 만든 키가 있어요" + (k.used ? " · 마지막 사용 " + when(k.used) : " · 아직 쓴 적 없음") + ".</p>" : "") +
         '<div id="kbox"></div><div class="pd-acts"><button class="cm-btn" type="button" id="k-new">' + (k ? "새 키 만들기 (옛 키는 못 쓰게 돼요)" : "PC 연결 키 만들기") + "</button>" + (k ? '<button class="pd-quiet" type="button" id="k-off">키 없애기</button>' : "") + "</div></div>";
     }
@@ -1452,7 +1454,7 @@
       $("k-new").addEventListener("click", function () {
         api("/draft/key", { act: "new" }).then(function (j) {
           if (!j.ok) { msg($("kbox"), j.error || "만들지 못했어요.", true); return; }
-          $("kbox").innerHTML = '<div class="pd-key"><code id="kval">' + esc(j.key) + '</code><button class="cm-btn pri" type="button" id="k-copy">복사</button></div><p class="cm-cap">이 키는 지금 한 번만 보여 드려요. 복사해서 PC로 보내(카톡 나에게 보내기 등) 확장 프로그램에 붙여 넣어 주세요.</p>';
+          $("kbox").innerHTML = '<div class="pd-key"><code id="kval">' + esc(j.key) + '</code><button class="cm-btn pri" type="button" id="k-copy">복사</button></div><p class="cm-cap">⚠ 지금 한 번만 보여요 · 복사해서 확장에 붙여넣기</p>';
           $("k-copy").addEventListener("click", function () { copy(j.key).then(function (ok) { $("k-copy").textContent = ok ? "복사했어요" : "길게 눌러 복사해 주세요"; }); });
         });
       });
