@@ -72,6 +72,8 @@
   .co-ex { display: flex; flex-wrap: wrap; gap: 6px; }
   .co-ex button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13.5px; color: var(--text); cursor: pointer; }
   .co-ex button:hover { border-color: var(--green); color: var(--green); }
+  .co-ex.mini { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .co-ex.mini button { flex: none; white-space: nowrap; }
   .co-st { font-size: 13px; font-weight: 700; white-space: nowrap; }
   .co-st.ok { color: var(--green); }
   .co-st.off { color: var(--sub); }
@@ -253,7 +255,7 @@
     function drawChat() {
       var box = $("chat"); if (!box) return;
       box.innerHTML = CHAT.list.map(function (m) { return '<div class="co-msg ' + (m.role === "user" ? "user" : "coach") + '">' + esc(m.text) + "</div>"; }).join("");
-      $("ex").style.display = CHAT.list.length ? "none" : "";
+      $("ex").classList.toggle("mini", CHAT.list.length > 0); // 대화가 시작돼도 추천 질문은 한 줄로 남겨 둠 (옆으로 넘겨 보기)
       $("askInfo").textContent = CHAT.left == null ? "" : "오늘 " + CHAT.left + "/" + CHAT.limit + "번 남음";
     }
     function bindAsk() {
